@@ -78,5 +78,5 @@ export default definePlugin({
         }
     ],
     render: ErrorBoundary.wrap(() => <MemberCount />, { noop: true }),
-    renderTooltip: ErrorBoundary.wrap(guild => <MemberCount isTooltip tooltipGuildId={guild.id} />, { noop: true })
+    renderTooltip: ErrorBoundary.wrap(guild => guild != null && <MemberCount isTooltip tooltipGuildId={guild.id} />, { noop: true })
 });
