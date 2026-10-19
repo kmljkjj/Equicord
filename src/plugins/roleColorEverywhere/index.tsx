@@ -223,6 +223,9 @@ export default definePlugin({
     getRoleColor(props: any) {
         try {
             return GuildRoleStore.getRole(props?.guildId, props?.id)?.colorString;
-        } catch (e) { }
+        } catch (e) {
+            new Logger("RoleColorEverywhere").error("Failed to get role color", e);
+            return undefined;
+        }
     }
 });
