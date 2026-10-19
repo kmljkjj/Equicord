@@ -3,10 +3,11 @@ on:
     push:
         branches:
             - main
+    workflow_dispatch:
 
 env:
     FORCE_COLOR: true
-    GITHUB_TOKEN: ${{ secrets.ETOKEN }}
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     REPO: Equicord/Equibored
     USERNAME: GitHub-Actions
 
@@ -61,6 +62,11 @@ jobs:
                   find release -size 0 -delete
                   rm release/package.json
                   rm release/*.map
+
+            - name: Create latest release if missing
+              if: ${{ vars.ACT == 'false' }}
+              run: |
+                  gh release view latest >/dev/null 2>&1 || gh release create latest --title "Latest" --notes "This will always be the latest release"
 
             - name: Upload Equicord Stable
               if: ${{ vars.ACT == 'false' }}
