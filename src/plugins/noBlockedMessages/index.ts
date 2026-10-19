@@ -123,7 +123,7 @@ export default definePlugin({
     // true = keep message
     // false = hide message
     keepSuppressedMessage(userId: string) {
-        const overrideUsers = settings.store.overrideUsers.split(",").map(id => id.trim()).filter(id => id.length > 0);
+        const overrideUsers = (settings.store.overrideUsers ?? "").split(",").map(id => id.trim()).filter(id => id.length > 0);
 
         if (settings.store.defaultHideUsers) {
             // If hidden by default, overriding shows messages as collapsed.
