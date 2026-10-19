@@ -145,11 +145,7 @@ export default definePlugin({
             find: '"Open Playground',
             replacement: {
                 match: /isStaff\(\)\|\|/,
-                replace: "            find: ".useComponentPlaygroundConfigs)()",
-            replacement: {
-                match: /"Revenue".{0,250}getCurrentUser\(\);return/,
                 replace: "$& true||"
-            } true||"
             }
         },
         {
