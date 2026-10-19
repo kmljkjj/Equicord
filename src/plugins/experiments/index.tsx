@@ -21,6 +21,12 @@ const modKey = IS_MAC ? "cmd" : "ctrl";
 const altKey = IS_MAC ? "opt" : "alt";
 
 const settings = definePluginSettings({
+    hideWarningCard: {
+        type: OptionType.BOOLEAN,
+        description: "Hide the warning card shown above the experiment list",
+        default: false,
+        restartNeeded: true
+    },
     toolbarDevMenu: {
         type: OptionType.BOOLEAN,
         description: "Change the Help (?) toolbar button (top right in chat) to Discord's developer menu",
@@ -64,7 +70,7 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,
-                    replace: "$self.WarningCard(),"
+                    replace: "$self.showWarningCard()?$self.WarningCard():null,"
                 },
                 // for some reason the installation id and copy buttons are on
                 // different lines so it looks stupid when the card above is added
@@ -138,12 +144,17 @@ export default definePlugin({
                 {
                     // Allow linking experiments by their label instead of their value.
                     match: /(?<=find\(\i=>)((\i).value===\i)/,
-                    replace: "{return($1)||($self.matchExperiment(arguments[0].url,$2.label))}"
+                    replace: "{return($1)||($self.matchExperiment(arguments[0]?.url,$2?.label))}"
                 }
             ]
         },
     ],
-    matchExperiment(url: string, label: string): boolean {
+    showWarningCard(): boolean {
+        return !settings.store.hideWarningCard;
+    },
+
+    matchExperiment(url?: string, label?: string): boolean {
+        if (typeof url !== "string" || typeof label !== "string") return false;
         const items = url.split("/");
         const labelCleaned = label.replace(/[^a-zA-Z0-9]+/g, "").toLowerCase();
         const urlEndCleaned = items[items.length - 1]?.replace(/[^a-zA-Z0-9]+/g, "").toLowerCase();
