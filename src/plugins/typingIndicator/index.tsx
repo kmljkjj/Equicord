@@ -37,7 +37,7 @@ const enum IndicatorMode {
 
 function getDisplayName(guildId: string, userId: string) {
     const user = UserStore.getUser(userId);
-    return GuildMemberStore.getNick(guildId, userId) ?? (user as any).globalName ?? user.username;
+    return GuildMemberStore.getNick(guildId, userId) ?? (user as any)?.globalName ?? user?.username ?? "Unknown";
 }
 
 function TypingIndicator({ channelId, guildId }: { channelId: string; guildId: string; }) {
