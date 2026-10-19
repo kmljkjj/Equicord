@@ -146,7 +146,7 @@ export default definePlugin({
 
     flux: {
         VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
-            const myId = UserStore.getCurrentUser().id;
+            const myId = UserStore.getCurrentUser()?.id;
 
             for (const state of voiceStates) {
                 const { userId, channelId, guildId } = state;
@@ -247,7 +247,7 @@ export default definePlugin({
             // join time is unknown
             return;
         }
-        if (userId === UserStore.getCurrentUser().id && !settings.store.trackSelf) {
+        if (userId === UserStore.getCurrentUser()?.id && !settings.store.trackSelf) {
             // don't show for self
             return;
         }
@@ -266,7 +266,7 @@ export default definePlugin({
     },
 
     ConnectionTimer: ErrorBoundary.wrap((_: { channelId: string | undefined; }) => {
-        const joinTime = userJoinTimes.get(UserStore.getCurrentUser().id)?.time;
+        const joinTime = userJoinTimes.get(UserStore.getCurrentUser()?.id)?.time;
         const time = useFixedTimer({ initialTime: joinTime });
 
         if (joinTime == null) return null;
