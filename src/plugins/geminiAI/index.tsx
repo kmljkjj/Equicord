@@ -33,7 +33,8 @@ const settings = definePluginSettings({
 });
 
 function checkApiKey(): string | null {
-    if (!settings.store.apiKey) {
+    const { apiKey } = settings.store;
+    if (!apiKey) {
         return "GeminiAI: no API key set. Open Settings > Equicord > GeminiAI and paste your free Gemini API key (aistudio.google.com/apikey).";
     }
     return null;
@@ -42,7 +43,7 @@ function checkApiKey(): string | null {
 async function askGemini(prompt: string, systemInstruction?: string): Promise<string> {
     const { apiKey, model } = settings.store;
 
-    const res = await fetch(GEMINI_API_URL + model + ":generateContent", {
+    const res = await fetch(`${GEMINI_API_URL}${model}:generateContent`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -56,11 +57,13 @@ async function askGemini(prompt: string, systemInstruction?: string): Promise<st
 
     if (!res.ok) {
         const body = await res.text().catch(() => "");
-        throw new Error("Gemini API error " + res.status + (body ? ": " + body.slice(0, 300) : ""));
+        throw new Error(`Gemini API error ${res.status}${body ? `: ${body.slice(0, 300)}` : ""}`);
     }
 
     const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map((part: { text?: string; }) => part?.text ?? "").join("") ?? "";
+    const text = data?.candidates?.[0]?.content?.parts
+        ?.map((part: { text?: string; }) => part?.text ?? "")
+        .join("") ?? "";
     if (!text.trim()) throw new Error("Gemini returned an empty response");
     return text.trim();
 }
@@ -68,34 +71,44 @@ async function askGemini(prompt: string, systemInstruction?: string): Promise<st
 async function runAiTask(channelId: string, task: () => Promise<string>) {
     try {
         const result = await task();
-        sendBotMessage(channelId, { content: result.length > 1900 ? result.slice(0, 1900) + "..." : result });
+        const content = result.length > 1900 ? `${result.slice(0, 1900)}...` : result;
+        sendBotMessage(channelId, { content });
     } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        sendBotMessage(channelId, { content: "GeminiAI error: " + message.slice(0, 400) });
+        sendBotMessage(channelId, { content: `GeminiAI error: ${message.slice(0, 400)}` });
     }
 }
 
 function getMessageContent(message: Message): string {
-    return (message as any)?.content?.trim() ?? "";
+    const { content } = message as Message & { content?: string; };
+    return content?.trim() ?? "";
 }
 
-const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
+const messageCtxPatch: NavContextMenuPatchCallback = (children, props) => {
+    const message = props?.message as Message | undefined;
     if (!message) return;
+
     const content = getMessageContent(message);
     if (!content) return;
 
     const group = findGroupChildrenByChildId("copy-text", children);
     if (!group) return;
 
-    group.splice(group.findIndex(c => c?.props?.id === "copy-text") + 1, 0, (
+    const copyIdx = group.findIndex(c => c?.props?.id === "copy-text");
+    const insertAt = copyIdx === -1 ? group.length : copyIdx + 1;
+
+    group.splice(
+        insertAt,
+        0,
         <Menu.MenuItem
             label="AI Translate"
             id="vc-gemini-translate"
             action={() => runAiTask(message.channel_id, async () => {
                 const keyError = checkApiKey();
                 if (keyError) return keyError;
+                const { targetLanguage } = settings.store;
                 return askGemini(
-                    "Translate the following message to " + settings.store.targetLanguage + ". Output only the translation.\n\n" + content.slice(0, 3000),
+                    `Translate the following message to ${targetLanguage}. Output only the translation.\n\n${content.slice(0, 3000)}`,
                     "You are a translation engine. Output only the translation of the given message, without any explanation."
                 );
             })}
@@ -107,12 +120,12 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
                 const keyError = checkApiKey();
                 if (keyError) return keyError;
                 return askGemini(
-                    "Summarize the following message in one or two short sentences.\n\n" + content.slice(0, 6000),
+                    `Summarize the following message in one or two short sentences.\n\n${content.slice(0, 6000)}`,
                     "You are a summarization engine. Output only the summary, without any explanation."
                 );
             })}
         />
-    ));
+    );
 };
 
 export default definePlugin({
@@ -166,8 +179,9 @@ export default definePlugin({
                 await runAiTask(ctx.channel.id, async () => {
                     const keyError = checkApiKey();
                     if (keyError) return keyError;
+                    const { targetLanguage } = settings.store;
                     return askGemini(
-                        "Translate the following text to " + settings.store.targetLanguage + ". Output only the translation.\n\n" + text.slice(0, 4000),
+                        `Translate the following text to ${targetLanguage}. Output only the translation.\n\n${text.slice(0, 4000)}`,
                         "You are a translation engine. Output only the translation, without any explanation."
                     );
                 });
@@ -176,6 +190,6 @@ export default definePlugin({
     ],
 
     contextMenus: {
-        "message": messageCtxPatch
+        message: messageCtxPatch
     }
 });
