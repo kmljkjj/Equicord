@@ -6,8 +6,11 @@
 
 import { UserAreaButton, UserAreaButtonFactory, UserAreaRenderProps } from "@api/UserArea";
 import { EquicordDevs } from "@utils/constants";
+import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import { MediaEngineStore, React, UserStore, VoiceActions, VoiceStateStore } from "@webpack/common";
+
+const logger = new Logger("MicLoopbackTester");
 
 let loopbackActive = false;
 let selfDeafenedByPlugin = false;
@@ -33,6 +36,7 @@ async function enableLoopback() {
 
         return true;
     } catch (e) {
+        logger.error("Failed to enable mic loopback", e);
         return false;
     }
 }
@@ -46,7 +50,9 @@ async function disableLoopback() {
             await VoiceActions.toggleSelfDeaf();
         }
         selfDeafenedByPlugin = false;
-    } catch (e) { }
+    } catch (e) {
+        logger.error("Failed to disable mic loopback", e);
+    }
 }
 
 function MicLoopbackIcon({ active = false, className = "" }: { active?: boolean; className?: string; }) {
@@ -102,7 +108,7 @@ function MicLoopbackButton({ iconForeground, hideTooltips, nameplate }: UserArea
             tooltipText={hideTooltips ? void 0 : "Mic Test Loopback"}
             icon={<MicLoopbackIcon active={loopbackActive} className={iconForeground} />}
             role="switch"
-            aria-checked={!loopbackActive}
+            aria-checked={loopbackActive}
             redGlow={!loopbackActive}
             plated={nameplate != null}
             onClick={handleToggle}
