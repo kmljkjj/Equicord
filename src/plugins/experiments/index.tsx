@@ -14,7 +14,8 @@ import { Devs, IS_MAC } from "@utils/constants";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { React } from "@webpack/common";
+import { ApplicationCommandInputType } from "@api/Commands";
+import { React, SettingsRouter } from "@webpack/common";
 
 const KbdStyles = findByPropsLazy("key", "combo");
 const modKey = IS_MAC ? "cmd" : "ctrl";
@@ -48,7 +49,17 @@ export default definePlugin({
     ],
 
     isModified: true,
+    dependencies: ["CommandsAPI"],
     settings,
+
+    commands: [
+        {
+            name: "experiments",
+            description: "Open Discord's Experiments page.",
+            inputType: ApplicationCommandInputType.BUILT_IN,
+            execute: () => { SettingsRouter.openUserSettings("Experiments"); }
+        }
+    ],
 
     patches: [
         {
