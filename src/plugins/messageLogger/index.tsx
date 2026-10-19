@@ -704,7 +704,7 @@ export default definePlugin({
                 logEdits,
                 logDeletes,
             } = settings.store;
-            const myId = UserStore.getCurrentUser().id;
+            const myId = UserStore.getCurrentUser()?.id;
 
             return (
                 (ignoreBots && message.author?.bot) ||
