@@ -6,6 +6,7 @@
 
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
+import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import { User } from "@vencord/discord-types";
 import { ToastPosition } from "@vencord/discord-types/enums";
@@ -49,7 +50,7 @@ export default definePlugin({
                         position: ToastPosition.TOP
                     });
             } catch (e) {
-                console.error(e);
+                new Logger("CopyStatusUrls").error("Failed to copy status URL", e);
                 showToast("Error copying URL, check console for more info", "failure", {
                         position: ToastPosition.TOP
                     });

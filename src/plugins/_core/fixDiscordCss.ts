@@ -26,7 +26,11 @@ function cleanSheet(sheet: CSSStyleSheet) {
                 break;
             }
         }
-    } catch (e) { }
+    } catch (e) {
+        // Cross-origin stylesheets throw; ignore those
+        if (e instanceof DOMException && e.name === "SecurityError") return;
+        new Logger("FixDiscordCss").error("Failed to clean stylesheet", e);
+    }
 }
 
 function handleNode(node: Node) {

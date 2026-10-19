@@ -28,7 +28,9 @@ export async function getSettings(): Promise<MLSettings> {
         };
         try {
             await saveSettings(settings);
-        } catch (err) { }
+        } catch (err) {
+            console.error("[MessageLoggerEnhanced] Failed to write default settings", err);
+        }
 
         return settings;
     }
