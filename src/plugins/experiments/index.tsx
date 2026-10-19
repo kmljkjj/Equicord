@@ -4,17 +4,17 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { ApplicationCommandInputType } from "@api/Commands";
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { ErrorCard } from "@components/ErrorCard";
 import { HeadingPrimary, HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
-import { Devs, IS_MAC } from "@utils/constants";
+import { Devs, IS_MAC, IS_WEB } from "@utils/constants";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { ApplicationCommandInputType } from "@api/Commands";
 import { React, SettingsRouter } from "@webpack/common";
 
 const KbdStyles = findByPropsLazy("key", "combo");
@@ -25,8 +25,7 @@ const settings = definePluginSettings({
     hideWarningCard: {
         type: OptionType.BOOLEAN,
         description: "Hide the warning card shown above the experiment list",
-        default: false,
-        restartNeeded: true
+        default: false
     },
     toolbarDevMenu: {
         type: OptionType.BOOLEAN,
@@ -57,7 +56,14 @@ export default definePlugin({
             name: "experiments",
             description: "Open Discord's Experiments page.",
             inputType: ApplicationCommandInputType.BUILT_IN,
-            execute: () => { SettingsRouter.openUserSettings("Experiments"); }
+            execute: () => {
+                try {
+                    SettingsRouter.openUserSettings("Experiments");
+                } catch {
+                    // The Experiments section may not exist yet during boot; open plain settings instead
+                    try { SettingsRouter.openUserSettings(); } catch { /* settings unavailable */ }
+                }
+            }
         }
     ],
 
@@ -106,7 +112,8 @@ export default definePlugin({
             replacement: {
                 match: /(isShown.+?)onClick:\i/,
                 replace: (_, rest) => `${rest}onClick:()=>{}`
-            }
+            },
+            predicate: () => settings.store.toolbarDevMenu
         },
         // Enable experiment embed on sent experiment links
         {
@@ -123,7 +130,7 @@ export default definePlugin({
                 }
             ]
         },
-        // Fix another function which cases crashes with tricky experiment names and the experiment embed
+        // Fix another function which causes crashes with tricky experiment names and the experiment embed
         {
             find: "}getServerAssignment(",
             replacement: {
@@ -135,10 +142,14 @@ export default definePlugin({
         // dev://playground/mana, dev://playground/payments, dev://playground/virtual-currency,
         // dev://playground/nitro, dev://playground/mfa, dev://playground/cms, dev://playground/void
         {
-            find: ".useComponentPlaygroundConfigs)()",
+            find: '"Open Playground',
+            replacement: {
+                match: /isStaff\(\)\|\|/,
+                replace: "            find: ".useComponentPlaygroundConfigs)()",
             replacement: {
                 match: /"Revenue".{0,250}getCurrentUser\(\);return/,
                 replace: "$& true||"
+            } true||"
             }
         },
         {
@@ -173,16 +184,28 @@ export default definePlugin({
     },
 
     settingsAboutComponent: () => {
-        return (
-            <React.Fragment>
-                <HeadingSecondary>More Information</HeadingSecondary>
-                <BaseText size="md">
-                    You can open Discord's DevTools via {" "}
+        let combo: React.ReactNode = `${modKey}+${altKey}+O`;
+        try {
+            if (KbdStyles?.combo && KbdStyles.key) {
+                combo = (
                     <div className={KbdStyles.combo} style={{ display: "inline-flex" }}>
                         <kbd className={KbdStyles.key}>{modKey}</kbd>{" "}
                         <kbd className={KbdStyles.key}>{altKey}</kbd>{" "}
                         <kbd className={KbdStyles.key}>O</kbd>{" "}
                     </div>
+                );
+            }
+        } catch {
+            // kbd combo classes not found; keep plain text fallback
+        }
+
+        return (
+            <React.Fragment>
+                <HeadingSecondary>More Information</HeadingSecondary>
+                <BaseText size="md">
+                    {IS_WEB
+                        ? "You are running the web version. Use your browser's developer tools (F12) to inspect the Discord page."
+                        : <>You can open Discord's DevTools via {" "}{combo}</>}
                 </BaseText>
             </React.Fragment>
         );
@@ -205,6 +228,12 @@ export default definePlugin({
             <Paragraph className={Margins.top8}>
                 No, you cannot use server-side features like checking the "Send to Client" box.
             </Paragraph>
+
+            {IS_WEB && (
+                <Paragraph className={Margins.top8}>
+                    Note: you are using the web version. Many desktop-only experiments have no effect here.
+                </Paragraph>
+            )}
         </ErrorCard>
     ), { noop: true })
 });
