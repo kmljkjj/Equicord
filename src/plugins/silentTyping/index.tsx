@@ -400,7 +400,7 @@ export default definePlugin({
                 return;
             }
 
-            if (state.userId !== UserStore.getCurrentUser().id) {
+            if (state.userId !== UserStore.getCurrentUser()?.id) {
                 return;
             }
 
@@ -414,7 +414,7 @@ export default definePlugin({
         },
 
         MESSAGE_CREATE({ message }) {
-            if (message.author.id === UserStore.getCurrentUser().id) {
+            if (message.author.id === UserStore.getCurrentUser()?.id) {
                 const threshold = message.guild_id
                     ? settings.store.temporaryEnableThresholdServers
                     : settings.store.temporaryEnableThresholdDirectMessages;
