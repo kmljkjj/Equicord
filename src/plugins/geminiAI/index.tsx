@@ -1,5 +1,5 @@
 /*
- * Equicord, a Discord client mod
+ * Vencord, a Discord client mod
  * Copyright (c) 2026 kmljkjj and contributors
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -95,9 +95,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
                 const keyError = checkApiKey();
                 if (keyError) return keyError;
                 return askGemini(
-                    "Translate the following message to " + settings.store.targetLanguage + ". Output only the translation.
-
-" + content.slice(0, 3000),
+                    "Translate the following message to " + settings.store.targetLanguage + ". Output only the translation.\n\n" + content.slice(0, 3000),
                     "You are a translation engine. Output only the translation of the given message, without any explanation."
                 );
             })}
@@ -109,9 +107,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
                 const keyError = checkApiKey();
                 if (keyError) return keyError;
                 return askGemini(
-                    "Summarize the following message in one or two short sentences.
-
-" + content.slice(0, 6000),
+                    "Summarize the following message in one or two short sentences.\n\n" + content.slice(0, 6000),
                     "You are a summarization engine. Output only the summary, without any explanation."
                 );
             })}
@@ -171,9 +167,7 @@ export default definePlugin({
                     const keyError = checkApiKey();
                     if (keyError) return keyError;
                     return askGemini(
-                        "Translate the following text to " + settings.store.targetLanguage + ". Output only the translation.
-
-" + text.slice(0, 4000),
+                        "Translate the following text to " + settings.store.targetLanguage + ". Output only the translation.\n\n" + text.slice(0, 4000),
                         "You are a translation engine. Output only the translation, without any explanation."
                     );
                 });
