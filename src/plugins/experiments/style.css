@@ -88,8 +88,8 @@
     font-size: 13px;
     font-weight: 500;
     color: var(--text-normal, inherit);
-    background: var(--background-modifier-normal, rgba(128, 128, 128, 0.08));
-    border: 1px solid var(--border-faint, rgba(128, 128, 128, 0.15));
+    background: var(--background-modifier-normal, rgb(128 128 128 / 8%));
+    border: 1px solid var(--border-faint, rgb(128 128 128 / 15%));
     cursor: pointer;
     transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -118,7 +118,7 @@ input[placeholder="Search experiments"] {
 }
 
 input[placeholder="Search experiments"]:hover {
-    border-color: var(--border-strong, var(--border-faint, rgba(128, 128, 128, 0.35)));
+    border-color: var(--border-strong, var(--border-faint, rgb(128 128 128 / 35%)));
 }
 
 input[placeholder="Search experiments"]:focus {
