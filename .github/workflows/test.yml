@@ -77,6 +77,9 @@ jobs:
                   diff /tmp/asar-hashes-first /tmp/asar-hashes-second
                   echo "asar archives are byte-identical across builds"
 
+            - name: Test archive validator
+              run: node --test scripts/validateDist.test.mjs
+
             - name: Validate dist archives
               run: pnpm validate-dist
 

@@ -35,9 +35,9 @@
  * could be validated at all (e.g. the script is run before building).
  */
 
-import { extractFile, listPackage } from "@electron/asar";
+import { extractFile, listPackage, statFile } from "@electron/asar";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 /**
@@ -94,7 +94,8 @@ async function validateTarget(target) {
 
     const entries = listPackage(target.asar, { isPack: false })
         .map(normalizeEntry);
-    const entrySet = new Set(entries);
+    const files = entries.filter(entry => !("files" in statFile(target.asar, entry)));
+    const entrySet = new Set(files);
 
     for (const required of target.required) {
         if (!entrySet.has(required)) {
@@ -124,8 +125,7 @@ async function validateTarget(target) {
         return;
     }
 
-    for (const entry of entries) {
-        if (entry.endsWith("/")) continue;
+    for (const entry of files) {
         try {
             if (extractFile(target.asar, entry).length === 0) {
                 fail(target.name, `archived file "${entry}" is empty`);
@@ -144,8 +144,15 @@ async function validateTarget(target) {
             return;
         }
 
-        for (const entry of entries) {
-            if (entry.endsWith("/")) continue;
+        const omitted = readdirSync(target.dir, { recursive: true })
+            .map(entry => String(entry).replaceAll("\\", "/"))
+            .filter(entry => statSync(join(target.dir, entry)).isFile() && !entrySet.has(entry));
+        if (omitted.length !== 0) {
+            fail(target.name, `source files missing from the archive: ${omitted.join(", ")}`);
+            return;
+        }
+
+        for (const entry of files) {
             const archivedHash = sha256(extractFile(target.asar, entry));
             const diskHash = sha256(readFileSync(join(target.dir, entry)));
             if (archivedHash !== diskHash) {
