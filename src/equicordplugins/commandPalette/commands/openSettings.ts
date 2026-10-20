@@ -33,8 +33,7 @@ export const DISCORD_SETTINGS_ROUTES: SettingsRoute[] = [
     { route: "equicord_plugins", label: "Equicord Plugins", keywords: ["plugins"] },
     { route: "equicord_themes", label: "Equicord Themes", keywords: ["themes", "css"] },
     { route: "equicord_updater", label: "Equicord Updater", keywords: ["update"] },
-    { route: "equicord_changelog", label: "Equicord Changelog", keywo
-rds: ["changelog", "news"] }
+    { route: "equicord_changelog", label: "Equicord Changelog", keywords: ["changelog", "news"] }
 ];
 
 const ROUTE_ALIASES = new Map<string, string[]>([
@@ -87,8 +86,7 @@ function resolveRouteCandidates(route: string): string[] {
     const seen = new Set<string>();
     const unique: string[] = [];
 
-    for (const candidate of [canonical, ...aliases
-, normalized]) {
+    for (const candidate of [canonical, ...aliases, normalized]) {
         const base = normalizeRoute(candidate);
         if (!base) continue;
 

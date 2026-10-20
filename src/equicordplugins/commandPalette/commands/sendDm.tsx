@@ -55,8 +55,7 @@ export const sendDmCommand: PaletteCommand = {
     keywords: ["dm", "message", "send", "direct message"],
     icon: SendIcon,
     page: () => ({
-        t
-itle: "Send DM",
+        title: "Send DM",
         icon: SendIcon,
         spec: {
             type: "form",

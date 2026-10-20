@@ -59,7 +59,6 @@ function copyProfileColors(userId: string, guildId?: string) {
 export function ColorIcon() {
     return (
         <svg
-
             viewBox="0 0 24 24"
             width="20"
             height="20"
@@ -109,7 +108,6 @@ export default definePlugin({
     authors: [EquicordDevs.Crxa, EquicordDevs.Cortex, EquicordDevs.Gir0fa],
     contextMenus: {
         "user-context": userContextMenuPatch,
-        "user-profile-actions"
-: userContextMenuPatch
+        "user-profile-actions": userContextMenuPatch
     }
 });

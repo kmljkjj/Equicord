@@ -56,8 +56,7 @@ export default definePlugin({
                     variant: "critical",
                     position: "top"
                 });
-  
-          }
+            }
         };
     }
 });

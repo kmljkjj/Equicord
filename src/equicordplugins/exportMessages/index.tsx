@@ -53,8 +53,7 @@ function formatMessage(message: Message) {
         content += "\n  Embeds:";
         message.embeds.forEach(embed => {
             if (embed.rawTitle) content += `\n    Title: ${embed.rawTitle}`;
-            if (embed.rawDescription) content += `\n    Description: ${embed.rawDescription
-}`;
+            if (embed.rawDescription) content += `\n    Description: ${embed.rawDescription}`;
             if (embed.url) content += `\n    URL: ${embed.url}`;
         });
     }
@@ -123,7 +122,6 @@ const messageContextMenuPatch = (children: Array<React.ReactElement<any> | null>
 // 1 is friends added
 // 2 is blocked users
 // 3 is incoming friend requests
-
 // 4 is outgoing friend requests
 function getUsernames(contacts: ContactsList[], type: number): string[] {
     return contacts
@@ -171,8 +169,7 @@ export default definePlugin({
     },
     addExportButton() {
         return <ErrorBoundary noop key=".2">
-            <button className="export-contacts-button" onClick={() => { this.copyContactToClipboard(); console.log("clicked"); }}>Expo
-rt</button>
+            <button className="export-contacts-button" onClick={() => { this.copyContactToClipboard(); console.log("clicked"); }}>Export</button>
         </ErrorBoundary>;
     },
     copyContactToClipboard() {

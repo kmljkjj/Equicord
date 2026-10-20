@@ -60,8 +60,7 @@ function canCreateInvite(channel?: Channel | null): channel is Channel {
     return PermissionStore.can(PermissionsBits.CREATE_INSTANT_INVITE, channel);
 }
 
-function appendInv
-iteCandidate(candidates: Map<string, Channel>, channel?: Channel | null) {
+function appendInviteCandidate(candidates: Map<string, Channel>, channel?: Channel | null) {
     if (!channel || !channel.guild_id || candidates.has(channel.id)) return;
     candidates.set(channel.id, channel);
 }
@@ -107,8 +106,7 @@ async function fetchReusableInvite(guildId: string, inviteChannelId: string) {
 
     try {
         const { body } = await RestAPI.get({ url: `/channels/${inviteChannelId}/invites` });
-        if (!Array.isArray(body)) return { ok: false as const, reason: "fa
-iled" as const };
+        if (!Array.isArray(body)) return { ok: false as const, reason: "failed" as const };
 
         const now = Date.now();
         const invite = body.find(inv => {
@@ -160,8 +158,7 @@ export async function createInvite(guildId: string, currentChannel: Channel, set
         const { body } = await RestAPI.post({
             url: `/channels/${inviteChannel.id}/invites`,
             body: {
-                max_ag
-e: maxAge,
+                max_age: maxAge,
                 max_uses: maxUses,
                 temporary: settings.inviteTemporaryMembership,
                 unique: true,

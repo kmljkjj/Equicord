@@ -56,8 +56,7 @@ function SoundIdInput() {
         <div className={cl("input-row")}>
             <div className={cl("input-wrapper")}>
                 <TextInput
-  
-                  value={soundId}
+                    value={soundId}
                     onChange={v => settings.store.soundId = v}
                     placeholder="Enter sound ID..."
                 />
@@ -120,8 +119,7 @@ export default definePlugin({
         }
     ],
     async onDisconnect() {
-        const { soundGuildId, soundId
- } = settings.store;
+        const { soundGuildId, soundId } = settings.store;
         if (!soundGuildId || !soundId || MediaEngineStore.isDeaf()) return;
 
         const voiceId = SelectedChannelStore.getVoiceChannelId();

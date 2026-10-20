@@ -29,8 +29,7 @@ type DragifyRuntime = {
     onUserDragStart(event: DragEvent, user?: { id: string; userId?: string; user?: { id: string; }; }): void;
     onChannelDragStart(event: DragEvent, channel?: ChannelTarget): void;
     onDmDragStart(event: DragEvent, channel?: Channel | null): void;
-    onGuildDragStart(event: DragEvent, guildId: s
-tring): void;
+    onGuildDragStart(event: DragEvent, guildId: string): void;
     beginDrag(event: DragEvent, entity: DropEntity, options?: { effectAllowed?: DataTransfer["effectAllowed"]; }): void;
     showGhost(entity: DropEntity, event?: DragEvent): void;
     getDmRecipientId(channel?: Channel | null): string | null;
@@ -88,7 +87,6 @@ function inspectDragTarget(event: DragEvent, runtime: Pick<DragifyRuntime, "getD
 
 const settings = definePluginSettings({
     userOutput: {
-
         type: OptionType.SELECT,
         description: "User drop output.",
         options: [
@@ -149,8 +147,7 @@ const settings = definePluginSettings({
 });
 
 export default definePlugin({
-    name
-: "Dragify",
+    name: "Dragify",
     description: "Drop users, channels, or servers into chat to insert mentions or invites.",
     tags: ["Chat", "Servers", "Utility", "Voice"],
     authors: [EquicordDevs.justjxke],
@@ -191,7 +188,6 @@ export default definePlugin({
         // Thread rows in channel list (threaded child rows)
         // (handled by __invalid_threadMainContent patch)
         // Channel list items (modern list wrapper)
-
         {
             find: "shouldShowThreadsPopout",
             replacement: {
@@ -231,7 +227,6 @@ export default definePlugin({
                 replace: "draggable:!0,onDragStart:e=>$self.onUserDragStart(e,{id:arguments[0].participantUserId}),\"data-dragify-user\":!0,\"data-user-id\":arguments[0].participantUserId,$&"
             }
         },
-
         // DM list entries (private channel rows)
         {
             find: "PrivateChannel.renderAvatar: Invalid prop configuration - no user or channel",
@@ -281,8 +276,7 @@ export default definePlugin({
         await this.handleDropEntity(entity, resolvedChannel);
     },
 
- 
-   async handleDropEntity(entity: DropEntity, channel: Channel) {
+    async handleDropEntity(entity: DropEntity, channel: Channel) {
         try {
             const text = await this.buildText(entity, channel);
             if (!text) {
@@ -332,7 +326,6 @@ export default definePlugin({
     insertText(channelId: string, text: string, options?: { removeUnknownUser?: boolean; }): boolean {
         try {
             const nextText = options?.removeUnknownUser
-
                 ? text.replace(/@unknown[- ]user/gi, "").trim()
                 : text;
             if (!nextText) return false;
@@ -384,8 +377,7 @@ export default definePlugin({
         });
     },
 
-    onUserDragStart(event: DragEvent, user?: { id: string; userId?: s
-tring; user?: { id: string; }; }) {
+    onUserDragStart(event: DragEvent, user?: { id: string; userId?: string; user?: { id: string; }; }) {
         const inspection = inspectDragTarget(event, this);
         if (inspection.hasAttachment) return;
 
@@ -438,8 +430,7 @@ tring; user?: { id: string; }; }) {
 
     stop() {
         window.removeEventListener("dragover", this.globalDragOver, true);
-        window.remov
-eEventListener("drop", this.globalDrop, true);
+        window.removeEventListener("drop", this.globalDrop, true);
         window.removeEventListener("dragstart", this.globalDragStart, true);
         window.removeEventListener("drag", this.globalDragMove, true);
         window.removeEventListener("dragover", this.globalDragMove, true);
@@ -488,8 +479,7 @@ eEventListener("drop", this.globalDrop, true);
 
         const channelId = SelectedChannelStore.getChannelId();
         const channel = ChannelStore.getChannel(channelId);
-        if (!channel) 
-{
+        if (!channel) {
             clearDragState();
             hideDragGhost();
             return;
@@ -555,8 +545,7 @@ eEventListener("drop", this.globalDrop, true);
     },
 
     globalDragMove: (event: DragEvent | MouseEvent) => {
-    
-    if (!isGhostVisible()) return;
+        if (!isGhostVisible()) return;
         if (event.clientX == null || event.clientY == null) return;
 
         if (event instanceof DragEvent) {
@@ -608,8 +597,7 @@ eEventListener("drop", this.globalDrop, true);
             const isThread = channel.isThread();
             const isGroupDm = channel.type === ChannelType.GROUP_DM;
             const channelName = this.getGroupDmDisplayName(channel) || channel.name;
-            const title = `${isThread || 
-isGroupDm ? "" : "#"}${channelName}`;
+            const title = `${isThread || isGroupDm ? "" : "#"}${channelName}`;
             const guild = channel.guild_id ? GuildStore.getGuild(channel.guild_id) : null;
             const subtitle = guild?.name ?? (entity.guildId ? "Server" : "Direct Messages");
             let iconUrl: string | undefined;
@@ -652,8 +640,7 @@ isGroupDm ? "" : "#"}${channelName}`;
                     case ChannelType.DM:
                     case ChannelType.GROUP_DM:
                         badge = "dm";
-                        bre
-ak;
+                        break;
                     default:
                         badge = "channel";
                 }

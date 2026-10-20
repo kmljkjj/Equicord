@@ -48,8 +48,7 @@ async function downloadAll(attachments: MessageAttachment[]) {
             res = await fetch(source).catch(() => undefined);
             if (res?.ok) break;
         }
-        if (!res?.ok) throw new Error(res ? `HTTP ${res.status}` : "Network 
-error");
+        if (!res?.ok) throw new Error(res ? `HTTP ${res.status}` : "Network error");
 
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);

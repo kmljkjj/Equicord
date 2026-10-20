@@ -61,7 +61,6 @@ export const discordCommands: PaletteCommand[] = [
         title: "Set Status",
         section: SECTION,
         keywords: ["status", "online", "idle", "dnd", "invisible", "presence"],
-
         icon: CircleIcon,
         page: () => ({
             title: "Set Status",

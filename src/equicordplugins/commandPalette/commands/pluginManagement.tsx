@@ -50,8 +50,7 @@ function togglePlugin(plugin: Plugin) {
     }
 
     pluginSettings.enabled = !wasEnabled;
-    showToast({ text: `${plugin.name} ${wasEnabled ? "disabled" 
-: "enabled"}.`, variant: "success" });
+    showToast({ text: `${plugin.name} ${wasEnabled ? "disabled" : "enabled"}.`, variant: "success" });
 }
 
 function pluginItems(): PaletteListItem[] {
