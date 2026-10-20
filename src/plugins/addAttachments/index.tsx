@@ -5,7 +5,7 @@
  */
 
 import { ChatBarButton } from "@api/ChatButtons";
-import { UploadIcon } from "@components/Icons";
+import { ClockIcon, UploadIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { pluralise } from "@utils/misc";
 import definePlugin from "@utils/types";
@@ -39,17 +39,18 @@ async function addAttachments(channelId: string, messageId: string, existingAtta
     if (files.length + existingAttachmentCount > 10) {
         const remaining = 10 - existingAttachmentCount;
         if (remaining <= 0) {
-            showToast("You cannot add more attachments to this message.", "failure");
+            showToast({ text: "You cannot add more attachments to this message.", variant: "critical" });
             return;
         }
 
-        showToast(`You can only add ${pluralise(remaining, "more attachment")} to this message.`, "failure");
+        showToast({ text: `You can only add ${pluralise(remaining, "more attachment")} to this message.`, variant: "critical" });
         return;
     }
 
-    showToast("Uploading, this can take a while...", "clock");
+    showToast({ text: "Uploading, this can take a while...", icon: ClockIcon, iconColor: "var(--text-default)" });
 
-    const { body: { attachments } } = await RestAPI.post({
+    const { body: { attachme
+nts } } = await RestAPI.post({
         url: `/channels/${channelId}/attachments`,
         body: {
             files: Array.from(files, file => ({
@@ -86,7 +87,7 @@ async function addAttachments(channelId: string, messageId: string, existingAtta
         }
     });
 
-    showToast(`${files.length === 1 ? "Attachment" : "Attachments"} added successfully!`, "success");
+    showToast({ text: `${files.length === 1 ? "Attachment" : "Attachments"} added successfully!`, variant: "success" });
 }
 
 function canAddAttachments(msg: Message) {
@@ -113,7 +114,8 @@ function handlePaste(e: ClipboardEvent) {
 export default definePlugin({
     name: "AddAttachments",
     description: "Allows you to add new attachments while editing messages",
-    authors: [Devs.Lumap],
+    authors: [Devs
+.Lumap],
 
     start() {
         document.addEventListener("paste", handlePaste, { capture: true });
@@ -133,8 +135,6 @@ export default definePlugin({
             return {
                 label: "Add Attachments",
                 icon: UploadIcon,
-                message: msg,
-                channel: ChannelStore.getChannel(msg.channel_id),
                 onClick: () => chooseAttachments(msg.channel_id, msg.id, msg.attachments.length)
             };
         },

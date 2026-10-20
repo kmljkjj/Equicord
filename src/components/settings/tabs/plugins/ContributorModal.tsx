@@ -46,7 +46,8 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: Render
         const pluginsByAuthor = (VencordDevsById[user.id] || EquicordDevsById[user.id])
             ? allPlugins.filter(p => p.authors.includes(VencordDevsById[user.id] || EquicordDevsById[user.id]))
             : allPlugins.filter(p =>
-                PluginMeta[p.name]?.userPlugin && p.authors.some(a => a.id.toString() === user.id)
+                PluginMeta
+[p.name]?.userPlugin && p.authors.some(a => a.id.toString() === user.id)
                 || p.authors.some(a => a.name === user.username)
             );
 
@@ -97,7 +98,8 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: Render
                                 href={`https://${website}`}
                             />
                         )}
-                        {githubName && (
+                        {githubNam
+e && (
                             <GithubButton
                                 text={githubName}
                                 href={`https://github.com/${githubName}`}
@@ -115,7 +117,7 @@ function ContributorModal({ user, modalProps }: { user: User; modalProps: Render
                                 key={p.name}
                                 plugin={p}
                                 disabled={p.required ?? false}
-                                onRestartNeeded={() => showToast("Restart to apply changes!")}
+                                onRestartNeeded={() => showToast({ text: "Restart to apply changes!" })}
                             />
                         )}
                     </div>

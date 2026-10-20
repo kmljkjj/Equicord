@@ -19,7 +19,6 @@ import { HashLink } from "@components/settings/tabs/updater/Components";
 import { Margins } from "@utils/margins";
 import { useAwaiter } from "@utils/react";
 import { getRepo, UpdateLogger } from "@utils/updater";
-import { ToastPosition } from "@vencord/discord-types/enums";
 import { Alerts, React, showToast } from "@webpack/common";
 
 import gitHash from "~git-hash";
@@ -66,6 +65,7 @@ function ChangelogCard({
                     <code className="vc-changelog-entry-hash">
                         <HashLink
                             repo={repo}
+
                             hash={entry.hash}
                             disabled={repoPending}
                         />
@@ -122,6 +122,7 @@ function UpdateLogCard({
                             className="vc-changelog-delete-button"
                             style={{
                                 padding: "4px",
+
                                 color: "var(--status-danger)",
                                 opacity: 0.6,
                                 cursor: "pointer",
@@ -162,7 +163,8 @@ function UpdateLogCard({
                 <div className="vc-changelog-log-content">
                     {log.newPlugins.length > 0 && (
                         <div className="vc-changelog-log-plugins">
-                            <NewPluginsCompact
+                            <NewPlu
+ginsCompact
                                 newPlugins={log.newPlugins}
                                 maxDisplay={50}
                             />
@@ -201,7 +203,8 @@ function UpdateLogCard({
                                             )),
                                     )}
                                 </div>
-                            </div>
+   
+                         </div>
                         )}
 
                     {log.commits.length > 0 && (
@@ -254,7 +257,8 @@ function ChangelogContent() {
     }, []);
 
     React.useEffect(() => {
-        if (repoErr) {
+  
+      if (repoErr) {
             UpdateLogger.error("Failed to retrieve repo", repoErr);
             setError("Failed to retrieve repository information");
         }
@@ -310,7 +314,8 @@ function ChangelogContent() {
     React.useEffect(() => {
         const checkRecentStatus = async () => {
             try {
-                const lastRepoCheck = await getLastRepositoryCheckHash();
+                const lastRepoCheck = await getLastRepositoryChe
+ckHash();
                 const updates = await VencordNative.updater.getUpdates();
 
                 if (updates.ok) {
@@ -353,8 +358,9 @@ function ChangelogContent() {
                 const logged = await ensureLocalUpdateLogged();
                 if (!logged) {
                     setChangelog([]);
-                    showToast("Already up to date with repository", "message", {
-                        position: ToastPosition.BOTTOM,
+                    showToast({
+                        text: "Already up to date with repository",
+                        position: "bottom"
                     });
                 }
                 return;
@@ -364,7 +370,8 @@ function ChangelogContent() {
                 if (updates.value.length > 0) {
                     setChangelog(updates.value);
 
-                    const newPlgs = await getNewPlugins();
+                    const newPlgs = await getNewPlugins()
+;
                     const updatedPlgs = await getUpdatedPlugins();
                     const newSettings = await getNewSettings();
                     setNewPlugins(newPlgs);
@@ -380,16 +387,20 @@ function ChangelogContent() {
                     await loadChangelogHistory();
                     setRecentlyChecked(true);
 
-                    showToast(`Found ${updates.value.length} commit${updates.value.length === 1 ? "" : "s"} from repository`, "success", {
-                        position: ToastPosition.BOTTOM,
+                    showToast({
+                        text: `Found ${updates.value.length} commit${updates.value.length === 1 ? "" : "s"} from repository`,
+                        variant: "success",
+                        position: "bottom"
                     });
                 } else {
                     const logged = await ensureLocalUpdateLogged();
                     setRecentlyChecked(true);
-                    showToast(logged
-                        ? "Logged commits from your latest update"
-                        : "Repository is up to date with your local copy", logged ? "success" : "message", {
-                        position: ToastPosition.BOTTOM,
+                    showToast({
+                        text: logged
+                            ? "Logged commits from your latest update"
+                            : "Repository is up to date with your local copy",
+                        variant: logged ? "success" : "default",
+                        position: "bottom"
                     });
                     if (!logged) {
                         setChangelog([]);
@@ -408,8 +419,11 @@ function ChangelogContent() {
             setError(errorMessage);
 
             // funny little error toast hopefully doesn't happen!
-            showToast("Could not fetch commits from repository", "failure", {
-                position: ToastPosition.BOTTOM,
+       
+     showToast({
+                text: "Could not fetch commits from repository",
+                variant: "critical",
+                position: "bottom"
             });
         } finally {
             setIsLoading(false);
@@ -467,7 +481,8 @@ function ChangelogContent() {
                 <Button
                     size="small"
                     disabled={isLoading || repoPending || !!repoErr}
-                    onClick={fetchChangelog}
+                    onClick={
+fetchChangelog}
                     variant={recentlyChecked ? "positive" : "primary"}
                 >
                     {isLoading
@@ -501,10 +516,13 @@ function ChangelogContent() {
                                         await clearChangelogHistory();
                                         await loadChangelogHistory();
                                         setShowHistory(false);
-                                        showToast("All logs have been cleared", "success", {
-                                            position: ToastPosition.BOTTOM,
+                                        showToast({
+                                            text: "All logs have been cleared",
+                                            variant: "success",
+                                            position: "bottom"
                                         });
-                                    },
+                         
+           },
                                 });
                             }}
                             style={{ marginLeft: "8px" }}
@@ -553,7 +571,8 @@ function ChangelogContent() {
                     </Paragraph>
 
                     {newPlugins.length > 0 && (
-                        <div className={Margins.bottom16}>
+                        <div cl
+assName={Margins.bottom16}>
                             <NewPluginsSection
                                 newPlugins={newPlugins}
                                 onPluginToggle={() => { }}
@@ -595,7 +614,8 @@ function ChangelogContent() {
                     <Divider className={Margins.top20} />
                     <Heading className={Margins.top20}>Recent Changes</Heading>
                     <Paragraph color="text-subtle">
-                        No commits available ahead of your current version. Click "Fetch from Repository" to check for new changes.
+                        No commits available ahead of your current version. Click "Fetch from Repository" to check for new ch
+anges.
                     </Paragraph>
                 </>
             )}
@@ -632,11 +652,14 @@ function ChangelogContent() {
                                             await loadChangelogHistory();
                                             setExpandedLogs(
                                                 new Set(
-                                                    Array.from(expandedLogs).filter(id => id !== logId),
+                 
+                                   Array.from(expandedLogs).filter(id => id !== logId),
                                                 ),
                                             );
-                                            showToast("Log has been cleared", "success", {
-                                                position: ToastPosition.BOTTOM,
+                                            showToast({
+                                                text: "Log has been cleared",
+                                                variant: "success",
+                                                position: "bottom"
                                             });
                                         },
                                     });

@@ -56,7 +56,8 @@ function inferThemeActivationMode(css: string) {
     }
 
     const match = /^@(light|dark)\b/i.exec(text);
-    return match?.[1].toLowerCase() as ThemeActivationMode | undefined;
+    return match?.[1].toLowe
+rCase() as ThemeActivationMode | undefined;
 }
 
 function inferAndStoreThemeActivationMode(themeId: string, css: string) {
@@ -109,7 +110,8 @@ function ThemesTab() {
         if (value) {
             if (settings.enabledThemes.includes(fileName)) return;
             settings.enabledThemes = [...settings.enabledThemes, fileName];
-        } else {
+   
+     } else {
             settings.enabledThemes = settings.enabledThemes.filter(f => f !== fileName);
         }
     }
@@ -169,7 +171,8 @@ function ThemesTab() {
             window.addEventListener("drop", onDrop);
 
             return () => {
-                window.removeEventListener("dragover", onDragOver);
+                win
+dow.removeEventListener("dragover", onDragOver);
                 window.removeEventListener("drop", onDrop);
             };
         }, []);
@@ -220,7 +223,8 @@ function ThemesTab() {
         settings.enabledThemeLinks = settings.enabledThemeLinks.filter(f => f !== themeId);
         settings.themeNames = Object.fromEntries(Object.entries(settings.themeNames).filter(([key]) => key !== themeId));
 
-        const themeActivationModes = { ...(settings.themeActivationModes ?? {}) };
+        const themeActivati
+onModes = { ...(settings.themeActivationModes ?? {}) };
         delete themeActivationModes[themeId];
         settings.themeActivationModes = themeActivationModes;
     }
@@ -263,9 +267,9 @@ function ThemesTab() {
             setOnlineThemes(prev =>
                 prev?.map(t => t.link === link ? updatedTheme : t) ?? null
             );
-            showToast("Theme refreshed!", "success");
+            showToast({ text: "Theme refreshed!", variant: "success" });
         } catch {
-            showToast("Failed to refresh theme", "failure");
+            showToast({ text: "Failed to refresh theme", variant: "critical" });
         }
     }
 
@@ -274,7 +278,8 @@ function ThemesTab() {
             const res = await fetch(link);
             if (!res.ok) throw new Error(`Failed to fetch ${link}`);
             const css = await res.text();
-            const fileName = name.replace(/[^a-z0-9]/gi, "-") + ".css";
+            const fileName = name.replace(/[^a-z0-9
+]/gi, "-") + ".css";
 
             if (IS_DISCORD_DESKTOP) {
                 DiscordNative.fileManager.saveWithDialog(new TextEncoder().encode(css), fileName);
@@ -288,7 +293,7 @@ function ThemesTab() {
                 URL.revokeObjectURL(url);
             }
         } catch {
-            showToast("Failed to download theme", "failure");
+            showToast({ text: "Failed to download theme", variant: "critical" });
         }
     }
 
@@ -327,7 +332,8 @@ function ThemesTab() {
 
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase();
-            themes = themes.filter(t => t.name.toLowerCase().includes(query));
+            themes = themes.filter(t => 
+t.name.toLowerCase().includes(query));
         }
 
         switch (filter) {
@@ -376,7 +382,8 @@ function ThemesTab() {
 
             <Heading>Quick Actions</Heading>
             <Paragraph className={Margins.bottom16}>
-                Shortcuts for managing your themes. Open your themes folder to add new themes, use QuickCSS for quick style tweaks, or reload themes after making changes.
+   
+             Shortcuts for managing your themes. Open your themes folder to add new themes, use QuickCSS for quick style tweaks, or reload themes after making changes.
             </Paragraph>
 
             <QuickActionsSection
@@ -420,7 +427,8 @@ function ThemesTab() {
                 />
                 <div>
                     <Select
-                        options={filterOptions}
+                        options={filter
+Options}
                         select={setFilter}
                         isSelected={v => v === filter}
                         serialize={v => v}
@@ -455,7 +463,8 @@ function ThemesTab() {
                                     }}
                                     showDeleteButton
                                     disabled={onlineThemesDisabled}
-                                    onPin={() => togglePinTheme(onlineTheme.link)}
+                                    onPin={() => togglePinTheme(onlineTheme.link)
+}
                                     isPinned={settings.pinnedThemes.includes(onlineTheme.link)}
                                     themeLink={onlineTheme.link}
                                     onCopyUrl={() => copyWithToast(onlineTheme.link, "Theme URL copied!")}
@@ -486,7 +495,8 @@ function ThemesTab() {
                                     onLocalThemeChange(localTheme.fileName, false);
                                     clearThemeState(localTheme.fileName);
                                     await VencordNative.themes.deleteTheme(localTheme.fileName);
-                                    refreshLocalThemes();
+     
+                               refreshLocalThemes();
                                 }}
                                 showDeleteButton
                                 onPin={() => togglePinTheme(localTheme.fileName)}

@@ -52,7 +52,8 @@ export interface Settings {
     themeActivationModes: Partial<Record<string, ThemeActivationMode>>;
     enableReactDevtools: boolean;
     themeLinks: string[];
-    mainWindowFrameless: boolean;
+    mainWindowF
+rameless: boolean;
     frameless: boolean;
     transparent: boolean;
     winCtrlQ: boolean;
@@ -100,8 +101,6 @@ export interface Settings {
         settingsSync: boolean;
         settingsSyncVersion: number;
     };
-
-    ignoreResetWarning: boolean;
 }
 
 const DefaultSettings: Settings = {
@@ -136,7 +135,8 @@ const DefaultSettings: Settings = {
         timeout: 5000,
         position: "bottom-right",
         useNative: "not-focused",
-        missed: true,
+        
+missed: true,
         logLimit: 50
     },
 
@@ -146,8 +146,6 @@ const DefaultSettings: Settings = {
         settingsSync: false,
         settingsSyncVersion: 0
     },
-
-    ignoreResetWarning: false,
 };
 
 const settings = !IS_REPORTER ? VencordNative.settings.get() : {} as Settings;
@@ -200,7 +198,8 @@ if (!IS_REPORTER) {
 }
 
 /**
- * Same as {@link Settings} but unproxied. You should treat this as readonly,
+ * Same as {@link Settings} but unproxied. You should treat this as rea
+donly,
  * as modifying properties on this will not save to disk or call settings
  * listeners.
  * WARNING: default values specified in plugin.settings will not be ensured here. In other words,
@@ -252,7 +251,8 @@ export function useSettings(paths?: UseSettings<Settings>[]) {
     return SettingsStore.store;
 }
 
-export function migratePluginSettings(name: string, ...oldNames: string[]) {
+export 
+function migratePluginSettings(name: string, ...oldNames: string[]) {
     const { plugins } = SettingsStore.plain;
     if (name in plugins) return;
 
@@ -302,7 +302,8 @@ export function migrateSettingToPlugin(newName: string, oldName: string, setting
     const oldPlugin = plugins[oldName];
 
     if (newPlugin && oldPlugin?.enabled && oldPlugin?.[settingName]) {
-        logger.info(`Migrating setting ${settingName} from ${oldName} to seperate plugin ${newName}`);
+        logger.info(`Migrating setting ${settingName} from ${oldName} to seperate p
+lugin ${newName}`);
         delete oldPlugin[settingName];
         newPlugin.enabled = true;
         SettingsStore.markAsChanged();
@@ -357,6 +358,7 @@ export function definePluginSettings<
     const definedSettings: DefinedSettings<Def, PrivateSettings> = {
         get store() {
             if (!definedSettings.pluginName) throw new Error("Cannot access settings before plugin is initialized");
+
             return Settings.plugins[definedSettings.pluginName] as any;
         },
         get plain() {

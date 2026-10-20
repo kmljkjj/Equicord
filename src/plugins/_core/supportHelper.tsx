@@ -35,7 +35,8 @@ import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { isAnyPluginDev, isEquicordGuild, isEquicordSupport, isSupportChannel, tryOrElse } from "@utils/misc";
 import { relaunch } from "@utils/native";
-import { onlyOnce } from "@utils/onlyOnce";
+import { onlyOnce } from "@util
+s/onlyOnce";
 import { makeCodeblock } from "@utils/text";
 import definePlugin from "@utils/types";
 import { checkForUpdates, isOutdated, update } from "@utils/updater";
@@ -94,7 +95,8 @@ export function detectClient(): clientData {
     };
 
     if (IS_EQUIBOP) {
-        const equibopGitHash = tryOrElse(() => VesktopNative.app.getGitHash?.(), null);
+        const equibopGitHash =
+ tryOrElse(() => VesktopNative.app.getGitHash?.(), null);
         const spoofInfo = tryOrElse(() => VesktopNative.app.getPlatformSpoofInfo?.(), null);
         const isDevBuild = tryOrElse(() => VesktopNative.app.isDevBuild?.(), false);
         const shortHash = equibopGitHash?.slice(0, 7);
@@ -142,7 +144,8 @@ async function generateDebugInfoMessage() {
     const info = {
         Equicord:
             `v${VERSION} • [${gitHashShort}](<https://github.com/Equicord/Equicord/commit/${gitHash}>)` +
-            `${IS_EQUIBOP ? "" : SettingsPlugin.getVersionInfo()} - ${Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(BUILD_TIMESTAMP)}`,
+            `${IS_EQUIBOP ? "" : SettingsPlugin.getVersionInfo()} - ${Intl.DateTimeFormat("en-US", { dateStyle: "med
+ium" }).format(BUILD_TIMESTAMP)}`,
         Client: `${RELEASE_CHANNEL} ~ ${clientString}`,
         Platform: platformDisplay
     };
@@ -183,7 +186,8 @@ async function generateDebugInfoMessage() {
 }
 
 async function uploadPluginListFile(channelId: string, fileContent: string, filename: string) {
-    const file = new File([fileContent], filename, { type: "text/plain" });
+ 
+   const file = new File([fileContent], filename, { type: "text/plain" });
     const upload = new CloudUploader({ file, platform: CloudUploadPlatform.WEB }, channelId);
 
     return new Promise<void>((resolve, reject) => {
@@ -229,7 +233,8 @@ function generatePluginList() {
             body: <div>
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
                     <img src="https://media.tenor.com/QtGqjwBpRzwAAAAi/wumpus-dancing.gif" />
-                </div>
+         
+       </div>
                 <Paragraph>You have more than 100 plugins enabled.</Paragraph>
                 <Paragraph>Due to the sheer amount of plugins, you may not receive support.</Paragraph>
                 <Paragraph>Your issue is likely caused by plugin conflicts.</Paragraph>
@@ -286,7 +291,8 @@ function DevBuildConfirmModal(props: RenderModalProps) {
     return (
         <ConfirmModal
             {...props}
-            title="Hold on!"
+        
+    title="Hold on!"
             confirmText="Understood"
             variant="primary"
             checkboxProps={{
@@ -338,7 +344,8 @@ export default definePlugin({
             name: "equicord-plugins",
             description: "Send Equicord plugin list",
             // @ts-ignore
-            predicate: ctx => isAnyPluginDev(UserStore.getCurrentUser()?.id) || isEquicordGuild(ctx?.guild?.id, true),
+            predicate: ctx => isAnyP
+luginDev(UserStore.getCurrentUser()?.id) || isEquicordGuild(ctx?.guild?.id, true),
             execute: async () => {
                 const channelId = SelectedChannelStore.getChannelId();
                 const pluginList = generatePluginList();
@@ -381,7 +388,8 @@ export default definePlugin({
                             onConfirm={forceUpdate}
                             onCancel={() => openSettingsTabModal(UpdaterTab!)}
                         >
-                            <div>
+                            <d
+iv>
                                 <Paragraph>You are using an outdated version of Equicord! Chances are, your issue is already fixed.</Paragraph>
                                 <Paragraph className={Margins.top8}>
                                     Please first update before asking for support!
@@ -420,7 +428,8 @@ export default definePlugin({
             }
 
             if (!IS_STANDALONE && !settings.store.dismissedDevBuildWarning) {
-                openModal(props => <DevBuildConfirmModal {...props} />);
+                openModal(props =
+> <DevBuildConfirmModal {...props} />);
                 return;
             }
         }
@@ -446,12 +455,12 @@ export default definePlugin({
                     onClick={async () => {
                         try {
                             if (await forceUpdate())
-                                showToast("Success! Restarting...", "success");
+                                showToast({ text: "Success! Restarting...", variant: "success" });
                             else
-                                showToast("Already up to date!");
+                                showToast({ text: "Already up to date!" });
                         } catch (e) {
                             new Logger(this.name).error("Error while updating:", e);
-                            showToast("Failed to update :(", "failure");
+                            showToast({ text: "Failed to update :(", variant: "critical" });
                         }
                     }}
                 >
@@ -468,7 +477,8 @@ export default definePlugin({
                         variant="secondary"
                         onClick={async () => sendMessage(props.channel.id, { content: await generateDebugInfoMessage() })}
                     >
-                        Run /equicord-debug
+                
+        Run /equicord-debug
                     </Button>,
                     <Button
                         key="vc-plg-list"
@@ -480,10 +490,10 @@ export default definePlugin({
                             } else if (pluginList && typeof pluginList === "object" && pluginList.uploadFile) {
                                 try {
                                     await uploadPluginListFile(props.channel.id, pluginList.fileContent, pluginList.filename);
-                                    showToast("Plugin list uploaded successfully!", "success");
+                                    showToast({ text: "Plugin list uploaded successfully!", variant: "success" });
                                 } catch (e) {
                                     new Logger("SupportHelper").error("Failed to upload plugin list:", e);
-                                    showToast("Failed to upload plugin list", "failure");
+                                    showToast({ text: "Failed to upload plugin list", variant: "critical" });
                                 }
                             }
                         }}
@@ -508,7 +518,8 @@ export default definePlugin({
             <Card variant="warning" className={Margins.top8} defaultPadding>
                 Please do not private message Equicord & Vencord plugin developers for support!
                 <br />
-                Instead, use the support channel: {Parser.parse("https://discord.com/channels/1173279886065029291/1297590739911573585")}
+                Instead, use the support channel: {Parser.parse("https://dis
+cord.com/channels/1173279886065029291/1297590739911573585")}
                 {!ChannelStore.getChannel(SUPPORT_CHANNEL_ID) && " (Click the link to join)"}
             </Card>
         );

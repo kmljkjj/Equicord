@@ -36,11 +36,12 @@ import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { PluginTarget } from "@utils/pluginTargets";
+import { promptToRestart } from "@utils/promptToRestart";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { PluginTag, PluginTags } from "@utils/types";
-import { ToastPosition } from "@vencord/discord-types/enums";
-import { Alerts, ConfirmModal, lodash, openModal, Parser, React, SearchableSelect, Select, showToast,TextInput, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
-import { JSX } from "react";
+import { Alerts, lodash, Parser, React, SearchableSelect, Select, showToast, TextInput, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
+import
+ { JSX } from "react";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
@@ -53,9 +54,11 @@ export const cl = classNameFactory("vc-plugins-");
 export const logger = new Logger("PluginSettings", "#a6d189");
 
 function showErrorToast(message: string) {
-    showToast(message, "failure", {
-            position: ToastPosition.BOTTOM
-        });
+    showToast({
+        text: message,
+        variant: "critical",
+        position: "bottom"
+    });
 }
 
 function ReloadRequiredCard({ required, enabledPlugins, openWarningModal, resetCheckAndDo }) {
@@ -80,14 +83,15 @@ function ReloadRequiredCard({ required, enabledPlugins, openWarningModal, resetC
             )}
             {enabledPlugins.length > 0 && !required && (
                 <Button
-                    variant="secondary"
+                    variant="dangerPrimary"
                     size="small"
-                    className={"vc-plugins-disable-warning vc-modal-align-reset"}
+                    className={"vc-modal-align-reset"}
                     onClick={() => {
                         return openWarningModal(null, undefined, false, enabledPlugins.length, resetCheckAndDo);
                     }}
                 >
-                    Disable All Plugins
+       
+             Disable All Plugins
                 </Button>
             )}
         </Card>
@@ -153,32 +157,24 @@ export default function PluginSettings() {
             const allChanges = [...changes.getChanges()];
             const pluginNames = [...new Set(allChanges.map(s => s.split(":")[0]))];
             const maxDisplay = 15;
-            const displayed = pluginNames.slice(0, maxDisplay);
+            const displaye
+d = pluginNames.slice(0, maxDisplay);
             const remainingCount = pluginNames.length - displayed.length;
 
-            openModal(props => (
-                <ConfirmModal
-                    {...props}
-                    title="Restart required"
-                    confirmText="Restart now"
-                    cancelText="Later!"
-                    variant="primary"
-                    onConfirm={() => location.reload()}
-                >
-                    <>
-                        <p>The following plugins require a restart:</p>
-                        <div>
-                            {displayed.map((s, i) => (
-                                <React.Fragment key={i}>
-                                    {i > 0 && ", "}
-                                    {Parser.parse("`" + s + "`")}
-                                </React.Fragment>
-                            ))}
-                            {remainingCount > 0 && <span> and {remainingCount} more</span>}
-                        </div>
-                    </>
-                </ConfirmModal>
-            ));
+            promptToRestart("reload", {
+                children: <>
+                    <p>The following plugins require a restart:</p>
+                    <div>
+                        {displayed.map((s, i) => (
+                            <React.Fragment key={i}>
+                                {i > 0 && ", "}
+                                {Parser.parse("`" + s + "`")}
+                            </React.Fragment>
+                        ))}
+                        {remainingCount > 0 && <span> and {remainingCount} more</span>}
+                    </div>
+                </>
+            });
         };
     }, []);
 
@@ -213,7 +209,8 @@ export default function PluginSettings() {
         const { status, tags } = searchValue;
 
         switch (status) {
-            case SearchStatus.FAVORITES:
+            c
+ase SearchStatus.FAVORITES:
                 if (!settings.plugins[plugin.name]?.isFavorite) return false;
                 break;
             case SearchStatus.DISABLED:
@@ -256,7 +253,8 @@ export default function PluginSettings() {
         const existingTimestamps: Record<string, number> = {};
         const sortedPluginNames = Object.values(sortedPlugins).map(plugin => plugin.name);
 
-        const newPlugins: string[] = [];
+        cons
+t newPlugins: string[] = [];
         for (const { name: p } of sortedPlugins) {
             const time = existingTimestamps[p] = cachedPlugins?.[p] ?? now;
             if ((time + 60 * 60 * 24 * 2) > now) {
@@ -300,7 +298,8 @@ export default function PluginSettings() {
                             />
                         )}
                     </Tooltip>
-                );
+              
+  );
             } else {
                 plugins.push(
                     <PluginCard
@@ -357,7 +356,8 @@ export default function PluginSettings() {
     }
 
     // Code directly taken from supportHelper.tsx
-    const { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(() => {
+    const { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(
+() => {
         const isApiPlugin = (plugin: string) => plugin.endsWith("API") || Plugins[plugin].required;
 
         const totalPlugins = Object.keys(Plugins).filter(p => !isApiPlugin(p));
@@ -396,7 +396,8 @@ export default function PluginSettings() {
                     enabledStockPlugins={enabledStockPlugins}
                 />
                 <UserPluginsCard
-                    totalUserPlugins={totalUserPlugins}
+                    tot
+alUserPlugins={totalUserPlugins}
                     enabledUserPlugins={enabledUserPlugins}
                 />
             </div>
@@ -437,7 +438,8 @@ export default function PluginSettings() {
                         select={status => setSearchValue(prev => ({ ...prev, status }))}
                         isSelected={v => v === searchValue.status}
                         closeOnSelect={true}
-                        placeholder="Filter by Type"
+      
+                  placeholder="Filter by Type"
                     />
                     <SearchableSelect
                         options={PluginTags.map(tag => ({ label: tag, value: tag }))}
@@ -489,7 +491,8 @@ export function PluginDependencyList({ deps }: { deps: string[]; }) {
     return (
         <>
             <Paragraph>This plugin is required by:</Paragraph>
-            {deps.map((dep: string) => <Paragraph key={dep} className={cl("dep-text")}>{dep}</Paragraph>)}
+            {deps.map((dep: string) => <Paragraph key={dep} className={c
+l("dep-text")}>{dep}</Paragraph>)}
         </>
     );
 }

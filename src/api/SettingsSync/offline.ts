@@ -14,10 +14,10 @@ import { DataStore } from "..";
 type BackupType = "all" | "plugins" | "css" | "datastore";
 
 const toastSuccess = () =>
-    showToast("Settings successfully imported. Restart to apply changes!", "success");
+    showToast({ text: "Settings successfully imported. Restart to apply changes!", variant: "success" });
 
 const toastFailure = (err: any) =>
-    showToast(`Failed to import settings: ${String(err)}`, "failure");
+    showToast({ text: `Failed to import settings: ${String(err)}`, variant: "critical" });
 
 const logger = new Logger("SettingsSync:Offline", "#39b7e0");
 
@@ -63,7 +63,8 @@ export async function importSettings(data: string, type: BackupType = "all", clo
     if (!isSafeObject(parsed))
         throw new Error("Unsafe Settings");
 
-    switch (type) {
+   
+ switch (type) {
         case "all": {
             if (!cloud && (!("settings" in parsed)))
                 throw new Error("Invalid Settings. Plugin settings is required for this import try a different one.");
@@ -107,11 +108,12 @@ export async function exportSettings({ syncDataStore = true, type = "all", minif
         try {
             dataStore = (await Promise.all((await DataStore.keys<IDBValidKey>()).map(async (key): Promise<[IDBValidKey, unknown] | undefined> => { try { return [key, await DataStore.get<unknown>(key)]; } catch (error) { logger.warn(`Skipping unreadable DataStore record ${String(key)}:`, error); return undefined; } }))).filter((entry): entry is [IDBValidKey, unknown] => entry !== undefined);
         } catch (err) {
-            logger.error("Failed to read DataStore entries:", err);
+            logger.error("Failed to read DataStore
+ entries:", err);
 
             if (type === "all") {
                 logger.warn("Skipping DataStore in backup due to size. Export DataStore separately if needed.");
-                showToast("DataStore too large - exported without it. Use 'Export DataStore' separately if needed.", "message");
+                showToast({ text: "DataStore too large - exported without it. Use 'Export DataStore' separately if needed." });
                 dataStore = undefined;
             } else if (type === "datastore") {
                 throw new Error("DataStore is too large to export. Please clear some plugin data and try again.");
@@ -149,13 +151,14 @@ export async function downloadSettingsBackup(type: BackupType = "all", { minify 
         }
     } catch (err) {
         logger.error("Failed to export settings:", err);
-        showToast("Failed to export settings, check console", "failure");
+        showToast({ text: "Failed to export settings, check console", variant: "critical" });
         throw err;
     }
 }
 
 export async function uploadSettingsBackup(type: BackupType = "all", showToast = true): Promise<void> {
-    if (IS_DISCORD_DESKTOP) {
+    if (IS_DISCO
+RD_DESKTOP) {
         const [file] = await DiscordNative.fileManager.openFiles({
             filters: [
                 { name: "Equicord Settings Backup", extensions: ["json"] },

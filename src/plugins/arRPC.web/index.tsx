@@ -47,7 +47,8 @@ export default definePlugin({
     reporterTestable: ReporterTestable.None,
     hidden: IS_EQUIBOP || IS_VESKTOP || "legcord" in window,
 
-    settingsAboutComponent: () => (
+    settingsAb
+outComponent: () => (
         <>
             <HeadingSecondary>How to use arRPC</HeadingSecondary>
             <Paragraph>
@@ -92,7 +93,7 @@ export default definePlugin({
             return;
         }
 
-        showToast("Connected to arRPC", "success");
+        showToast({ text: "Connected to arRPC", variant: "success" });
     },
 
     stop() {
