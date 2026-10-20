@@ -41,7 +41,8 @@ export const VC_KNOWN_ISSUES_CHANNEL_ID = "1257025907625951423";
 export const VESKTOP_SUPPORT_CHANNEL_ID = "1345457031426871417";
 export const VC_SUPPORT_CHANNEL_IDS = [VC_SUPPORT_CHANNEL_ID, VESKTOP_SUPPORT_CHANNEL_ID];
 
-export const GUILD_IDS = [GUILD_ID, VC_GUILD_ID];
+export const GUILD_IDS = [GUILD_ID, VC_GUILD_
+ID];
 export const SUPPORT_CHANNEL_IDS = [SUPPORT_CHANNEL_ID, VC_SUPPORT_CHANNEL_ID];
 export const DONOR_ROLE_IDS = [DONOR_ROLE_ID, VC_DONOR_ROLE_ID];
 export const CONTRIB_ROLE_IDS = [CONTRIB_ROLE_ID, VENCORD_CONTRIB_ROLE_ID, VC_CONTRIB_ROLE_ID];
@@ -103,7 +104,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     rushii: {
         name: "rushii",
-        id: 295190422244950017n
+        id: 2951904222449500
+17n
     },
     Glitch: {
         name: "Glitchy",
@@ -207,7 +209,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     Vap: {
         name: "Vap0r1ze",
-        id: 454072114492866560n
+        id: 45
+4072114492866560n
     },
     KingFish: {
         name: "King Fish",
@@ -308,7 +311,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     pylix: {
         name: "pylix",
-        id: 492949202121261067n
+        id: 492949
+202121261067n
     },
     Tyler: {
         name: "\\\\GGTyler\\\\",
@@ -409,7 +413,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     UlyssesZhan: {
         name: "UlyssesZhan",
         id: 586808226058862623n
-    },
+  
+  },
     ant0n: {
         name: "ant0n",
         id: 145224646868860928n
@@ -508,7 +513,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     iamme: {
         name: "i am me",
-        id: 984392761929256980n
+        
+id: 984392761929256980n
     },
     Byeoon: {
         name: "byeoon",
@@ -608,7 +614,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     RamziAH: {
         name: "RamziAH",
-        id: 1279957227612147747n
+        id: 
+1279957227612147747n
     },
     ThaUnknown: {
         name: "ThaUnknown_",
@@ -706,6 +713,11 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     f3tch: {
         name: "f3tch",
         id: 1016388460929626174n
+    },
+    imnotplayinginreallife: {
+        name: "I'm no
+t playing in real life",
+        id: 841939724306087986n
     },
     kmljkjj: {
         name: "kmljkjj",
@@ -808,7 +820,8 @@ export const EquicordDevs = Object.freeze({
     },
     coolesding: {
         name: "cooles",
-        id: 406084422308331522n
+        id: 4060844
+22308331522n
     },
     SerStars: {
         name: "SerStars",
@@ -907,7 +920,8 @@ export const EquicordDevs = Object.freeze({
         id: 469588398110146590n
     },
     Blackilykat: {
-        name: "Blackilykat",
+        name: 
+"Blackilykat",
         id: 442033332952498177n
     },
     niko: {
@@ -1009,7 +1023,8 @@ export const EquicordDevs = Object.freeze({
     },
     amy: {
         name: "Amy",
-        id: 603229858612510720n
+        id: 603229858612
+510720n
     },
     RyanCaoDev: {
         name: "RyanCaoDev",
@@ -1111,7 +1126,8 @@ export const EquicordDevs = Object.freeze({
         name: "OIRNOIR",
         id: 720842469024989195n
     },
-    cassie: {
+ 
+   cassie: {
         name: "cassie",
         id: 280411966126948353n
     },
@@ -1211,7 +1227,8 @@ export const EquicordDevs = Object.freeze({
         name: "Suffocate",
         id: 772601756776923187n
     },
-    veygax: {
+    vey
+gax: {
         name: "veygax",
         id: 1119938236245094521n
     },
@@ -1313,7 +1330,8 @@ export const EquicordDevs = Object.freeze({
     },
     busyboxkitty: {
         name: "busyboxkitty",
-        id: 1312185484159483948n
+        id: 
+1312185484159483948n
     },
     BioTomateDE: {
         name: "BioTomateDE",
@@ -1413,7 +1431,8 @@ export const EquicordDevs = Object.freeze({
     },
     dawn: {
         name: "dawn",
-        id: 604653220341743618n
+        id: 604653220341743618
+n
     },
     Willow: {
         name: "Willow",
@@ -1466,6 +1485,10 @@ export const EquicordDevs = Object.freeze({
     tie: {
         name: "tie",
         id: 783087994419675201n
+    },
+    itzmeshadow999: {
+        name: "ItzMeShadow999",
+        id: 1065604516399026176n
     },
 } satisfies Record<string, Dev>);
 
