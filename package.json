@@ -39,7 +39,8 @@
         "lint:patches": "node scripts/lintPatches.mjs",
         "test": "pnpm buildStandalone && pnpm testTsc && pnpm lint && pnpm lint-styles && pnpm lint:intl && pnpm lint:patches && pnpm generatePluginJson",
         "testWeb": "pnpm lint && pnpm buildWeb && pnpm testTsc",
-        "testTsc": "tsc --noEmit"
+        "testTsc": "tsc --noEmit",
+        "validate-dist": "node scripts/validateDist.mjs"
     },
     "dependencies": {
         "@ffmpeg/ffmpeg": "^0.12.10",

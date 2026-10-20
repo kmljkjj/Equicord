@@ -67,6 +67,19 @@ jobs:
             - name: Test if plugin structure is valid
               run: pnpm generatePluginJson
 
+            - name: Verify builds are reproducible
+              run: |
+                  export SOURCE_DATE_EPOCH=1735689600
+                  pnpm buildStandalone
+                  sha256sum dist/desktop.asar dist/equibop.asar > /tmp/asar-hashes-first
+                  pnpm buildStandalone
+                  sha256sum dist/desktop.asar dist/equibop.asar > /tmp/asar-hashes-second
+                  diff /tmp/asar-hashes-first /tmp/asar-hashes-second
+                  echo "asar archives are byte-identical across builds"
+
+            - name: Validate dist archives
+              run: pnpm validate-dist
+
             # the restore step never writes the cache on its own; save it
             # explicitly so cold runs stop re-downloading every dependency
             - name: Save pnpm store cache
