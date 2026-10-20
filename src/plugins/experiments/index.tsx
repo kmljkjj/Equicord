@@ -214,7 +214,7 @@ interface PatchStatus {
 // applied yet, removed from the queue = applied to its module.
 function getPatchStatus(patch: Patch): PatchStatus {
     try {
-        const plugin = Vencord.Plugins.plugins["Experiments"];
+        const plugin = Vencord.Plugins.plugins.Experiments;
         if (!plugin?.started) return { icon: "❔", label: "plugin not started", color: "var(--text-muted)" };
 
         if (patch.predicate && !patch.predicate()) return { icon: "⏸️", label: "disabled by a setting", color: "var(--text-muted)" };
