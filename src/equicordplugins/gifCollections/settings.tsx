@@ -6,6 +6,7 @@
 
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
+import { BaseText } from "@components/BaseText";
 import { Divider } from "@components/Divider";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
@@ -57,7 +58,8 @@ export const settings = definePluginSettings({
         default: false,
     },
     defaultEmptyCollectionImage: {
-        description: "The image shown when a collection has no images.",
+        description: "The image shown when a collection has no 
+images.",
         type: OptionType.STRING,
         default: "https://c.tenor.com/YEG33HsLEaIAAAAC/parksandrec-oops.gif",
     },
@@ -112,7 +114,8 @@ export const settings = definePluginSettings({
                     body: "Resetting collections will remove all your collections.",
                     confirmText: "Reset",
                     confirmColor: Button.Colors.RED,
-                    cancelText: "Nevermind",
+           
+         cancelText: "Nevermind",
                     onConfirm: async () => {
                         await DataStore.set(DATA_COLLECTION_NAME, []);
                         refreshCacheCollection();
@@ -128,7 +131,7 @@ function RadioOption({ name, value, checked, onChange, label }: { name: string; 
         <div className={cl("sort-option")}>
             <label className={cl("sort-label")}>
                 <input type="radio" name={name} value={value} checked={checked} onChange={onChange} className={cl("sort-input")} />
-                {label}
+                <BaseText className={cl("sort-text")} tag="div" size="sm">{label}</BaseText>
             </label>
         </div>
     );
@@ -156,7 +159,8 @@ function SortSettingsComponent() {
             <Divider className={cl("sort-divider")} />
             <div className={cl("sort-section")}>
                 <Paragraph className={cl("sort-section-title")}>Sort By</Paragraph>
-                <RadioOption name="sortType" value={SortingOptions.NAME} checked={sortType === SortingOptions.NAME} onChange={() => handleSortType(SortingOptions.NAME)} label="Name" />
+                <RadioOption name="sortType" value={SortingOptions.NAME} checked={sortType === SortingOptions.NAME} onChange={() => handleS
+ortType(SortingOptions.NAME)} label="Name" />
                 <RadioOption name="sortType" value={SortingOptions.CREATION_DATE} checked={sortType === SortingOptions.CREATION_DATE} onChange={() => handleSortType(SortingOptions.CREATION_DATE)} label="Creation Date" />
                 <RadioOption name="sortType" value={SortingOptions.MODIFIED_DATE} checked={sortType === SortingOptions.MODIFIED_DATE} onChange={() => handleSortType(SortingOptions.MODIFIED_DATE)} label="Modified Date" />
             </div>

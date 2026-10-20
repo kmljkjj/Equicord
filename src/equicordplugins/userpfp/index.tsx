@@ -48,7 +48,8 @@ const settings = definePluginSettings({
         ],
     },
     databaseSource: {
-        description: "URL to load database from",
+        description: "UR
+L to load database from",
         type: OptionType.STRING,
         default: "https://userpfp.github.io/UserPFP/source/data.json",
         hidden: !IS_DEV,
@@ -64,7 +65,7 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "UserPFP",
-    description: "Allows you to use an animated avatar without Nitro",
+    description: "Allows you to set local static or animated avatars for yourself and other users",
     tags: ["Appearance", "Customisation", "Servers"],
     authors: [EquicordDevs.nexpid, Devs.thororen, EquicordDevs.soapphia, EquicordDevs.sketchmyname],
     settings,
@@ -103,7 +104,8 @@ export default definePlugin({
                 {
                     match: /(getGuildMemberAvatarURLSimple:)(\i),/,
                     replace: "$1$self.getAvatarServerHook($2),",
-                    predicate: () => settings.store.overrideServerAvatars
+      
+              predicate: () => settings.store.overrideServerAvatars
                 }
             ]
         }
@@ -157,7 +159,8 @@ export default definePlugin({
             if (customUrl.startsWith("data:")) return customUrl;
 
             try {
-                const res = new URL(customUrl);
+                const res = new URL(custom
+Url);
                 if (size) res.searchParams.set("size", size.toString());
                 return res.toString();
             } catch {

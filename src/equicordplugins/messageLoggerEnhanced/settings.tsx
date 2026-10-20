@@ -67,7 +67,8 @@ export const settings = definePluginSettings({
 
     saveImages: {
         type: OptionType.BOOLEAN,
-        description: "Save deleted attachments.",
+        description: "Save deleted atta
+chments.",
         default: false
     },
 
@@ -122,7 +123,8 @@ export const settings = definePluginSettings({
 
     ignoreMutedChannels: {
         default: false,
-        type: OptionType.BOOLEAN,
+        type: Option
+Type.BOOLEAN,
         description: "Messages in muted channels will not be logged. Whitelisted users/channels in muted guilds will still be logged."
     },
 
@@ -178,7 +180,8 @@ export const settings = definePluginSettings({
     messageLimit: {
         default: 200,
         type: OptionType.NUMBER,
-        description: "Maximum number of messages to save. Older messages are deleted when the limit is reached. 0 means there is no limit"
+        description: "Maximum number of messages to save. Older messages are 
+deleted when the limit is reached. 0 means there is no limit"
     },
 
     attachmentSizeLimitInMegabytes: {
@@ -227,20 +230,21 @@ export const settings = definePluginSettings({
 
     preserveCurrentChannel: {
         default: true,
-        type: OptionType.BOOLEAN,
+        type: Optio
+nType.BOOLEAN,
         description: "When enabled, messages in your currently selected channel are not affected by time-based cleanup.",
     },
 
     whitelistedIds: {
         default: "",
         type: OptionType.STRING,
-        description: "Whitelisted server, channel, or user IDs."
+        description: "Server, channel, or user IDs to always show in message log."
     },
 
     blacklistedIds: {
         default: "",
         type: OptionType.STRING,
-        description: "Blacklisted server, channel, or user IDs."
+        description: "Server, channel, or user IDs to never show in message log."
     },
 
     imageCacheDir: {
@@ -295,7 +299,8 @@ export const settings = definePluginSettings({
                 onClick={() => Native.showItemInFolder()}
             >
                 Open Image Cache Folder
-            </Button>
+     
+       </Button>
     },
 
     clearLogs: {

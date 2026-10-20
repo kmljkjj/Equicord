@@ -48,7 +48,8 @@ const MessageContextMenuPatch: NavContextMenuPatchCallback = (children, props) =
         id="vc-remix"
         label="Remix"
         icon={PaintbrushIcon}
-        leadingAccessory={{ type: "icon", icon: PaintbrushIcon }}
+        leadingAccessory={{ type
+: "icon", icon: PaintbrushIcon }}
         action={() => {
             const key = openModal(modalProps =>
                 <RemixModal modalProps={modalProps} close={() => closeModal(key)} url={url} />
@@ -69,7 +70,7 @@ export function sendRemix(blob: Blob) {
 
 export default definePlugin({
     name: "RemixRevived",
-    description: "Revives Remix and breings it to Desktop",
+    description: "Revives Remix and brings it to Desktop",
     tags: ["Customisation", "Fun"],
     authors: [EquicordDevs.MrDiamond, EquicordDevs.meowabyte],
     contextMenus: {
