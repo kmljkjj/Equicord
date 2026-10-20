@@ -68,8 +68,7 @@ async function rdbRequest<T = unknown>(path: string, options: RequestInit = {}):
 
 export async function getReviews(id: string, { limit, offset = 0, fetchVotes = false }: { limit?: number; offset?: number; fetchVotes?: boolean; } = {}): Promise<UserReviewsData> {
     let flags = 0;
-    if (!settings.store.showWarning) flags |= Warni
-ngFlag;
+    if (!settings.store.showWarning) flags |= WarningFlag;
 
     const params = new URLSearchParams();
     if (flags) params.append("flags", String(flags));
@@ -125,8 +124,7 @@ ngFlag;
 
     res.reviews = res.reviews.map(review => ({
         ...review,
-        userVote: voteByReviewId.get(review.id) ?? 
-null,
+        userVote: voteByReviewId.get(review.id) ?? null,
     }));
 
     return res;
@@ -198,8 +196,7 @@ export async function voteReview(id: number, isUpvote: boolean) {
 
 export async function deleteReviewVote(id: number) {
     const token = await getToken();
-    if
- (!token) {
+    if (!token) {
         showToast({ text: "Please authorize to vote on reviews.", variant: "critical" });
         authorize();
         return false;

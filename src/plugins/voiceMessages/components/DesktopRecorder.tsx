@@ -46,8 +46,7 @@ export const VoiceRecorderDesktop: VoiceRecorder = ({ setAudioBlob, onRecordingC
                     if (success)
                         changeRecording(true);
                     else
-                        showToast({ te
-xt: "Failed to start recording", variant: "critical" });
+                        showToast({ text: "Failed to start recording", variant: "critical" });
                 }
             );
         } else {

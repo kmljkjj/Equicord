@@ -44,8 +44,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
             leadingAccessory={{ type: "icon", icon: TranslateIcon }}
             action={async () => {
                 const trans = await translate("received", content);
-                handleTranslate(message.id, trans)
-;
+                handleTranslate(message.id, trans);
             }}
         />
     ));
@@ -105,8 +104,7 @@ export default definePlugin({
 
         setShouldShowTranslateEnabledTooltip?.(true);
         clearTimeout(tooltipTimeout);
-        tooltipTimeout = setTimeout(() => setShouldShowTranslateEnabledToo
-ltip?.(false), 2000);
+        tooltipTimeout = setTimeout(() => setShouldShowTranslateEnabledTooltip?.(false), 2000);
 
         const trans = await translate("sent", message.content);
         message.content = trans.text;

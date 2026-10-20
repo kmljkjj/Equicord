@@ -66,8 +66,7 @@ export const getLanguages = () => {
     }
 };
 
-export async function translate(kind: "receive
-d" | "sent", text: string): Promise<TranslationValue> {
+export async function translate(kind: "received" | "sent", text: string): Promise<TranslationValue> {
     const translate = IS_WEB ? googleTranslate : (() => {
         switch (settings.store.service) {
             case "google":
@@ -127,8 +126,7 @@ function fallbackToGoogle(text: string, sourceLang: string, targetLang: string):
     return googleTranslate(
         text,
         deeplLanguageToGoogleLanguage(sourceLang),
-      
-  deeplLanguageToGoogleLanguage(targetLang)
+        deeplLanguageToGoogleLanguage(targetLang)
     );
 }
 
@@ -189,8 +187,7 @@ async function kagiTranslate(text: string, sourceLang: string, targetLang: strin
         case 200:
             break;
         case 401:
-            throw "Invalid or 
-expired Kagi session token";
+            throw "Invalid or expired Kagi session token";
         default:
             throw new Error(`Failed to translate "${text}" (${sourceLang} -> ${targetLang})\n${status} ${data}`);
     }

@@ -46,8 +46,7 @@ export interface TrackData {
 
 export interface ScrobblerBackend {
     name: string,
-    id: str
-ing,
+    id: string,
 
     fetchTrackData(): Promise<TrackData | null>;
     getUserURL(username: string): string;
@@ -113,8 +112,7 @@ export const settings = definePluginSettings({
     apiKey: {
         displayName: "API Key",
         description: "Last.fm API key. Not required but highly recommended to avoid rate limiting with our shared key",
-        type: Option
-Type.STRING,
+        type: OptionType.STRING,
     },
     username: {
         description: "Username",
@@ -179,8 +177,7 @@ Type.STRING,
             },
             {
                 label: "Use format 'artist - song'",
-                value: NameFormat.Ar
-tistFirst
+                value: NameFormat.ArtistFirst
             },
             {
                 label: "Use format 'song - artist'",
@@ -237,8 +234,7 @@ tistFirst
     instanceAPIBaseUrl: { hidden() { return this.store.scrobblerBackend !== "listenbrainz-compatible"; } },
 });
 
-const hasInvalidCustomInstance = () => settings.store.scrobblerBackend === "listenbrainz-compatible" && (!settings.store.instanceAPIBaseUrl || !
-settings.store.instanceBaseURL);
+const hasInvalidCustomInstance = () => settings.store.scrobblerBackend === "listenbrainz-compatible" && (!settings.store.instanceAPIBaseUrl || !settings.store.instanceBaseURL);
 
 function CustomInstanceAboutComponent() {
     const { instanceAPIBaseUrl, instanceBaseURL } = settings.store;
@@ -284,8 +280,7 @@ function CustomInstanceAboutComponent() {
     return null;
 }
 
-migrate
-PluginSettings("MusicRichPresence", "LastFMRichPresence");
+migratePluginSettings("MusicRichPresence", "LastFMRichPresence");
 migratePluginSetting("MusicRichPresence", "showLastFmLogo", "showLogo");
 export default definePlugin({
     name: "MusicRichPresence",
@@ -339,8 +334,7 @@ export default definePlugin({
             return "placeholder";
     },
 
-   
- async getActivity(): Promise<Activity | null> {
+    async getActivity(): Promise<Activity | null> {
 
         if (settings.store.hideWithActivity) {
             if (PresenceStore.getActivities(AuthenticationStore.getId()).some(a => a.application_id !== DISCORD_APP_ID && a.type !== ActivityType.CUSTOM_STATUS)) {
@@ -387,8 +381,7 @@ export default definePlugin({
             switch (settings.store.nameFormat) {
                 case NameFormat.ArtistFirst:
                     return trackData.artist + " - " + trackData.name;
-                case NameF
-ormat.SongFirst:
+                case NameFormat.SongFirst:
                     return trackData.name + " - " + trackData.artist;
                 case NameFormat.ArtistOnly:
                     return trackData.artist;
@@ -432,8 +425,7 @@ ormat.SongFirst:
             },
 
             type: settings.store.useListeningStatus ? ActivityType.LISTENING : ActivityType.PLAYING,
-            flags: Ac
-tivityFlags.INSTANCE,
+            flags: ActivityFlags.INSTANCE,
         };
 
         if (settings.store.clickableLinks) {

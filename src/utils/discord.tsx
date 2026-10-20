@@ -39,8 +39,7 @@ export function getIntlMessage(key: string, values?: Record<PropertyKey, any>): 
 /**
  * Get an internationalized message from a hashed key
  * @param hashedKey The hashed message key
- * @param values The values to inte
-rpolate, if it's a rich message
+ * @param values The values to interpolate, if it's a rich message
  */
 export function getIntlMessageFromHash(hashedKey: string, values?: Record<PropertyKey, any>, originalKey?: string): any {
     try {
@@ -102,8 +101,7 @@ export const enum Theme {
 
 export function getTheme(): Theme {
     try {
-        return UserSettingsActionCreators.PreloadedUserSettingsAct
-ionCreators.getCurrentValue()?.appearance?.theme;
+        return UserSettingsActionCreators.PreloadedUserSettingsActionCreators.getCurrentValue()?.appearance?.theme;
     } catch {
         return Theme.Dark;
     }
@@ -177,8 +175,7 @@ export function openImageModal(item: Except<MediaModalItem, "type">, mediaModalP
 
 export async function openUserProfile(id: string) {
     const user = await UserUtils.getUser(id);
-    if (!user) throw new Error("No such user: " + i
-d);
+    if (!user) throw new Error("No such user: " + id);
 
     const guildId = SelectedGuildStore.getGuildId();
     openUserProfileModal({
@@ -242,7 +239,6 @@ export function getGuildAcronym(guild: Guild | BasicGuild | GuildProfile): strin
         .replace(/\s/g, "");
 }
 
-export function hasGuildFeature(guild: Guild, feature
-: GuildFeatures): boolean {
+export function hasGuildFeature(guild: Guild, feature: GuildFeatures): boolean {
     return guild.features?.has(feature) ?? false;
 }

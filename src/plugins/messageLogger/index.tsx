@@ -48,8 +48,7 @@ interface MLAttachment extends MessageAttachment {
 
 const MessageClasses = findCssClassesLazy("edited", "communicationDisabled", "isSystemMessage");
 
-function ClearHistoryIcon({ height = 24, width = 24, className }: { height?: nu
-mber | string; width?: number | string; className?: string; }) {
+function ClearHistoryIcon({ height = 24, width = 24, className }: { height?: number | string; width?: number | string; className?: string; }) {
     return (
         <svg
             className={className}
@@ -110,8 +109,7 @@ function addDeleteStyle() {
  *
  * if the message was deleted, it will be completely removed from the UI and MessageStore
  */
-function clearMessageHistory(ms
-g: MLMessage) {
+function clearMessageHistory(msg: MLMessage) {
     if (msg.deleted) {
         FluxDispatcher.dispatch({
             type: "MESSAGE_DELETE",
@@ -172,8 +170,7 @@ const patchMessageContextMenu: NavContextMenuPatchCallback = (
     if (doesMessageHaveHistory(message) && settings.store.showEditDiffs) {
         const isDisabled = disabledDiffMessages.has(id);
         children.push(
-            <Menu.MenuI
-tem
+            <Menu.MenuItem
                 id={TOGGLE_DIFF_VIEW_ID}
                 key={TOGGLE_DIFF_VIEW_ID}
                 label={isDisabled ? "Enable Diff View" : "Disable Diff View"}
@@ -235,7 +232,6 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (
     );
 };
 
-
 function applyAggregatedCustomContent(message: Message, key: string, nodes: React.ReactNode) {
     const payload = {
         __messageloggerDiff: true,
@@ -288,8 +284,7 @@ function createDiffSegment(part: DiffPart, message: Message, key: React.Key, hig
         viewingChannelId: SelectedChannelStore.getChannelId(),
     });
 
-    let clas
-sName: string | undefined;
+    let className: string | undefined;
     if (part.type === "added" || part.type === "removed") {
         if (!highlightType || highlightType === part.type) {
             className = `messagelogger-diff-${part.type}`;
@@ -342,8 +337,7 @@ export function parseEditContent(content: string, message: Message, previousCont
                 if (aggregatedState) {
                     applyAggregatedCustomContent(message, aggregatedState.key, aggregatedState.aggregatedNodes);
                 } else {
-                    const diffKe
-y = `${message.id}:current:${message.content}:${message.editedTimestamp?.valueOf?.() ?? 0}`;
+                    const diffKey = `${message.id}:current:${message.content}:${message.editedTimestamp?.valueOf?.() ?? 0}`;
                     applyAggregatedCustomContent(message, diffKey, renderDiffParts(updatedSegments, message));
                 }
             } else if (!aggregatedState && (message as any).customRenderedContent?.__messageloggerDiff) {
@@ -395,8 +389,7 @@ export const settings = definePluginSettings({
         default: "text",
         options: [
             { label: "Red text", value: "text", default: true },
-            { label: "Red overlay", v
-alue: "overlay" },
+            { label: "Red overlay", value: "overlay" },
         ],
         onChange: () => addDeleteStyle(),
     },
@@ -463,7 +456,6 @@ alue: "overlay" },
     showEditDiffs: {
         type: OptionType.BOOLEAN,
         description: "Show visual differences between edited message versions",
-
         default: false,
         onChange: value => {
             if (!value && settings.store.separatedDiffs) {
@@ -531,8 +523,7 @@ export default definePlugin({
         }
     },
 
-    renderEdits: ErrorBoundary.wra
-p(
+    renderEdits: ErrorBoundary.wrap(
         ({
             message: { id: messageId, channel_id: channelId },
         }: {
@@ -569,8 +560,7 @@ p(
                     const aggregatedSegments = buildViewSegments(aggregatedDiff, "updated");
                     const originalNodes = originalSegments.length
                         ? renderDiffParts(originalSegments, message)
-        
-                : Parser.parse(original.content, true, {
+                        : Parser.parse(original.content, true, {
                             channelId: message.channel_id,
                             messageId: message.id,
                             allowLinks: true,
@@ -614,8 +604,7 @@ p(
             }
 
             if ((message as any).customRenderedContent?.__messageloggerDiff) {
-                clearCus
-tomRenderedContent(message);
+                clearCustomRenderedContent(message);
             }
 
             return inlineEdits && (
@@ -657,8 +646,7 @@ tomRenderedContent(message);
         }
         // not sure if it's ever actually null after an edit but discord does a null check here
         if (!newMessage.attachments?.length) {
-            return oldMessage.attachments.map((a): MLAttachment => ({ ...a, 
-deleted: true }));
+            return oldMessage.attachments.map((a): MLAttachment => ({ ...a, deleted: true }));
         }
         return oldMessage.attachments
             .map((oldAttachment): MLAttachment =>
@@ -717,8 +705,7 @@ deleted: true }));
                 logEdits,
                 logDeletes,
             } = settings.store;
-            const myId = UserStore.getC
-urrentUser().id;
+            const myId = UserStore.getCurrentUser().id;
 
             return (
                 (ignoreBots && message.author?.bot) ||
@@ -761,8 +748,7 @@ urrentUser().id;
         return (
             <span
                 {...props}
-         
-       className={classes("messagelogger-edit-marker", className)}
+                className={classes("messagelogger-edit-marker", className)}
                 onClick={() => openHistoryModal(message)}
                 role="button"
             >
@@ -818,8 +804,7 @@ urrentUser().id;
                     match: /(?<=MESSAGE_DELETE_BULK:function\((\i)\){)(?=let.{0,100}(\i\.\i)\.getOrCreate)/,
                     replace: `
                         let cache = $2.getOrCreate($1.channelId);
-                        cache = $self.handleDelete(cache, $1,
- true);
+                        cache = $self.handleDelete(cache, $1, true);
                         $2.commit(cache);
                         return;
                     `
@@ -866,8 +851,7 @@ urrentUser().id;
             // Updated message transformer
             find: ".PREMIUM_REFERRAL&&(",
             replacement: [
-               
- {
+                {
                     // Pass through editHistory & deleted to the "edited message" transformer
                     match: /(?<=null!=\i\.edited_timestamp\)return )\i\(\i,\{reactions:(\i)\.reactions.{0,50}\}\)/,
                     replace:
@@ -877,6 +861,118 @@ urrentUser().id;
                 {
                     match: /attachments:(\i)\.attachments\?\?\[\],/,
                     predicate: () => settings.store.logDeletedAttachments,
-                    replace: "attachments: $self.handleUpdateAttachments($1
+                    replace: "attachments: $self.handleUpdateAttachments($1),"
+                }
+            ]
+        },
 
-... [Content truncated]
+        {
+            // Attachment renderer
+            find: "#{intl::REMOVE_ATTACHMENT_TOOLTIP_TEXT}",
+            replacement: [
+                // add deleted class to deleted attachments
+                {
+                    // we can't use arguments[0] because we patch a nested **non-arrow** function
+                    match: /\.SPOILER,(?=\[\i\.\i\]:)(?<=item:(\i),.{0,200}?)/,
+                    replace: '$&"messagelogger-deleted-attachment": $1?.originalItem?.deleted,'
+                },
+                // dont allow deleting attachments from deleted messages
+                {
+                    match: /(?<=\{let\{[^}]*?item:(\i),autoPlayGif:\i,)canRemoveItem:(\i)(?=,onRemoveItem:)/,
+                    replace: "_canRemoveItem:$2 = arguments[0].canRemoveItem && !$1?.originalItem?.deleted",
+                }
+            ]
+        },
+
+        {
+            // Base message component renderer
+            find: "Message must not be a thread starter message",
+            replacement: [
+                {
+                    // Append messagelogger-deleted to classNames if deleted
+                    match: /\)\("li",\{(.+?),className:/,
+                    replace:
+                        ')("li",{$1,className:(arguments[0].message.deleted ? "messagelogger-deleted " : "")+',
+                },
+            ],
+        },
+
+        {
+            // Message content renderer
+            find: ".SEND_FAILED,",
+            replacement: {
+                // Render editHistory behind the message content
+                match: /\]:\i.isUnsupported.{0,20}?,children:\[/,
+                replace: "$&arguments[0]?.message?.editHistory?.length>0&&$self.renderEdits(arguments[0]),"
+            }
+        },
+
+        {
+            find: "#{intl::MESSAGE_EDITED}",
+            replacement: {
+                // Make edit marker clickable
+                match: /(isInline:!1,children:.{0,50}?)"span",\{(?=className:)/,
+                replace: "$1$self.EditMarker,{message:arguments[0].message,"
+            }
+        },
+
+        {
+            // ReferencedMessageStore
+            find: '"ReferencedMessageStore"',
+            replacement: [
+                {
+                    match: /(?<=MESSAGE_DELETE:function\(\i\)\{)/,
+                    replace: "return;"
+                },
+                {
+                    match: /(?<=MESSAGE_DELETE_BULK:function\(\i\)\{)/,
+                    replace: "return;"
+                }
+            ]
+        },
+
+        {
+            // Message context base menu
+            find: ".MESSAGE,commandTargetId:",
+            replacement: [
+                {
+                    // Remove the first section if message is deleted
+                    match: /children:(\[""===.+?\])/,
+                    replace: "children:arguments[0].message.deleted?[]:$1",
+                },
+            ],
+        },
+        {
+            // Message grouping
+            find: "NON_COLLAPSIBLE.has(",
+            replacement: {
+                match: /if\((\i)\.blocked\)return \i\.\i\.MESSAGE_GROUP_BLOCKED;/,
+                replace: '$&else if($1.deleted) return"MESSAGE_GROUP_DELETED";',
+            },
+            predicate: () => settings.store.collapseDeleted,
+        },
+        {
+            // Message group rendering
+            find: "#{intl::NEW_MESSAGES_ESTIMATED_WITH_DATE}",
+            replacement: [
+                {
+                    match: /(\i).type===\i\.\i\.MESSAGE_GROUP_BLOCKED\|\|/,
+                    replace: '$&$1.type==="MESSAGE_GROUP_DELETED"||',
+                },
+                {
+                    match: /(\i).type===\i\.\i\.MESSAGE_GROUP_BLOCKED\?(\i)=.*?:/,
+                    replace: '$&$1.type==="MESSAGE_GROUP_DELETED"?$2=$self.DELETED_MESSAGE_COUNT:',
+                },
+            ],
+            predicate: () => settings.store.collapseDeleted
+        },
+
+        {
+            find: "this.truncateTop",
+            replacement: {
+                match: /receiveMessage\((\i)\)\{/,
+                replace: "$& $self.normalizeNonce($1);"
+            }
+        }
+    ]
+});

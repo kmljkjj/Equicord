@@ -34,8 +34,7 @@ const MessageClasses = findCssClassesLazy("cozyMessage", "message", "groupStart"
 const ContainerClasses = findCssClassesLazy("container", "isHeader");
 const AvatarClasses = findCssClassesLazy("avatar", "wrapper", "cozy", "clickable", "username");
 const ButtonClasses = findCssClassesLazy("button", "wrapper", "selected");
-const BotTagClasses = findCssCla
-ssesLazy("botTagVerified", "botTagRegular", "botText", "px", "rem");
+const BotTagClasses = findCssClassesLazy("botTagVerified", "botTagRegular", "botText", "px", "rem");
 
 const dateFormat = new Intl.DateTimeFormat();
 
@@ -86,8 +85,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                         return showToast({ text: "You must be logged in to report reviews.", variant: "critical" });
                     }
                     await reportReview(review.id);
-        
-        }}
+                }}
             />
         ));
     }
@@ -147,8 +145,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
     }
 
     return (
-        <div className={classes(cl("review"), MessageCl
-asses.cozyMessage, AvatarClasses.wrapper, MessageClasses.message, MessageClasses.groupStart, AvatarClasses.cozy)} style={
+        <div className={classes(cl("review"), MessageClasses.cozyMessage, AvatarClasses.wrapper, MessageClasses.message, MessageClasses.groupStart, AvatarClasses.cozy)} style={
             {
                 marginLeft: "0px",
                 paddingLeft: "52px",
@@ -186,8 +183,7 @@ asses.cozyMessage, AvatarClasses.wrapper, MessageClasses.message, MessageClasses
                 </div>
             )}
 
-     
-       <img
+            <img
                 className={classes(AvatarClasses.avatar, AvatarClasses.clickable)}
                 onClick={openModal}
                 src={review.sender.profilePhoto ?? IconUtils.getDefaultAvatarURL(review.sender.discordID)}
@@ -227,8 +223,7 @@ asses.cozyMessage, AvatarClasses.wrapper, MessageClasses.message, MessageClasses
             {
                 !settings.store.hideTimestamps && review.type !== ReviewType.System && (
                     <Timestamp timestamp={new Date(review.timestamp * 1000)} >
-                        {dateFormat.format(review.ti
-mestamp * 1000)}
+                        {dateFormat.format(review.timestamp * 1000)}
                     </Timestamp>)
             }
             <div className={cl("review-comment")}>
