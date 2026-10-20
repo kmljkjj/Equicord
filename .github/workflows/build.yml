@@ -26,6 +26,13 @@ jobs:
         steps:
             - uses: actions/checkout@v7
 
+
+            - name: Cache pnpm store
+              uses: actions/cache/restore@v4
+              with:
+                  path: ~/.local/share/pnpm/store
+                  key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
             - name: Setup PNPM
               uses: pnpm/setup@v2.1.0
               with:
