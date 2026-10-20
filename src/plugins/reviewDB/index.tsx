@@ -39,7 +39,8 @@ import { cl, showToast } from "./utils";
 
 const DMSideBarClasses = findCssClassesLazy("widgetPreviews");
 const ProfileCardClasses = findCssClassesLazy("cardsList", "firstCardContainer", "card", "container");
-const ProfileCardContainerClasses = findCssClassesLazy("innerContainer", "icons", "icon", "displayCount", "displayCountText", "displayCountTextColor", "breadcrumb");
+const ProfileCardContainerClasses = findCssClassesLazy("innerContainer", "icons", "icon", "displayCount", "displayCountText", "displayCountTextC
+olor", "breadcrumb");
 const ProfileCardOverlayClasses = findCssClassesLazy("overlay", "isPrivate", "outer");
 
 const guildPopoutPatch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild, onClose(): void; }) => {
@@ -102,11 +103,12 @@ export default definePlugin({
             if (user) {
                 updateAuth({ user });
 
-                if (notifyReviews) {
+                if (notifyRev
+iews) {
                     if (lastReviewId && lastReviewId < user.lastReviewID) {
                         s.lastReviewId = user.lastReviewID;
                         if (user.lastReviewID !== 0)
-                            showToast("You have new reviews on your profile!");
+                            showToast({ text: "You have new reviews on your profile!" });
                     }
                 }
 
@@ -149,7 +151,8 @@ export default definePlugin({
 
     renderProfileCollection: {
         priority: 0,
-        render: ({ user, isSideBar = false, isRedesignEnabled = false }: { user: User; isSideBar?: boolean; isRedesignEnabled?: boolean; }) => {
+        render: ({ user, isSideBar = false, isRedesignEnabled = false }: { user: User; isSideBar?: boolean; isRedesignEnabled?: boo
+lean; }) => {
             const [reviewData] = useAwaiter(() => getReviews(user.id, { limit: 4 }), { deps: [user.id], fallbackValue: null });
 
             // Discord are masters at using a crap ton of html elements and css classes to create a simple ui that could have
@@ -174,7 +177,8 @@ export default definePlugin({
                                                         const showCount = idx === 3 && reviewData.reviewCount > 4;
 
                                                         return (
-                                                            <div className={ProfileCardContainerClasses.icon} key={review.id}>
+                             
+                               <div className={ProfileCardContainerClasses.icon} key={review.id}>
                                                                 <img
                                                                     src={review.sender.profilePhoto}
                                                                     alt={review.sender.username}
@@ -196,7 +200,8 @@ export default definePlugin({
                                         : <Paragraph size={isSideBar ? "sm" : "xs"}>{reviewData?.hasOptedOut ? "User opted out" : "No reviews yet"}</Paragraph>
                                     }
                                 </div>
-                            </Clickable>
+                        
+    </Clickable>
                         </li>
                     </ul>
                 </section>

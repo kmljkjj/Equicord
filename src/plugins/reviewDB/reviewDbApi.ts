@@ -49,7 +49,7 @@ async function rdbRequest<T = unknown>(path: string, options: RequestInit = {}):
         ...options,
         headers,
     }).catch(err => {
-        showToast("Network error: Failed to connect to ReviewDB.", "failure");
+        showToast({ text: "Network error: Failed to connect to ReviewDB.", variant: "critical" });
         return null;
     });
 
@@ -59,7 +59,7 @@ async function rdbRequest<T = unknown>(path: string, options: RequestInit = {}):
 
     if (!res.ok) {
         const message = data?.message ?? `ReviewDB: Request failed with status ${res.status}`;
-        showToast(message, "failure");
+        showToast({ text: message, variant: "critical" });
         return null;
     }
 
@@ -68,7 +68,8 @@ async function rdbRequest<T = unknown>(path: string, options: RequestInit = {}):
 
 export async function getReviews(id: string, { limit, offset = 0, fetchVotes = false }: { limit?: number; offset?: number; fetchVotes?: boolean; } = {}): Promise<UserReviewsData> {
     let flags = 0;
-    if (!settings.store.showWarning) flags |= WarningFlag;
+    if (!settings.store.showWarning) flags |= Warni
+ngFlag;
 
     const params = new URLSearchParams();
     if (flags) params.append("flags", String(flags));
@@ -90,7 +91,7 @@ export async function getReviews(id: string, { limit, offset = 0, fetchVotes = f
         };
 
     if (!req.ok) {
-        showToast(res.message, "failure");
+        showToast({ text: res.message, variant: "critical" });
         return {
             ...res,
             reviews: [
@@ -124,7 +125,8 @@ export async function getReviews(id: string, { limit, offset = 0, fetchVotes = f
 
     res.reviews = res.reviews.map(review => ({
         ...review,
-        userVote: voteByReviewId.get(review.id) ?? null,
+        userVote: voteByReviewId.get(review.id) ?? 
+null,
     }));
 
     return res;
@@ -142,7 +144,7 @@ export async function addReview(review: { userid: string; comment: string; }): P
 
     const token = await getToken();
     if (!token) {
-        showToast("Please authorize to add a review.");
+        showToast({ text: "Please authorize to add a review.", variant: "critical" });
         authorize();
         return null;
     }
@@ -151,7 +153,7 @@ export async function addReview(review: { userid: string; comment: string; }): P
         method: "PUT",
         body: JSON.stringify(review),
     });
-    if (data?.message) showToast(data.message);
+    if (data?.message) showToast({ text: data.message });
     return data;
 }
 
@@ -162,7 +164,7 @@ export async function deleteReview(id: number): Promise<UserReviewsData | null> 
             reviewid: id
         })
     });
-    if (data?.message) showToast(data.message);
+    if (data?.message) showToast({ text: data.message });
     return data;
 }
 
@@ -173,13 +175,13 @@ export async function reportReview(id: number) {
             reviewid: id,
         })
     });
-    if (data?.message) showToast(data.message);
+    if (data?.message) showToast({ text: data.message });
 }
 
 export async function voteReview(id: number, isUpvote: boolean) {
     const token = await getToken();
     if (!token) {
-        showToast("Please authorize to vote on reviews.");
+        showToast({ text: "Please authorize to vote on reviews.", variant: "critical" });
         authorize();
         return false;
     }
@@ -196,8 +198,9 @@ export async function voteReview(id: number, isUpvote: boolean) {
 
 export async function deleteReviewVote(id: number) {
     const token = await getToken();
-    if (!token) {
-        showToast("Please authorize to vote on reviews.");
+    if
+ (!token) {
+        showToast({ text: "Please authorize to vote on reviews.", variant: "critical" });
         authorize();
         return false;
     }
@@ -222,7 +225,7 @@ async function patchBlock(action: "block" | "unblock", userId: string) {
 
     if (!data) return;
 
-    showToast(`Successfully ${action}ed user`, "success");
+    showToast({ text: `Successfully ${action}ed user`, variant: "success" });
 
     if (Auth?.user?.blockedUsers) {
         const newBlockedUsers = action === "block"

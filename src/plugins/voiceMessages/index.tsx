@@ -21,7 +21,7 @@ import "./styles.css";
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Card } from "@components/Card";
-import { Microphone } from "@components/Icons";
+import { ClockIcon, Microphone } from "@components/Icons";
 import { Link } from "@components/Link";
 import { Paragraph } from "@components/Paragraph";
 import { lastState as silentMessageEnabled } from "@plugins/silentMessageToggle";
@@ -37,7 +37,8 @@ import { Button, CloudUploader, Constants, FluxDispatcher, Forms, lodash, Menu, 
 import { ComponentType } from "react";
 
 import { VoiceRecorderDesktop } from "./components/DesktopRecorder";
-import { VoiceMessageProps, VoicePreview } from "./components/VoicePreview";
+import { VoiceMessageProps, VoicePreview } fro
+m "./components/VoicePreview";
 import { VoiceRecorderWeb } from "./components/WebRecorder";
 
 const VOICE_MESSAGE_FLAG = 1 << 13;
@@ -99,7 +100,8 @@ export default definePlugin({
     name: "VoiceMessages",
     description: "Allows you to send voice messages like on mobile. To do so, right click the upload button and click Send Voice Message",
     tags: ["Voice"],
-    authors: [Devs.Ven, Devs.Vap, Devs.Nickyux],
+    authors: [Devs.
+Ven, Devs.Vap, Devs.Nickyux],
     settings,
 
     patches: [
@@ -161,7 +163,8 @@ function generateWaveform(audioBuffer: AudioBuffer): string {
 function sendAudio(blob: Blob, meta: AudioMetadata) {
     const channelId = SelectedChannelStore.getChannelId();
     const reply = PendingReplyStore.getPendingReply(channelId);
-    if (reply) FluxDispatcher.dispatch({ type: "DELETE_PENDING_REPLY", channelId });
+    if (reply) FluxDispatcher.dispatch({ type: "DELETE_PEN
+DING_REPLY", channelId });
 
     const upload = new CloudUploader({
         file: new File([blob], "voice-message.ogg", { type: "audio/ogg; codecs=opus" }),
@@ -190,7 +193,7 @@ function sendAudio(blob: Blob, meta: AudioMetadata) {
             }
         });
     });
-    upload.on("error", () => showToast("Failed to upload voice message", "failure"));
+    upload.on("error", () => showToast({ text: "Failed to upload voice message", variant: "critical" }));
 
     upload.upload();
 }
@@ -219,7 +222,8 @@ function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
 
     const handleDrop: React.DragEventHandler = e => {
         e.preventDefault();
-        const file = e.dataTransfer.files[0];
+    
+    const file = e.dataTransfer.files[0];
         if (file) setAudioBlob(file);
     };
 
@@ -255,7 +259,7 @@ function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
                 onClick: () => {
                     sendAudio(blob!, meta ?? EMPTY_META);
                     modalProps.onClose();
-                    showToast("Now sending voice message... Please be patient", "clock");
+                    showToast({ text: "Now sending voice message... Please be patient", icon: ClockIcon, iconColor: "var(--text-default)" });
                 },
                 disabled: !blob
             }]}
@@ -281,7 +285,8 @@ function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
             </div>
 
             <Forms.FormTitle>Preview</Forms.FormTitle>
-            {metaError
+           
+ {metaError
                 ? <Paragraph className={cl("error")}>Failed to parse selected audio file: {metaError.message}</Paragraph>
                 : (
                     <VoicePreview

@@ -39,7 +39,8 @@ export function getIntlMessage(key: string, values?: Record<PropertyKey, any>): 
 /**
  * Get an internationalized message from a hashed key
  * @param hashedKey The hashed message key
- * @param values The values to interpolate, if it's a rich message
+ * @param values The values to inte
+rpolate, if it's a rich message
  */
 export function getIntlMessageFromHash(hashedKey: string, values?: Record<PropertyKey, any>, originalKey?: string): any {
     try {
@@ -101,7 +102,8 @@ export const enum Theme {
 
 export function getTheme(): Theme {
     try {
-        return UserSettingsActionCreators.PreloadedUserSettingsActionCreators.getCurrentValue()?.appearance?.theme;
+        return UserSettingsActionCreators.PreloadedUserSettingsAct
+ionCreators.getCurrentValue()?.appearance?.theme;
     } catch {
         return Theme.Dark;
     }
@@ -116,7 +118,7 @@ export function insertTextIntoChatInputBox(text: string) {
 
 export async function copyWithToast(text: string, toastMessage = "Copied to clipboard!") {
     await copyToClipboard(text);
-    showToast(toastMessage, "success");
+    showToast({ text: toastMessage, variant: "success" });
 }
 
 export interface MessageOptions {
@@ -175,7 +177,8 @@ export function openImageModal(item: Except<MediaModalItem, "type">, mediaModalP
 
 export async function openUserProfile(id: string) {
     const user = await UserUtils.getUser(id);
-    if (!user) throw new Error("No such user: " + id);
+    if (!user) throw new Error("No such user: " + i
+d);
 
     const guildId = SelectedGuildStore.getGuildId();
     openUserProfileModal({
@@ -239,6 +242,7 @@ export function getGuildAcronym(guild: Guild | BasicGuild | GuildProfile): strin
         .replace(/\s/g, "");
 }
 
-export function hasGuildFeature(guild: Guild, feature: GuildFeatures): boolean {
+export function hasGuildFeature(guild: Guild, feature
+: GuildFeatures): boolean {
     return guild.features?.has(feature) ?? false;
 }

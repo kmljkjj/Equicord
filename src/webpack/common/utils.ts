@@ -46,6 +46,7 @@ export const Constants: t.Constants = mapMangledModuleLazy('ME:"/users/@me"', {
 export const RestAPI: t.RestAPI = findLazy(m => typeof m === "object" && m.del && m.put);
 export const moment: typeof import("moment") = findByPropsLazy("parseTwoDigitYear");
 
+
 export const useDrag = findByCodeLazy("useDrag::spec.begin was deprecated");
 // you cant make a better finder i love that they remove display names sm
 export const useDrop = findByCodeLazy(".disconnectDropTarget()", ".dropTargetOptions=");
@@ -70,44 +71,7 @@ waitFor("parseTopic", m => Parser = m);
 export let Alerts: t.Alerts;
 waitFor(["show", "close"], m => Alerts = m);
 
-export interface ToastData {
-    message: string,
-    id: string,
-    /**
-     * Toasts.Type
-     */
-    type: string,
-    options?: ToastOptions;
-}
-
-export interface ToastOptions {
-    /**
-     * Toasts.Position
-     */
-    position?: number;
-    component?: React.ReactNode,
-    duration?: number;
-}
-
-export const Toasts: t.Toasts = mapMangledModuleLazy(".currentToastMap.has(", {
-    show: filters.byCode(".currentToastMap.has("),
-    pop: filters.byCode(".delete(")
-});
-
-export const createToast: t.createToast = findByCodeLazy('variant:"default",icon:', ".duration");
-
-/**
- * Show a simple toast. If you need more options, use Toasts.show manually
- */
-export function showToast(message: string, type: t.ToastType = "message", options?: ToastOptions) {
-    // FIXME once Discord makes up their mind and stops changing this API every update
-    try {
-        Toasts.show(createToast(message, type, options));
-    } catch {
-        // @ts-ignore
-        Toasts.show({ text: message, variant: type });
-    }
-}
+export const showToast: t.showToast = findByCodeLazy(".currentToastMap.has(");
 
 export const UserUtils = {
     getUser: findByCodeLazy(".USER(")
@@ -127,7 +91,8 @@ export const ApplicationAssetUtils = mapMangledModuleLazy("getAssetImage: size m
 
 export const NavigationRouter: t.NavigationRouter = mapMangledModuleLazy("transitionTo - Transitioning to", {
     transitionTo: filters.byCode("transitionTo -"),
-    transitionToGuild: filters.byCode("transitionToGuild -"),
+    transitionToGuil
+d: filters.byCode("transitionToGuild -"),
     back: filters.byCode("goBack()"),
     forward: filters.byCode("goForward()"),
 });
@@ -166,7 +131,8 @@ export const IconUtils: t.IconUtils = findByPropsLazy("getGuildBannerURL", "getU
 
 export const ColorUtils = mapMangledModuleLazy("Invalid hex color format", {
     rgbToHex: filters.byCode(".toString(16).slice(1)"),
-    hexToRgba: filters.byCode("`rgba(${"),
+  
+  hexToRgba: filters.byCode("`rgba(${"),
     hexToRgb: filters.byCode(".rgb();return"),
     rgbToHsl: filters.byCode("saturation:", "lightness:"),
     mixColors: filters.byCode(".substring(1,3),16)"),
@@ -203,7 +169,8 @@ export const ExpressionPickerStore: t.ExpressionPickerStore = mapMangledModuleLa
 export const PopoutActions: t.PopoutActions = mapMangledModuleLazy('type:"POPOUT_WINDOW_OPEN"', {
     open: filters.byCode('type:"POPOUT_WINDOW_OPEN"'),
     close: filters.byCode('type:"POPOUT_WINDOW_CLOSE"'),
-    setAlwaysOnTop: filters.byCode('type:"POPOUT_WINDOW_SET_ALWAYS_ON_TOP"'),
+    setAlwaysOnTop: filters.byCode('type:"POPOUT_WINDOW_SET_ALWAYS_
+ON_TOP"'),
 });
 
 export const UsernameUtils: t.UsernameUtils = findByPropsLazy("useName", "getGlobalName");

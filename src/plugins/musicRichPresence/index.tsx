@@ -17,12 +17,14 @@
 */
 
 import { definePluginSettings, migratePluginSetting, migratePluginSettings } from "@api/Settings";
-import { LinkButton } from "@components/Button";
+import { Button, LinkButton } from "@components/Button";
 import { Card } from "@components/Card";
 import { Heading } from "@components/Heading";
 import { Margins } from "@components/margins";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
+import { promptToRestart } from "@utils/promptToRestart";
+import { useAwaiter, useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
 import { Activity, ActivityAssets, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityStatusDisplayType, ActivityType } from "@vencord/discord-types/enums";
@@ -44,7 +46,8 @@ export interface TrackData {
 
 export interface ScrobblerBackend {
     name: string,
-    id: string,
+    id: str
+ing,
 
     fetchTrackData(): Promise<TrackData | null>;
     getUserURL(username: string): string;
@@ -110,7 +113,8 @@ export const settings = definePluginSettings({
     apiKey: {
         displayName: "API Key",
         description: "Last.fm API key. Not required but highly recommended to avoid rate limiting with our shared key",
-        type: OptionType.STRING,
+        type: Option
+Type.STRING,
     },
     username: {
         description: "Username",
@@ -175,7 +179,8 @@ export const settings = definePluginSettings({
             },
             {
                 label: "Use format 'artist - song'",
-                value: NameFormat.ArtistFirst
+                value: NameFormat.Ar
+tistFirst
             },
             {
                 label: "Use format 'song - artist'",
@@ -232,7 +237,55 @@ export const settings = definePluginSettings({
     instanceAPIBaseUrl: { hidden() { return this.store.scrobblerBackend !== "listenbrainz-compatible"; } },
 });
 
-migratePluginSettings("MusicRichPresence", "LastFMRichPresence");
+const hasInvalidCustomInstance = () => settings.store.scrobblerBackend === "listenbrainz-compatible" && (!settings.store.instanceAPIBaseUrl || !
+settings.store.instanceBaseURL);
+
+function CustomInstanceAboutComponent() {
+    const { instanceAPIBaseUrl, instanceBaseURL } = settings.store;
+
+    const [signal, forceUpdate] = useForceUpdater(true);
+
+    const [cspAllowed] = useAwaiter(async () => {
+        if (!instanceAPIBaseUrl || !instanceBaseURL) return true;
+        return await VencordNative.csp.isDomainAllowed(instanceAPIBaseUrl, ["connect-src"]) && await VencordNative.csp.isDomainAllowed(instanceBaseURL, ["connect-src"]);
+    }, { fallbackValue: true, deps: [instanceAPIBaseUrl, instanceBaseURL, signal] });
+
+    if (!instanceAPIBaseUrl || !instanceBaseURL)
+        return (
+            <Card variant="danger">
+                <Heading tag="h5">Invalid ListenBrainz compatible instance</Heading>
+                <Paragraph>Provide both the <b>API Base URL</b> and the <b>Instance Base URL</b> for your custom ListenBrainz instance or switch back to ListenBrainz/Last.FM</Paragraph>
+            </Card>
+        );
+
+    if (!cspAllowed)
+        return (
+            <Card variant="warning">
+                <Heading tag="h5">Allow Vencord to connect to ListenBrainz instance</Heading>
+                <Paragraph>To use your custom ListenBrainz instance, you must first allow Vencord to connect to it.</Paragraph>
+                <Button
+                    size="small"
+                    className={Margins.top8}
+                    variant="secondary"
+                    onClick={async () => {
+                        for (const host of [instanceAPIBaseUrl, instanceBaseURL]) {
+                            const res = await VencordNative.csp.requestAddOverride(host, ["connect-src"], "MusicRichPresence");
+                            if (!res) return;
+                        }
+                        forceUpdate();
+                        promptToRestart("relaunch");
+                    }}
+                >
+                    Allow Instance
+                </Button>
+            </Card>
+        );
+
+    return null;
+}
+
+migrate
+PluginSettings("MusicRichPresence", "LastFMRichPresence");
 migratePluginSetting("MusicRichPresence", "showLastFmLogo", "showLogo");
 export default definePlugin({
     name: "MusicRichPresence",
@@ -244,17 +297,20 @@ export default definePlugin({
     settings,
 
     settingsAboutComponent() {
-        if (settings.store.scrobblerBackend !== "lastfm")
-            return null;
+        if (settings.store.scrobblerBackend === "lastfm")
+            return (
+                <Card>
+                    <Heading tag="h2">Last.FM</Heading>
+                    <Heading tag="h5">How to create an API key</Heading>
+                    <Paragraph>Set <strong>Application name</strong> and <strong>Application description</strong> to anything and leave the rest blank.</Paragraph>
+                    <LinkButton size="small" href="https://www.last.fm/api/account/create" className={Margins.top8}>Create API Key</LinkButton>
+                </Card>
+            );
 
-        return (
-            <Card>
-                <Heading tag="h2">Last.FM</Heading>
-                <Heading tag="h5">How to create an API key</Heading>
-                <Paragraph>Set <strong>Application name</strong> and <strong>Application description</strong> to anything and leave the rest blank.</Paragraph>
-                <LinkButton size="small" href="https://www.last.fm/api/account/create" className={Margins.top8}>Create API Key</LinkButton>
-            </Card>
-        );
+        if (settings.store.scrobblerBackend === "listenbrainz-compatible")
+            return <CustomInstanceAboutComponent />;
+
+        return null;
     },
 
     start() {
@@ -270,7 +326,7 @@ export default definePlugin({
         const { username, scrobblerBackend, instanceAPIBaseUrl, instanceBaseURL } = settings.store;
 
         if (!username) return;
-        if (scrobblerBackend === "listenbrainz-compatible" && (!instanceAPIBaseUrl || !instanceBaseURL)) return;
+        if (hasInvalidCustomInstance()) return;
 
         setActivity(await this.getActivity());
     },
@@ -283,7 +339,8 @@ export default definePlugin({
             return "placeholder";
     },
 
-    async getActivity(): Promise<Activity | null> {
+   
+ async getActivity(): Promise<Activity | null> {
 
         if (settings.store.hideWithActivity) {
             if (PresenceStore.getActivities(AuthenticationStore.getId()).some(a => a.application_id !== DISCORD_APP_ID && a.type !== ActivityType.CUSTOM_STATUS)) {
@@ -330,7 +387,8 @@ export default definePlugin({
             switch (settings.store.nameFormat) {
                 case NameFormat.ArtistFirst:
                     return trackData.artist + " - " + trackData.name;
-                case NameFormat.SongFirst:
+                case NameF
+ormat.SongFirst:
                     return trackData.name + " - " + trackData.artist;
                 case NameFormat.ArtistOnly:
                     return trackData.artist;
@@ -374,7 +432,8 @@ export default definePlugin({
             },
 
             type: settings.store.useListeningStatus ? ActivityType.LISTENING : ActivityType.PLAYING,
-            flags: ActivityFlags.INSTANCE,
+            flags: Ac
+tivityFlags.INSTANCE,
         };
 
         if (settings.store.clickableLinks) {

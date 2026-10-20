@@ -43,7 +43,8 @@ const UrlReplacementRules: Record<string, URLReplacementRule> = {
     steam: {
         match: /^https:\/\/(steamcommunity\.com|(?:help|store)\.steampowered\.com)\/.+$/,
         replace: match => `steam://openurl/${match}`,
-        description: "Open Steam links in the Steam app",
+        description: "Open Steam link
+s in the Steam app",
         shortlinkMatch: /^https:\/\/s.team\/.+$/,
         accountViewReplace: userId => `steam://openurl/https://steamcommunity.com/profiles/${userId}`,
     },
@@ -90,7 +91,8 @@ const pluginSettings = definePluginSettings(
 const Native = VencordNative.pluginHelpers.OpenInApp as PluginNative<typeof import("./native")>;
 
 export default definePlugin({
-    name: "OpenInApp",
+    name:
+ "OpenInApp",
     description: "Open links in their respective apps instead of your browser",
     tags: ["Utility"],
     authors: [Devs.Ven, Devs.surgedevs],
@@ -145,9 +147,10 @@ export default definePlugin({
             }
 
             if (rule.match.test(url)) {
-                showToast("Opened link in native app", "success");
+                showToast({ text: "Opened link in native app", variant: "success" });
 
-                const newUrl = url.replace(rule.match, rule.replace);
+                const newUrl = url.repl
+ace(rule.match, rule.replace);
                 VencordNative.native.openExternal(newUrl);
 
                 event?.preventDefault();

@@ -41,7 +41,8 @@ interface Sticker extends GuildSticker {
 }
 
 interface Emoji {
-    t: "Emoji";
+    t: 
+"Emoji";
     id: string;
     name: string;
     isAnimated: boolean;
@@ -112,7 +113,8 @@ async function cloneSticker(guildId: string, sticker: Sticker) {
 
     const { body } = await RestAPI.post({
         url: Constants.Endpoints.GUILD_STICKER_PACKS(guildId),
-        body: data,
+ 
+       body: data,
     });
 
     FluxDispatcher.dispatch({
@@ -180,7 +182,8 @@ async function fetchBlob(data: Data) {
     for (let size = 4096; size >= 16; size /= 2) {
         const url = getUrl(data, size);
         const res = await fetch(url);
-        if (!res.ok)
+       
+ if (!res.ok)
             throw new Error(`Failed to fetch ${url} - ${res.status}`);
 
         const blob = await res.blob();
@@ -198,7 +201,7 @@ async function doClone(guildId: string, data: Sticker | Emoji) {
         else
             await cloneEmoji(guildId, data);
 
-        showToast(`Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`, "success");
+        showToast({ text: `Successfully cloned ${data.name} to ${GuildStore.getGuild(guildId)?.name ?? "your server"}!`, variant: "success" });
     } catch (e: any) {
         let message = "Something went wrong (check console!)";
         try {
@@ -206,7 +209,7 @@ async function doClone(guildId: string, data: Sticker | Emoji) {
         } catch { }
 
         new Logger("ExpressionCloner").error("Failed to clone", data.name, "to", guildId, e);
-        showToast("Failed to clone: " + message, "failure");
+        showToast({ text: "Failed to clone: " + message, variant: "critical" });
     }
 }
 
@@ -238,7 +241,8 @@ function CloneModal({ data }: { data: Sticker | Emoji; }) {
                 validate={v =>
                     (data.t === "Emoji" && v.length > 2 && v.length < 32 && nameValidator.test(v))
                     || (data.t === "Sticker" && v.length > 2 && v.length < 30)
-                    || "Name must be between 2 and 32 characters and only contain alphanumeric characters"
+              
+      || "Name must be between 2 and 32 characters and only contain alphanumeric characters"
                 }
             />
             <div style={{
@@ -278,7 +282,8 @@ function CloneModal({ data }: { data: Sticker | Emoji; }) {
                                 }}
                             >
                                 {g.icon ? (
-                                    <img
+       
+                             <img
                                         aria-hidden
                                         style={{
                                             borderRadius: "50%",
@@ -322,7 +327,8 @@ function buildMenuItem(type: "Emoji" | "Sticker", fetchData: () => Promisable<Om
             id="emote-cloner"
             key="emote-cloner"
             label={`Clone ${type}`}
-            leadingAccessory={{ type: "icon", icon: PlusIcon }}
+            l
+eadingAccessory={{ type: "icon", icon: PlusIcon }}
             action={() =>
                 openModalLazy(async () => {
                     const res = await fetchData();
@@ -371,7 +377,8 @@ function resolveEmojiName(favoriteableId: string, message: Message) {
     if (!match) return null;
 
     return match[1]
-        ?? URL.parse(match[0])?.searchParams.get("name")
+        ?? URL.parse(match[0])?.searchParam
+s.get("name")
         ?? "FakeNitroEmoji";
 }
 
@@ -423,7 +430,8 @@ const expressionPickerPatch: NavContextMenuPatchCallback = (children, props: { t
 migratePluginSettings("ExpressionCloner", "EmoteCloner");
 export default definePlugin({
     name: "ExpressionCloner",
-    description: "Allows you to clone Emotes & Stickers to your own server (right click them)",
+    description: "Allows you to clone Emotes & Stickers to your own server (right click the
+m)",
     tags: ["Emotes", "Servers"],
     searchTerms: ["StickerCloner", "EmoteCloner", "EmojiCloner"],
     authors: [Devs.Ven, Devs.Nuckyz, Devs.scattagain],

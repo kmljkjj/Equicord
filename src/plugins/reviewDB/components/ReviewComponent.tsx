@@ -34,7 +34,8 @@ const MessageClasses = findCssClassesLazy("cozyMessage", "message", "groupStart"
 const ContainerClasses = findCssClassesLazy("container", "isHeader");
 const AvatarClasses = findCssClassesLazy("avatar", "wrapper", "cozy", "clickable", "username");
 const ButtonClasses = findCssClassesLazy("button", "wrapper", "selected");
-const BotTagClasses = findCssClassesLazy("botTagVerified", "botTagRegular", "botText", "px", "rem");
+const BotTagClasses = findCssCla
+ssesLazy("botTagVerified", "botTagRegular", "botText", "px", "rem");
 
 const dateFormat = new Intl.DateTimeFormat();
 
@@ -63,7 +64,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 cancelText="Nevermind"
                 onConfirm={async () => {
                     if (!(await getToken())) {
-                        return showToast("You must be logged in to delete reviews.");
+                        return showToast({ text: "You must be logged in to delete reviews.", variant: "critical" });
                     }
                     const res = await deleteReview(review.id);
                     if (res) refetch();
@@ -82,10 +83,11 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 cancelText="Nevermind"
                 onConfirm={async () => {
                     if (!(await getToken())) {
-                        return showToast("You must be logged in to report reviews.");
+                        return showToast({ text: "You must be logged in to report reviews.", variant: "critical" });
                     }
                     await reportReview(review.id);
-                }}
+        
+        }}
             />
         ));
     }
@@ -105,7 +107,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 cancelText="Nevermind"
                 onConfirm={async () => {
                     if (!(await getToken())) {
-                        return showToast("You must be logged in to block users.");
+                        return showToast({ text: "You must be logged in to block users.", variant: "critical" });
                     }
                     await blockUser(review.sender.discordID);
                 }}
@@ -117,7 +119,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
         if (isVoting) return;
 
         if (review.sender.discordID === Auth.user?.discordID) {
-            return showToast("You cannot vote on your own review.");
+            return showToast({ text: "You cannot vote on your own review.", variant: "critical" });
         }
 
         setIsVoting(true);
@@ -145,7 +147,8 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
     }
 
     return (
-        <div className={classes(cl("review"), MessageClasses.cozyMessage, AvatarClasses.wrapper, MessageClasses.message, MessageClasses.groupStart, AvatarClasses.cozy)} style={
+        <div className={classes(cl("review"), MessageCl
+asses.cozyMessage, AvatarClasses.wrapper, MessageClasses.message, MessageClasses.groupStart, AvatarClasses.cozy)} style={
             {
                 marginLeft: "0px",
                 paddingLeft: "52px",
@@ -183,7 +186,8 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 </div>
             )}
 
-            <img
+     
+       <img
                 className={classes(AvatarClasses.avatar, AvatarClasses.clickable)}
                 onClick={openModal}
                 src={review.sender.profilePhoto ?? IconUtils.getDefaultAvatarURL(review.sender.discordID)}
@@ -223,7 +227,8 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
             {
                 !settings.store.hideTimestamps && review.type !== ReviewType.System && (
                     <Timestamp timestamp={new Date(review.timestamp * 1000)} >
-                        {dateFormat.format(review.timestamp * 1000)}
+                        {dateFormat.format(review.ti
+mestamp * 1000)}
                     </Timestamp>)
             }
             <div className={cl("review-comment")}>

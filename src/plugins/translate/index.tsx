@@ -22,7 +22,7 @@ import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/Co
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { Message } from "@vencord/discord-types";
-import { ChannelStore, Menu } from "@webpack/common";
+import { Menu } from "@webpack/common";
 
 import { settings } from "./settings";
 import { setShouldShowTranslateEnabledTooltip, TranslateChatBarIcon, TranslateIcon } from "./TranslateIcon";
@@ -44,7 +44,8 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
             leadingAccessory={{ type: "icon", icon: TranslateIcon }}
             action={async () => {
                 const trans = await translate("received", content);
-                handleTranslate(message.id, trans);
+                handleTranslate(message.id, trans)
+;
             }}
         />
     ));
@@ -90,8 +91,6 @@ export default definePlugin({
             return {
                 label: "Translate",
                 icon: TranslateIcon,
-                message,
-                channel: ChannelStore.getChannel(message.channel_id),
                 onClick: async () => {
                     const trans = await translate("received", content);
                     handleTranslate(message.id, trans);
@@ -106,7 +105,8 @@ export default definePlugin({
 
         setShouldShowTranslateEnabledTooltip?.(true);
         clearTimeout(tooltipTimeout);
-        tooltipTimeout = setTimeout(() => setShouldShowTranslateEnabledTooltip?.(false), 2000);
+        tooltipTimeout = setTimeout(() => setShouldShowTranslateEnabledToo
+ltip?.(false), 2000);
 
         const trans = await translate("sent", message.content);
         message.content = trans.text;

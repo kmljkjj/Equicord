@@ -66,7 +66,8 @@ export const getLanguages = () => {
     }
 };
 
-export async function translate(kind: "received" | "sent", text: string): Promise<TranslationValue> {
+export async function translate(kind: "receive
+d" | "sent", text: string): Promise<TranslationValue> {
     const translate = IS_WEB ? googleTranslate : (() => {
         switch (settings.store.service) {
             case "google":
@@ -89,7 +90,7 @@ export async function translate(kind: "received" | "sent", text: string): Promis
             ? e
             : "Something went wrong. If this issue persists, please check the console or ask for help in the support server.";
 
-        showToast(userMessage, "failure");
+        showToast({ text: userMessage, variant: "critical" });
 
         throw e instanceof Error
             ? e
@@ -126,17 +127,18 @@ function fallbackToGoogle(text: string, sourceLang: string, targetLang: string):
     return googleTranslate(
         text,
         deeplLanguageToGoogleLanguage(sourceLang),
-        deeplLanguageToGoogleLanguage(targetLang)
+      
+  deeplLanguageToGoogleLanguage(targetLang)
     );
 }
 
 const showDeeplApiQuotaToast = onlyOnce(
-    () => showToast("Deepl API quota exceeded. Falling back to Google Translate", "failure")
+    () => showToast({ text: "Deepl API quota exceeded. Falling back to Google Translate", variant: "critical" })
 );
 
 async function deeplTranslate(text: string, sourceLang: string, targetLang: string): Promise<TranslationValue> {
     if (!settings.store.deeplApiKey) {
-        showToast("DeepL API key is not set. Resetting to Google", "failure");
+        showToast({ text: "DeepL API key is not set. Resetting to Google", variant: "critical" });
 
         settings.store.service = "google";
         resetLanguageDefaults();
@@ -187,7 +189,8 @@ async function kagiTranslate(text: string, sourceLang: string, targetLang: strin
         case 200:
             break;
         case 401:
-            throw "Invalid or expired Kagi session token";
+            throw "Invalid or 
+expired Kagi session token";
         default:
             throw new Error(`Failed to translate "${text}" (${sourceLang} -> ${targetLang})\n${status} ${data}`);
     }

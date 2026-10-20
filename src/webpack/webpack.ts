@@ -50,7 +50,8 @@ export type StoreNameFilter = string;
 export const stringMatches = (s: string, filter: CodeFilter) =>
     filter.every(f =>
         typeof f === "string"
-            ? s.includes(f)
+            ? s
+.includes(f)
             : (f.global && (f.lastIndex = 0), f.test(s))
     );
 
@@ -111,7 +112,8 @@ export const filters = {
             if (typeof m !== "object") return false;
 
             const values = Object.values(m);
-            return regexes.every(cls => values.some(v => typeof v === "string" && cls.test(v)));
+            return regex
+es.every(cls => values.some(v => typeof v === "string" && cls.test(v)));
         };
     }
 };
@@ -157,7 +159,8 @@ function shouldIgnoreValue(value: any) {
     return false;
 }
 
-function makePropertyNonEnumerable(target: Record<PropertyKey, any>, key: PropertyKey) {
+function makePropertyNonEnumerable(t
+arget: Record<PropertyKey, any>, key: PropertyKey) {
     const descriptor = Object.getOwnPropertyDescriptor(target, key);
     if (descriptor == null) return;
 
@@ -220,7 +223,8 @@ if (IS_DEV && IS_DISCORD_DESKTOP) {
     }, 0);
 }
 
-export function handleModuleNotFound(method: string, ...filter: unknown[]) {
+export function handleModuleNotFound(method: string, ...filter: u
+nknown[]) {
     const err = new Error(`webpack.${method} found no module`);
     logger.error(err, "Filter:", filter);
 
@@ -280,7 +284,8 @@ export function findAll(filter: FilterFn, { topLevelOnly = false }: { topLevelOn
 
         for (const nestedMod in mod.exports) {
             const nested = mod.exports[nestedMod];
-            if (nested && filter(nested)) ret.push(nested);
+       
+     if (nested && filter(nested)) ret.push(nested);
         }
     }
 
@@ -348,7 +353,8 @@ export const findBulk = traceFunction("findBulk", function findBulk(...filterFns
         }
     }
 
-    if (found !== length) {
+    if 
+(found !== length) {
         const err = new Error(`Got ${length} filters, but only found ${found} modules!`);
         if (IS_DEV) {
             if (!devToolsOpen)
@@ -404,7 +410,8 @@ export const lazyWebpackSearchHistory = [] as Array<[TypeWebpackSearchHistory, a
  * This is just a wrapper around {@link proxyLazy} to make our reporter test for your webpack finds.
  *
  * Wraps the result of {@link makeLazy} in a Proxy you can consume as if it wasn't lazy.
- * On first property access, the lazy is evaluated
+ * On first property access, th
+e lazy is evaluated
  * @param factory lazy factory
  * @param attempts how many times to try to evaluate the lazy before giving up
  * @returns Proxy
@@ -457,7 +464,8 @@ export function findByProps(...props: PropsFilter) {
 export function findByPropsLazy(...props: PropsFilter) {
     if (IS_REPORTER) lazyWebpackSearchHistory.push(["findByProps", props, new Error().stack]);
 
-    return proxyLazy(() => findByProps(...props));
+    return proxyLazy(() => findByProps(.
+..props));
 }
 
 /**
@@ -535,7 +543,8 @@ export function findStoreLazy(name: StoreNameFilter) {
 }
 
 /**
- * Finds the component which includes all the given code. Checks for plain components, memos and forwardRefs
+ * Finds the component which include
+s all the given code. Checks for plain components, memos and forwardRefs
  */
 export function findComponentByCode(...code: CodeFilter) {
     const res = find(filters.componentByCode(...code), { isIndirect: true });
@@ -582,13 +591,14 @@ export function findExportedComponentLazy<T extends object = any>(...props: Prop
         const res = find(filters.byProps(...props), { isIndirect: true });
         if (!res)
             handleModuleNotFound("findExportedComponent", ...props);
-        return res[props[0]];
+        return res?.[props[0]];
     });
 }
 
 export function mapMangledCssClasses<S extends string>(mappedModule: object, classes: S[] | ReadonlyArray<S>): Record<S, string> {
     const values = Object.values(mappedModule);
-    const mapped = {} as Record<S, string>;
+    const mapped = {} as Record<S, stri
+ng>;
 
     for (const cls of classes) {
         const re = makeClassNameRegex(cls);
@@ -640,7 +650,8 @@ function getAllPropertyNames(object: Record<PropertyKey, any>, includeNonEnumera
  * @param mappers Mappers to create the non mangled exports
  * @param includeBlacklistedExports Whether to include blacklisted exports in the search.
  *                                  These exports are dangerous. Accessing properties on them may throw errors
- *                                  or always return values (so a byProps filter will always return true)
+ *                                  or always return values (so a by
+Props filter will always return true)
  * @returns Unmangled exports as specified in mappers
  *
  * @example mapMangledModule("headerIdIsManaged:", {
@@ -688,7 +699,8 @@ export const DefaultExtractAndLoadChunksRegex = /(?:(?:Promise\.all\(\[)?((?:\i\
 export const ChunkIdsRegex = /\("([^"]+?)"\)/g;
 
 /**
- * Extract and load chunks using their entry point
+ * Extract and load chunks using their e
+ntry point
  * @param code An array of all the code the module factory containing the lazy chunk loading must include
  * @param matcher A RegExp that returns the chunk ids array as the first capture group and the entry point id as the second. Defaults to a matcher that captures the first lazy chunk loading found in the module factory
  * @returns A promise that resolves with a boolean whether the chunks were loaded
@@ -734,7 +746,8 @@ export async function extractAndLoadChunks(code: CodeFilter, matcher = DefaultEx
     }
 
     const numEntryPoint = Number(entryPointId);
-    const entryPoint = Number.isNaN(numEntryPoint) ? entryPointId : String(numEntryPoint);
+    const entryPoint = Number.isNaN(numEntryPoint) ? entryPointId : String(numEntryPoint)
+;
 
     if (rawChunkIds) {
         const chunkIds = Array.from(rawChunkIds.matchAll(ChunkIdsRegex)).map(m => {
@@ -779,7 +792,8 @@ export function extractAndLoadChunksLazy(code: CodeFilter, matcher = DefaultExtr
  * then call the callback with the module as the first argument
  */
 export function waitFor(filter: string | PropsFilter | FilterFn, callback: CallbackFn, { isIndirect = false }: { isIndirect?: boolean; } = {}) {
-    // if react find fails then we are fully cooked
+    // if react find fails th
+en we are fully cooked
     if (IS_ANTI_CRASH_TEST && filter !== "useState") return;
 
     if (IS_REPORTER && !isIndirect) lazyWebpackSearchHistory.push(["waitFor", Array.isArray(filter) ? filter : [filter], new Error().stack]);
@@ -833,7 +847,8 @@ export function extract(moduleId: PropertyKey) {
     const originalFactory = wreq.m[moduleId];
     if (!originalFactory) return null;
 
-    const originalFactoryCode = String(originalFactory);
+    const originalFactoryCode = S
+tring(originalFactory);
     const isArrowFunction = originalFactoryCode.startsWith("(");
 
     const wrappedCode = "0," + (!isArrowFunction ? "function" : "") + originalFactoryCode.slice(originalFactoryCode.indexOf("("));

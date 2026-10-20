@@ -43,7 +43,8 @@ interface Props extends UserProps {
     onFetchReviews(data: UserReviewsData): void;
     refetchSignal?: unknown;
     showInput?: boolean;
-    page?: number;
+ 
+   page?: number;
     scrollToTop?(): void;
     hideOwnReview?: boolean;
     type: ReviewType;
@@ -104,7 +105,8 @@ function ReviewList({ refetch, reviews, hideOwnReview, profileId, type }: { refe
     const myId = UserStore.getCurrentUser().id;
 
     return (
-        <div className={cl("view")}>
+        <div className={cl("vi
+ew")}>
             {reviews?.map(review =>
                 (review.sender.discordID !== myId || !hideOwnReview) &&
                 <ReviewComponent
@@ -138,7 +140,7 @@ export function ReviewsInputComponent(
         <>
             <div onClick={() => {
                 if (!token) {
-                    showToast("Opening authorization window...");
+                    showToast({ text: "Opening authorization window..." });
                     authorize();
                 }
             }}>
@@ -158,7 +160,8 @@ export function ReviewsInputComponent(
                     parentModalKey={modalKey}
                     textValue=""
                     onSubmit={
-                        async res => {
+                    
+    async res => {
                             const response = await addReview({
                                 userid: discordId,
                                 comment: res.value,
