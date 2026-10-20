@@ -70,7 +70,7 @@
                 "afterDeclarations": true
             }
         ],
-        "outDir": "who-fucking-cares-dude"
+        "outDir": "dist/types"
     },
     "include": [
         "src/**/*",

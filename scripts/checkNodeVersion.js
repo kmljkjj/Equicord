@@ -16,5 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-if (Number(process.versions.node.split(".")[0]) < 18)
-    throw `Your node version (${process.version}) is too old, please update to v18 or higher https://nodejs.org/en/download/`;
+// keep in sync with the "engines.node" field of package.json
+const MIN_NODE_MAJOR = 22;
+
+const major = Number(process.versions.node.split(".")[0]);
+
+if (major < MIN_NODE_MAJOR)
+    throw new Error(`Your node version (${process.version}) is too old, please update to v${MIN_NODE_MAJOR} or higher https://nodejs.org/en/download/`);

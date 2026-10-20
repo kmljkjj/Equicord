@@ -16,7 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// DO NOT REMOVE UNLESS YOU WISH TO FACE THE WRATH OF THE CIRCULAR DEPENDENCY DEMON!!!!!!!
+// Import order matters: "~plugins" registers every plugin before any other
+// module of the bundle starts importing plugin APIs. Do not move this import.
 import "~plugins";
 import "./fixWeirdAppRegionBug.css";
 
@@ -39,7 +40,7 @@ import { SettingsRouter } from "@webpack/common";
 
 import { get as dsGet } from "./api/DataStore";
 import { showNotice } from "./api/Notices";
-import { NotificationData, showNotification } from "./api/Notifications";
+import { showNotification } from "./api/Notifications";
 import { initPluginManager, PMLogger, startAllPlugins } from "./api/PluginManager";
 import { PlainSettings, Settings, SettingsStore } from "./api/Settings";
 import { areLocalSettingsDirty, getCloudSettings, getCloudSyncDirection, markLocalSettingsDirty, putCloudSettings, shouldCloudSync } from "./api/SettingsSync/cloudSync";
@@ -51,6 +52,16 @@ import { patches } from "./webpack/patchWebpack";
 if (IS_REPORTER) {
     require("./debug/runReporter");
 }
+
+const saveSettingsOnFrequentAction = debounce(async () => {
+    if (Settings.cloud.settingsSync && Settings.cloud.authenticated && shouldCloudSync("push")) {
+        await putCloudSettings();
+    }
+}, 60_000);
+
+// syncSettings can in theory run more than once (e.g. repeated init in some
+// environments); make sure the global change listener is only ever added once
+let settingsSyncInitialized = false;
 
 async function syncSettings() {
     const hasCloudAuth = await dsGet("Vencord_cloudSecret");
@@ -66,23 +77,6 @@ async function syncSettings() {
             // Disable cloud sync globally
             Settings.cloud.authenticated = false;
         }
-        return;
-    }
-
-    // pre-check for local shared settings
-    if (
-        Settings.cloud.authenticated &&
-        !hasCloudAuth // this has been enabled due to local settings share or some other bug
-    ) {
-        // show a notification letting them know and tell them how to fix it
-        showNotification({
-            title: "Cloud Integrations",
-            body: "We've noticed you have cloud integrations enabled in another client! Due to limitations, you will " +
-                "need to re-authenticate to continue using them. Click here to go to the settings page to do so!",
-            color: "var(--yellow-360)",
-            onClick: () => SettingsRouter.openUserSettings("equicord_cloud_panel"),
-            noPersist: true
-        });
         return;
     }
 
@@ -107,33 +101,28 @@ async function syncSettings() {
         }
     }
 
-    const saveSettingsOnFrequentAction = debounce(async () => {
-        if (Settings.cloud.settingsSync && Settings.cloud.authenticated && shouldCloudSync("push")) {
-            await putCloudSettings();
-        }
-    }, 60_000);
+    if (!settingsSyncInitialized) {
+        settingsSyncInitialized = true;
 
-    SettingsStore.addGlobalChangeListener(() => {
-        markLocalSettingsDirty();
-        saveSettingsOnFrequentAction();
-    });
+        SettingsStore.addGlobalChangeListener(() => {
+            markLocalSettingsDirty();
+            saveSettingsOnFrequentAction();
+        });
+    }
 }
 
 let notifiedForUpdatesThisSession = false;
 
+const UPDATE_CHECK_INTERVAL = 1000 * 60 * 30; // 30 minutes
+
+// keep a reference to the interval so it can be cleared if this module is
+// ever re-executed, and prevent overlapping update checks
+let updateCheckInterval: ReturnType<typeof setInterval> | undefined;
+let updateCheckRunning = false;
+
 async function runUpdateCheck() {
-    if (IS_UPDATER_DISABLED) return;
-
-    const notify = (data: NotificationData) => {
-        if (notifiedForUpdatesThisSession) return;
-        notifiedForUpdatesThisSession = true;
-
-        setTimeout(() => showNotification({
-            permanent: true,
-            noPersist: true,
-            ...data
-        }), 10_000);
-    };
+    if (IS_UPDATER_DISABLED || updateCheckRunning) return;
+    updateCheckRunning = true;
 
     try {
         const isOutdated = await checkForUpdates();
@@ -164,6 +153,8 @@ async function runUpdateCheck() {
         );
     } catch (err) {
         UpdateLogger.error("Failed to check for updates", err);
+    } finally {
+        updateCheckRunning = false;
     }
 }
 
@@ -171,14 +162,19 @@ async function init() {
     await onceReady;
     startAllPlugins(StartAt.WebpackReady);
 
-    syncSettings();
+    syncSettings().catch(err => PMLogger.error("Failed to sync settings", err));
 
     if (!IS_DEV && !IS_WEB && !IS_UPDATER_DISABLED) {
         runUpdateCheck();
 
         // this tends to get really annoying, so only do this if the user has auto-update without notification enabled
         if (Settings.autoUpdate && !Settings.autoUpdateNotification) {
-            setInterval(runUpdateCheck, 1000 * 60 * 30); // 30 minutes
+            updateCheckInterval = setInterval(runUpdateCheck, UPDATE_CHECK_INTERVAL);
+
+            window.addEventListener("beforeunload", () => {
+                clearInterval(updateCheckInterval);
+                updateCheckInterval = undefined;
+            }, { once: true });
         }
     }
 

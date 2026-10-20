@@ -18,8 +18,9 @@
 
 import "./checkNodeVersion.js";
 
-import { execFileSync, execSync } from "child_process";
-import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync, cpSync, rmSync } from "fs";
+import { execFileSync } from "child_process";
+import { createHash } from "crypto";
+import { createReadStream, createWriteStream, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import { Readable } from "stream";
 import { finished } from "stream/promises";
@@ -29,7 +30,6 @@ const BASE_URL = "https://github.com/Equicord/Equilotl/releases/latest/download/
 
 const BASE_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 const FILE_DIR = join(BASE_DIR, "dist", "Installer");
-const ETAG_FILE = join(FILE_DIR, "etag.txt");
 
 function byArch(files) {
     return files[process.arch] ?? files.default;
@@ -51,11 +51,51 @@ function getFilename() {
         case "linux":
             return byArch({
                 arm64: "EquilotlCli-linux-arm64",
-                default: "EquilotlCli-Linux"
+                default: "EquilotlCli-linux"
             });
         default:
             throw new Error("Unsupported platform: " + process.platform);
     }
+}
+
+async function sha256File(file) {
+    const hash = createHash("sha256");
+    for await (const chunk of createReadStream(file))
+        hash.update(chunk);
+    return hash.digest("hex");
+}
+
+/**
+ * Verifies the downloaded binary against the .sha256 checksum published on
+ * the same release, if one exists. This protects against corrupted and
+ * incomplete downloads. Note that it cannot protect against a compromised
+ * release, because an attacker controlling the release could replace the
+ * checksum as well; that would require signatures published by the
+ * Equilotl project itself.
+ */
+async function verifyChecksum(filename, file) {
+    let res;
+    try {
+        res = await fetch(BASE_URL + filename + ".sha256");
+    } catch {
+        console.warn("Could not fetch the published checksum; skipping checksum verification.");
+        return;
+    }
+
+    if (!res.ok) {
+        console.warn("No checksum published for " + filename + "; skipping checksum verification.");
+        return;
+    }
+
+    const expectedHash = (await res.text()).trim().split(/\s+/)[0];
+    if (!/^[0-9a-f]{64}$/i.test(expectedHash)) {
+        console.warn("The published checksum for " + filename + " is malformed; skipping checksum verification.");
+        return;
+    }
+
+    const actualHash = await sha256File(file);
+    if (actualHash.toLowerCase() !== expectedHash.toLowerCase())
+        throw new Error("The downloaded installer failed checksum verification. Not executing it.");
 }
 
 async function ensureBinary() {
@@ -65,8 +105,11 @@ async function ensureBinary() {
     mkdirSync(FILE_DIR, { recursive: true });
 
     const outputFile = join(FILE_DIR, filename);
-    const etag = existsSync(outputFile) && existsSync(ETAG_FILE)
-        ? readFileSync(ETAG_FILE, "utf-8")
+    // one etag file per binary, so switching platform or arch never reuses
+    // the etag of a different file
+    const etagFile = join(FILE_DIR, `etag-${filename}.txt`);
+    const etag = existsSync(outputFile) && existsSync(etagFile)
+        ? readFileSync(etagFile, "utf-8")
         : null;
 
     const res = await fetch(BASE_URL + filename, {
@@ -83,20 +126,36 @@ async function ensureBinary() {
     if (!res.ok)
         throw new Error(`Failed to download installer: ${res.status} ${res.statusText}`);
 
-    writeFileSync(ETAG_FILE, res.headers.get("etag"));
+    // download to a temporary file and only move it into place once it is
+    // complete and verified, so an interrupted download can never leave a
+    // truncated binary behind that a later run would consider valid
+    const tempFile = `${outputFile}.tmp-${process.pid}`;
 
-    const body = Readable.fromWeb(res.body);
-    await finished(body.pipe(createWriteStream(outputFile, {
-        mode: 0o755,
-        autoClose: true
-    })));
+    try {
+        const body = Readable.fromWeb(res.body);
+        await finished(body.pipe(createWriteStream(tempFile, {
+            mode: 0o755,
+            autoClose: true
+        })));
+
+        if (statSync(tempFile).size === 0)
+            throw new Error("The downloaded installer is empty.");
+
+        await verifyChecksum(filename, tempFile);
+
+        renameSync(tempFile, outputFile);
+    } finally {
+        rmSync(tempFile, { force: true });
+    }
+
+    const responseEtag = res.headers.get("etag");
+    if (responseEtag)
+        writeFileSync(etagFile, responseEtag);
 
     console.log("Finished downloading!");
 
     return outputFile;
 }
-
-
 
 const installerBin = await ensureBinary();
 
@@ -115,6 +174,8 @@ try {
             EQUICORD_DEV_INSTALL: "1"
         }
     });
-} catch {
-    console.error("Something went wrong. Please check the logs above.");
+} catch (error) {
+    console.error("The installer failed with an error:", error?.message ?? error);
+    console.error("Please check the logs above.");
+    process.exitCode = 1;
 }
