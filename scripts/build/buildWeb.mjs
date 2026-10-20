@@ -24,7 +24,7 @@ import { appendFile, mkdir, readdir, readFile, rm, writeFile } from "fs/promises
 import path, { join } from "path";
 import Zip from "zip-local";
 
-import { BUILD_TIMESTAMP, commonOpts, globPlugins, IS_DEV, IS_ANTI_CRASH_TEST, IS_REPORTER, IS_COMPANION_TEST, IS_STANDALONE, VERSION, commonRendererPlugins, buildOrWatchAll, stringifyValues } from "./common.mjs";
+import { BUILD_TIMESTAMP, commonOpts, globPlugins, IS_DEV, IS_ANTI_CRASH_TEST, IS_REPORTER, IS_COMPANION_TEST, IS_STANDALONE, VERSION, commonRendererPlugins, buildOrWatchAll, stringifyValues, gitHash } from "./common.mjs";
 
 /**
  * @type {import("esbuild").BuildOptions}
@@ -93,7 +93,8 @@ const buildConfigs = [
         outfile: "dist/browser/extension.js",
         define: {
             ...commonOptions.define,
-            IS_EXTENSION: "true"
+            IS_EXTENSION: "true",
+            IS_UPDATER_DISABLED: "false"
         },
         footer: { js: "//# sourceURL=file:///VencordWeb" }
     },
@@ -152,11 +153,12 @@ async function loadDir(dir, basePath = "") {
 
 /**
   * @type {(target: string, files: string[]) => Promise<void>}
- */
+  */
 async function buildExtension(target, files) {
     const entries = {
         "dist/Equicord.js": await readFile("dist/browser/extension.js"),
         "dist/Equicord.css": await readFile("dist/browser/extension.css"),
+        "extension-meta.json": Buffer.from(new TextEncoder().encode(JSON.stringify({ version: VERSION, hash: gitHash, buildTimestamp: BUILD_TIMESTAMP }))),
         ...await loadDir("dist/browser/vendor/monaco", "dist/browser/"),
         ...Object.fromEntries(await Promise.all(files.map(async f => {
             let content = await readFile(join("browser", f));

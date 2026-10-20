@@ -30,6 +30,9 @@ import { localStorage } from "@utils/localStorage";
 import { getStylusWebStoreUrl } from "@utils/web";
 import { EXTENSION_BASE_URL, metaReady, RENDERER_CSS_URL } from "@utils/web-metadata";
 
+import gitHash from "~git-hash";
+import gitRemote from "~git-remote";
+
 // listeners for ipc.on
 const cssListeners = new Set<(css: string) => void>();
 const NOOP = () => { };
@@ -38,6 +41,48 @@ const NOOP_ASYNC = async () => { };
 const setCssDebounced = debounce((css: string) => VencordNative.quickCss.set(css));
 
 const themeStore = DataStore.createStore("VencordThemes", "VencordThemeData");
+
+type UpdateChanges = Record<"hash" | "author" | "message", string>;
+
+interface UpdaterCheckResult {
+    outdated: boolean;
+    updates: UpdateChanges[];
+}
+
+interface UpdaterCssResult {
+    css: string | null;
+}
+
+/**
+ * Sends a request to the content script, which relays it to the extension's
+ * background worker, and resolves with the worker's response.
+ * Only works when running as an extension.
+ */
+function requestFromContentScript<T>(type: string, payload: Record<string, unknown> = {}, timeoutMs = 60000): Promise<T> {
+    return new Promise((resolve, reject) => {
+        const id = Math.random().toString(36).slice(2);
+
+        const listener = (e: MessageEvent) => {
+            if (e.source !== window) return;
+            if (e.data?.type !== `${type}:result` || e.data?.id !== id) return;
+
+            window.removeEventListener("message", listener);
+            clearTimeout(timer);
+            if (typeof e.data.error === "string")
+                reject(new Error(e.data.error));
+            else
+                resolve(e.data.payload as T);
+        };
+
+        const timer = setTimeout(() => {
+            window.removeEventListener("message", listener);
+            reject(new Error(`Timed out waiting for the extension updater (${type})`));
+        }, timeoutMs);
+
+        window.addEventListener("message", listener);
+        window.postMessage({ type, id, ...payload }, "*");
+    });
+}
 
 // probably should make this less cursed at some point
 window.VencordNative = {
@@ -64,6 +109,17 @@ window.VencordNative = {
 
             await metaReady;
 
+            if (IS_EXTENSION) {
+                // a bundle updated through the Updater ships its own css; prefer it
+                try {
+                    const res = await requestFromContentScript<UpdaterCssResult>("vc-updater:get-css", {}, 5000);
+                    if (typeof res.css === "string")
+                        return res.css;
+                } catch {
+                    // fall back to the packaged css
+                }
+            }
+
             return fetch(RENDERER_CSS_URL)
                 .then(res => res.text());
         },
@@ -71,10 +127,40 @@ window.VencordNative = {
     },
 
     updater: {
-        getRepo: async () => ({ ok: true, value: "https://github.com/Equicord/Equicord" }),
-        getUpdates: async () => ({ ok: true, value: [] }),
-        fetchUpdate: async () => ({ ok: true, value: false }),
-        applyUpdate: async () => ({ ok: true, value: true }),
+        getRepo: async () => ({ ok: true, value: `https://github.com/${gitRemote}` }),
+        getUpdates: async () => {
+            if (!IS_EXTENSION)
+                return { ok: true, value: [] as UpdateChanges[] };
+
+            try {
+                const res = await requestFromContentScript<UpdaterCheckResult>("vc-updater:check", { repo: gitRemote, hash: gitHash });
+                return { ok: true, value: res.updates ?? [] };
+            } catch (error: any) {
+                return { ok: false, error };
+            }
+        },
+        fetchUpdate: async () => {
+            if (!IS_EXTENSION)
+                return { ok: true, value: false };
+
+            try {
+                const res = await requestFromContentScript<UpdaterCheckResult>("vc-updater:check", { repo: gitRemote, hash: gitHash });
+                return { ok: true, value: res.outdated === true };
+            } catch (error: any) {
+                return { ok: false, error };
+            }
+        },
+        applyUpdate: async () => {
+            if (!IS_EXTENSION)
+                return { ok: true, value: true };
+
+            try {
+                await requestFromContentScript("vc-updater:download", {}, 120000);
+                return { ok: true, value: true };
+            } catch (error: any) {
+                return { ok: false, error };
+            }
+        },
     },
 
     quickCss: {

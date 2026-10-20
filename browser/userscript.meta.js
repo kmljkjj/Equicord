@@ -8,6 +8,8 @@
 // @icon            https://raw.githubusercontent.com/kmljkjj/Equicord/refs/heads/main/browser/icon.png
 // @license         GPL-3.0
 // @match           *://*.discord.com/*
+// @updateURL       https://github.com/kmljkjj/Equicord/releases/latest/download/Equicord.user.js
+// @downloadURL     https://github.com/kmljkjj/Equicord/releases/latest/download/Equicord.user.js
 // @grant           GM_xmlhttpRequest
 // @grant           unsafeWindow
 // @run-at          document-start
@@ -16,7 +18,7 @@
 // @compatible      opera Opera + Tampermonkey or Violentmonkey
 // @compatible      edge Edge + Tampermonkey or Violentmonkey
 // @compatible      safari Safari + Tampermonkey or Violentmonkey
-// ==/UserScript==
+// ==UserScript==
 
 
 // this UserScript DOES NOT work on Firefox with Violentmonkey or Greasemonkey due to a bug that makes it impossible
