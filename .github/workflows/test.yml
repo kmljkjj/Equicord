@@ -19,21 +19,26 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
             - name: Cache pnpm store
-              uses: actions/cache/restore@v4
+              uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
               with:
                   path: ~/.local/share/pnpm/store
                   key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   restore-keys: pnpm-store-${{ runner.os }}-
 
-            - name: Setup PNPM
-              uses: pnpm/setup@v2.1.0
+            - name: Setup Node
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
               with:
-                  runtime: node@v24
-                  require-lockfile: true
+                  node-version: 24
+
+            - name: Setup pnpm
+              run: npm install -g pnpm@12.8.1
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
             # each check is its own step so failures are immediately visible
             # and CI never auto-fixes the code (lint runs without --fix)
@@ -66,7 +71,7 @@ jobs:
             # explicitly so cold runs stop re-downloading every dependency
             - name: Save pnpm store cache
               if: github.ref == 'refs/heads/main' && success()
-              uses: actions/cache/save@v4
+              uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
               with:
                   path: ~/.local/share/pnpm/store
                   key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
