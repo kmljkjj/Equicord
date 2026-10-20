@@ -60,8 +60,7 @@ export function authorize(callback?: () => void) {
 
                     if (!res.ok) {
                         const { message } = await res.json();
-                        showToast({ text: message ?? "An error
- occured while authorizing", variant: "critical" });
+                        showToast({ text: message ?? "An error occured while authorizing", variant: "critical" });
                         return;
                     }
 

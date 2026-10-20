@@ -48,8 +48,7 @@ export function Changes({ updates, repo, repoPending }: CommonProps & { updates:
                         </code>
                         <Span size="sm" color="text-default">
                             {message}
-                        </
-Span>
+                        </Span>
                         <Span size="sm" color="text-subtle">
                             — {author}
                         </Span>
@@ -107,8 +106,7 @@ export function Updatable(props: CommonProps) {
                             if (await update()) {
                                 setUpdates([]);
 
-                                await new Promise<void>(r =
-> {
+                                await new Promise<void>(r => {
                                     openModal(props => (
                                         <ConfirmModal
                                             {...props}
@@ -148,8 +146,7 @@ export function Updatable(props: CommonProps) {
                 </>
             ) : (
                 <Paragraph>
-                    You're running the latest version of Equic
-ord.
+                    You're running the latest version of Equicord.
                 </Paragraph>
             )}
         </>

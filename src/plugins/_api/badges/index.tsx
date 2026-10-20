@@ -42,7 +42,6 @@ const ContributorBadge: ProfileBadge = {
     description: "Vencord Contributor",
     iconSrc: CONTRIBUTOR_BADGE,
     position: BadgePosition.START,
-
     shouldShow: ({ userId }) => shouldShowContributorBadge(userId),
     onClick: (_, { userId }) => openContributorModal(UserStore.getUser(userId))
 };
@@ -98,8 +97,7 @@ async function loadAllBadges(noCache = false) {
     const vencordBadges = await loadBadges("https://badges.vencord.dev/badges.json", noCache);
     const equicordBadges = await loadBadges("https://badge.equicord.org/badges.json", noCache);
 
-    DonorBadges = 
-vencordBadges;
+    DonorBadges = vencordBadges;
     EquicordDonorBadges = equicordBadges;
 }
 
@@ -153,8 +151,7 @@ export default definePlugin({
                 // Path with 2026-04-badge-discovery ON
                 {
                     match: /(?<=fallbackIconSrc:.{0,50}?)children:(?=.{0,50}?(\i)\.id)/,
-                    replace: "children:$1.component?$self.renderBadgeComponent({.
-..$1}):"
+                    replace: "children:$1.component?$self.renderBadgeComponent({...$1}):"
                 },
                 // handle onClick and onContextMenu
                 {
@@ -224,8 +221,7 @@ export default definePlugin({
         const { onClick, onContextMenu } = badge;
 
         if (onClick) handlers.onClick = e => onClick(e, badge);
-       
- if (onContextMenu) handlers.onContextMenu = e => onContextMenu(e, badge);
+        if (onContextMenu) handlers.onContextMenu = e => onContextMenu(e, badge);
 
         return handlers;
     },

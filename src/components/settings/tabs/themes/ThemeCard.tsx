@@ -44,8 +44,7 @@ export function ThemeActivationMenu({ themeId, activationMode, onActivationModeC
     const [selectedMode, setSelectedMode] = useState(activationMode);
 
     return (
-        <Menu.Menu navId={`theme-card-menu-
-${themeId}`} onClose={ContextMenuApi.closeContextMenu}>
+        <Menu.Menu navId={`theme-card-menu-${themeId}`} onClose={ContextMenuApi.closeContextMenu}>
             {onActivationModeChange && (
                 <Menu.MenuItem id={`theme-activation-${themeId}`} label="Theme activation">
                     {themeActivationModeOptions.map(option => (
@@ -89,8 +88,7 @@ export function OnlineThemeIcon({ size }: { size?: string; }) {
 export interface ThemeCardProps {
     theme: UserThemeHeader;
     enabled: boolean;
-    onChange: (enabled: boolean) => voi
-d;
+    onChange: (enabled: boolean) => void;
     onDelete?: () => void;
     showDeleteButton?: boolean;
     onEditName?: (newName: string) => void;
@@ -138,8 +136,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                         icon={DiscordIcon}
                         action={() => {
                             openInviteModal(theme.invite!).catch(() =>
-                                showToast({ text: "Invalid or ex
-pired invite" })
+                                showToast({ text: "Invalid or expired invite" })
                             );
                         }}
                     />
@@ -197,7 +194,6 @@ pired invite" })
             customName={theme.customName}
             name={theme.name || theme.fileName || "Unknown Theme"}
             description={theme.description || "No description provided."}
-
             author={theme.author || "Unknown"}
             enabled={enabled}
             setEnabled={onChange}
@@ -240,8 +236,7 @@ pired invite" })
                     )}
                     {!!theme.website && <Link href={theme.website}>Website</Link>}
                     {!!(theme.website && theme.invite) && (
-                        <span style={{ color: "var(--text-muted)" }}>•</sp
-an>
+                        <span style={{ color: "var(--text-muted)" }}>•</span>
                     )}
                     {!!theme.invite && (
                         <Link

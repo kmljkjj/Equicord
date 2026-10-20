@@ -38,8 +38,7 @@ const DEFAULT_DONATE_IMAGE = "https://cdn.discordapp.com/emojis/1026533090627174
 const SHIGGY_DONATE_IMAGE = "https://equicord.org/assets/favicon.png";
 
 const VENNIE_DONATOR_IMAGE = "https://cdn.discordapp.com/emojis/1238120638020063377.png";
-const C
-OZY_CONTRIB_IMAGE = "https://cdn.discordapp.com/emojis/1026533070955872337.png";
+const COZY_CONTRIB_IMAGE = "https://cdn.discordapp.com/emojis/1026533070955872337.png";
 
 const DONOR_BACKGROUND_IMAGE = "https://media.discordapp.net/stickers/1311070116305436712.png?size=2048";
 const CONTRIB_BACKGROUND_IMAGE = "https://media.discordapp.net/stickers/1311070166481895484.png?size=2048";
@@ -81,8 +80,7 @@ function Switches() {
         ),
         !IS_WEB && {
             key: "transparent",
-            title: "Enable Window Transparency
-",
+            title: "Enable Window Transparency",
             description: "Make the Discord window transparent. A theme that supports transparency is required or this will do nothing.",
             restartRequired: true,
             warning: IS_WINDOWS
@@ -131,8 +129,7 @@ function Switches() {
                         <>
                             {description}
                             <Notice.Warning className={Margins.top8} style={{ width: "100%" }}>
-        
-                        {warning}
+                                {warning}
                             </Notice.Warning>
                         </>
                     ) : (
@@ -181,8 +178,7 @@ function EquicordSettings() {
                     <DonateButtonComponent donated={true} />
                 </SpecialCard>
             ) : (
-                <Specia
-lCard
+                <SpecialCard
                     title="Support the Project"
                     description="Please consider supporting the development of Equicord by donating!"
                     cardImage={donateImage}
@@ -227,8 +223,7 @@ lCard
                 />
                 <QuickAction
                     Icon={PaintbrushIcon}
-                    te
-xt="Edit QuickCSS"
+                    text="Edit QuickCSS"
                     action={() => VencordNative.quickCss.openEditor()}
                 />
                 {!IS_WEB && (
@@ -279,8 +274,7 @@ xt="Edit QuickCSS"
             <WindowsMaterialSettings />
 
             <NotificationSection />
-        </SettingsTab 
->
+        </SettingsTab >
     );
 }
 

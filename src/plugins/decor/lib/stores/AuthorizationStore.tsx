@@ -52,8 +52,7 @@ export const useAuthorizationStore = proxyLazy(() => zustandCreate(
                 return new Promise((resolve, reject) => openModal(props =>
                     <OAuth2AuthorizeModal
                         {...props}
-                       
- scopes={["identify"]}
+                        scopes={["identify"]}
                         responseType="code"
                         redirectUri={AUTHORIZE_URL}
                         permissions={0n}

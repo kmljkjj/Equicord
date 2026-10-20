@@ -47,8 +47,7 @@ export default definePlugin({
     reporterTestable: ReporterTestable.None,
     hidden: IS_EQUIBOP || IS_VESKTOP || "legcord" in window,
 
-    settingsAb
-outComponent: () => (
+    settingsAboutComponent: () => (
         <>
             <HeadingSecondary>How to use arRPC</HeadingSecondary>
             <Paragraph>

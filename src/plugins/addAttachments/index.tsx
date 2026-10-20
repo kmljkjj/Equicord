@@ -49,8 +49,7 @@ async function addAttachments(channelId: string, messageId: string, existingAtta
 
     showToast({ text: "Uploading, this can take a while...", icon: ClockIcon, iconColor: "var(--text-default)" });
 
-    const { body: { attachme
-nts } } = await RestAPI.post({
+    const { body: { attachments } } = await RestAPI.post({
         url: `/channels/${channelId}/attachments`,
         body: {
             files: Array.from(files, file => ({
@@ -114,8 +113,7 @@ function handlePaste(e: ClipboardEvent) {
 export default definePlugin({
     name: "AddAttachments",
     description: "Allows you to add new attachments while editing messages",
-    authors: [Devs
-.Lumap],
+    authors: [Devs.Lumap],
 
     start() {
         document.addEventListener("paste", handlePaste, { capture: true });
