@@ -3,84 +3,17 @@ if (typeof browser === "undefined") {
 }
 
 /**
- * --- Self-updating bundle loader ---
- *
- * The extension bundle is no longer injected directly by the manifest.
- * This loader first checks chrome.storage.local for a bundle downloaded by
- * the in-app Updater. If that stored bundle is newer than the packaged one,
- * it is injected instead. Otherwise the packaged bundle is injected.
- * This is what allows "Check for Updates" in the settings to actually apply updates.
- */
-const UPDATE_KEY = "vcWebUpdate";
-const BUNDLE_URL = browser.runtime.getURL("dist/Equicord.js");
-const METADATA_URL = browser.runtime.getURL("extension-meta.json");
-
-function injectScript(code, url) {
-    const script = document.createElement("script");
-    if (code != null) script.textContent = code;
-    else script.src = url;
-    (document.head ?? document.documentElement).appendChild(script);
-}
-
-function compareVersions(a, b) {
-    const parse = v => String(v ?? "").split(".").map(n => parseInt(n, 10) || 0);
-    const left = parse(a);
-    const right = parse(b);
-    for (let i = 0; i < Math.max(left.length, right.length); i++) {
-        const diff = (left[i] ?? 0) - (right[i] ?? 0);
-        if (diff !== 0) return diff > 0 ? 1 : -1;
-    }
-    return 0;
-}
-
-function withTimeout(promise, ms) {
-    return Promise.race([
-        promise,
-        new Promise(resolve => setTimeout(() => resolve(null), ms))
-    ]);
-}
-
-async function loadEquicord() {
-    let injected = false;
-
-    try {
-        const [storedData, packagedMeta] = await Promise.all([
-            withTimeout(browser.storage.local.get(UPDATE_KEY).catch(() => null), 300),
-            fetch(METADATA_URL).then(res => res.ok ? res.json() : null).catch(() => null)
-        ]);
-
-        const stored = storedData ? storedData[UPDATE_KEY] : null;
-        const manifestVersion = browser.runtime.getManifest().version;
-        const packagedVersion = packagedMeta?.version ?? manifestVersion;
-        const packagedBuildTimestamp = packagedMeta?.buildTimestamp ?? 0;
-
-        if (stored && typeof stored.code === "string" && stored.code.length > 0) {
-            const storedIsNewer =
-                (stored.version && compareVersions(stored.version, packagedVersion) > 0)
-                || (stored.version === packagedVersion && (stored.timestamp ?? 0) > packagedBuildTimestamp);
-
-            if (storedIsNewer) {
-                injectScript(stored.code);
-                injected = true;
-            } else {
-                // the packaged build is at least as new as the stored update; clear it
-                browser.storage.local.remove(UPDATE_KEY).catch(() => { });
-            }
-        }
-    } catch (error) {
-        console.warn("Equicord: update loader failed, falling back to the packaged build", error);
-    }
-
-    if (!injected) injectScript(null, BUNDLE_URL);
-}
-
-loadEquicord();
-
-/**
  * --- Updater bridge ---
  *
- * Relays updater requests from the injected bundle (MAIN world) to the
- * background worker, which performs the actual GitHub requests.
+ * The bundle is injected by the manifest in the MAIN world (like upstream),
+ * so it always runs before any Discord script. This content script only
+ * relays updater requests from the bundle to the background worker, which
+ * performs the actual GitHub requests.
+ *
+ * Downloaded updates are stored in sessionStorage: on the next page load,
+ * the bundle's built-in update banner (see makeExtensionUpdateBanner in
+ * scripts/build/buildWeb.mjs) swaps the packaged build for the downloaded
+ * one before any of Discord's scripts run.
  */
 let lastCheckResult = null;
 
@@ -166,23 +99,23 @@ window.addEventListener("message", async event => {
                 if (!download.ok) throw new Error(download.error);
                 if (!download.code) throw new Error("Downloaded update is empty");
 
-                await browser.storage.local.set({
-                    [UPDATE_KEY]: {
-                        code: download.code,
-                        css: download.css ?? null,
-                        hash: lastCheckResult.hash,
+                try {
+                    sessionStorage.setItem("vcWebUpdateMeta", JSON.stringify({
                         version: lastCheckResult.version,
-                        timestamp: lastCheckResult.timestamp
-                    }
-                });
+                        timestamp: lastCheckResult.timestamp,
+                        hash: lastCheckResult.hash
+                    }));
+                    sessionStorage.setItem("vcWebUpdateCode", download.code);
+                    if (typeof download.css === "string" && download.css.length > 0)
+                        sessionStorage.setItem("vcWebUpdateCss", download.css);
+                } catch (error) {
+                    throw new Error(
+                        "Failed to store the update for the next page load: "
+                        + String((error && error.message) || error)
+                    );
+                }
 
                 postBridgeResult(request, { success: true });
-                return;
-            }
-            case "vc-updater:get-css": {
-                const data = await browser.storage.local.get(UPDATE_KEY).catch(() => null);
-                const stored = data ? data[UPDATE_KEY] : null;
-                postBridgeResult(request, { css: typeof stored?.css === "string" ? stored.css : null });
                 return;
             }
         }

@@ -49,10 +49,6 @@ interface UpdaterCheckResult {
     updates: UpdateChanges[];
 }
 
-interface UpdaterCssResult {
-    css: string | null;
-}
-
 /**
  * Sends a request to the content script, which relays it to the extension's
  * background worker, and resolves with the worker's response.
@@ -112,9 +108,9 @@ window.VencordNative = {
             if (IS_EXTENSION) {
                 // a bundle updated through the Updater ships its own css; prefer it
                 try {
-                    const res = await requestFromContentScript<UpdaterCssResult>("vc-updater:get-css", {}, 5000);
-                    if (typeof res.css === "string")
-                        return res.css;
+                    const css = sessionStorage.getItem("vcWebUpdateCss");
+                    if (typeof css === "string" && css.length > 0)
+                        return css;
                 } catch {
                     // fall back to the packaged css
                 }

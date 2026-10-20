@@ -16,9 +16,7 @@
         "https://objects.githubusercontent.com/*"
     ],
     "permissions": [
-        "declarativeNetRequestWithHostAccess",
-        "storage",
-        "unlimitedStorage"
+        "declarativeNetRequestWithHostAccess"
     ],
     "content_scripts": [
         {
@@ -31,6 +29,17 @@
             ],
             "all_frames": true,
             "world": "ISOLATED"
+        },
+        {
+            "run_at": "document_start",
+            "matches": [
+                "*://*.discord.com/*"
+            ],
+            "js": [
+                "dist/Equicord.js"
+            ],
+            "all_frames": true,
+            "world": "MAIN"
         }
     ],
     "web_accessible_resources": [
