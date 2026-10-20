@@ -131,7 +131,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, props) => {
 export default definePlugin({
     name: "GeminiAI",
     description: "Brings Google Gemini AI into Discord: /ai chatbot, /ai-translate, and AI Translate / AI Summarize actions in the message context menu",
-    tags: ["AI", "Utility"],
+    tags: ["Utility", "Commands", "Chat"],
     authors: [Devs.kmljkjj],
     dependencies: ["CommandsAPI"],
     settings,
