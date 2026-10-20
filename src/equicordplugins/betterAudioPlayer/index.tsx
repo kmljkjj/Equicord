@@ -39,7 +39,7 @@ function validateColor(value: string, key: string, fallback: string) {
         }
     } catch { /* invalid hex */ }
 
-    showToast(`Invalid color format for ${key}, use "R, G, B" or "#RRGGBB"`, "failure");
+    showToast({ text: `Invalid color format for ${key}, use "R, G, B" or "#RRGGBB"`, variant: "critical" });
     settings.store[key] = fallback;
 }
 
@@ -62,7 +62,8 @@ function drawOscilloscope(ctx: CanvasRenderingContext2D, w: number, h: number, d
 
     for (let i = 0; i < bufferLength; i++) {
         const v = (dataArray[i] - 128) / 128;
-        const y = (h / 2) - (v * amp * h / 2);
+        const y = (h / 2) - (v * am
+p * h / 2);
 
         if (settings.store.oscilloscopeSolidColor) {
             ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`;
@@ -111,7 +112,8 @@ async function fetchAudioBlob(src: string): Promise<string | null> {
     url.searchParams.set("t", Date.now().toString());
 
     const response = await fetch(CORS_PROXY + encodeURIComponent(url.href));
-    const contentLength = response.headers.get("content-length");
+    const contentLength = response.he
+aders.get("content-length");
     if (contentLength && Number(contentLength) > MAX_FILE_SIZE) return null;
 
     const blob = await response.blob();
@@ -168,7 +170,8 @@ function Visualizer({ mediaRef, playing }: { mediaRef: PlayerInstance["mediaRef"
                 analyser.getByteTimeDomainData(dataArray);
                 analyser.getByteFrequencyData(frequencyData);
 
-                const { canvas } = canvasCtx;
+                const { canvas 
+} = canvasCtx;
                 const width = canvas.clientWidth;
                 const height = canvas.clientHeight;
                 const dpr = window.devicePixelRatio;
@@ -228,7 +231,8 @@ const settings = definePluginSettings({
     },
     oscilloscopeColor: {
         type: OptionType.STRING,
-        description: "Color for the oscilloscope (R, G, B or #hex).",
+        description: "Color for the oscilloscope (R, G, B or #hex
+).",
         default: "255, 255, 255",
         onChange: value => validateColor(value, "oscilloscopeColor", "255, 255, 255"),
     },

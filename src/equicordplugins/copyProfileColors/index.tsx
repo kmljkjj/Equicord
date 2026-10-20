@@ -38,7 +38,7 @@ function copyProfileColors(userId: string, guildId?: string) {
     const colors = getProfileColors(userId, guildId);
 
     if (!colors) {
-        showToast("No profile colors found!", "failure");
+        showToast({ text: "No profile colors found!", variant: "critical" });
         return;
     }
 
@@ -49,16 +49,17 @@ function copyProfileColors(userId: string, guildId?: string) {
 
     try {
         copyToClipboard(formattedColors);
-        showToast("Profile colors copied to clipboard!", "success");
+        showToast({ text: "Profile colors copied to clipboard!", variant: "success" });
     } catch (e) {
         logger.error("Failed to copy to clipboard:", e);
-        showToast("Error copying profile colors!", "failure");
+        showToast({ text: "Error copying profile colors!", variant: "critical" });
     }
 }
 
 export function ColorIcon() {
     return (
         <svg
+
             viewBox="0 0 24 24"
             width="20"
             height="20"
@@ -108,6 +109,7 @@ export default definePlugin({
     authors: [EquicordDevs.Crxa, EquicordDevs.Cortex, EquicordDevs.Gir0fa],
     contextMenus: {
         "user-context": userContextMenuPatch,
-        "user-profile-actions": userContextMenuPatch
+        "user-profile-actions"
+: userContextMenuPatch
     }
 });

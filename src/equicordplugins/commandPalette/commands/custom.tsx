@@ -58,7 +58,8 @@ function commandForm(existing: CustomCommandData | null): PageEntry {
         type: "form",
         submitLabel: existing ? "Save Command" : "Create Command",
         fields: [
-            { key: "name", label: "Name", type: "text", placeholder: "Command name", initial: existing?.name ?? "" },
+            { key: "name", label: "Name", typ
+e: "text", placeholder: "Command name", initial: existing?.name ?? "" },
             { key: "kind", label: "Action", type: "select", options: KIND_OPTIONS, initial: existing?.kind ?? "url" },
             {
                 key: "url",
@@ -96,7 +97,8 @@ function commandForm(existing: CustomCommandData | null): PageEntry {
         },
         submit(values, ctx) {
             const kind = values.kind as CustomCommandKind;
-            const value = kind === "url" ? values.url.trim() : kind === "settings" ? values.route : values.text;
+            const value = kind === "url" ? values.url.trim() : kind === "settings" ? value
+s.route : values.text;
             const next: CustomCommandData = {
                 id: existing?.id ?? crypto.randomUUID(),
                 name: values.name.trim(),
@@ -109,7 +111,7 @@ function commandForm(existing: CustomCommandData | null): PageEntry {
                 : [...store.get(), next]);
             registerCustomCommands();
 
-            showToast(existing ? "Command saved." : "Command created.", "success");
+            showToast({ text: existing ? "Command saved." : "Command created.", variant: "success" });
             ctx.pop();
         }
     };
@@ -138,7 +140,7 @@ function toCommand(data: CustomCommandData): PaletteCommand {
             run() {
                 store.set(store.get().filter(entry => entry.id !== data.id));
                 registerCustomCommands();
-                showToast("Command deleted.", "success");
+                showToast({ text: "Command deleted.", variant: "success" });
             }
         }
     ];
@@ -166,7 +168,8 @@ export const loadCustomCommands = store.load;
 export function registerCustomCommands() {
     registerCommands(OWNER, [
         {
-            id: "custom.create",
+      
+      id: "custom.create",
             title: "Create Custom Command",
             section: "Custom",
             keywords: ["custom", "create", "new", "command"],

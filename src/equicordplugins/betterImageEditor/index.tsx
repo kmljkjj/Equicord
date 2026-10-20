@@ -67,7 +67,8 @@ const settings = definePluginSettings({
         stickToMarkers: true
     },
     rememberCrop: {
-        type: OptionType.BOOLEAN,
+        type: O
+ptionType.BOOLEAN,
         description: "Restore the zoom and position you last used for a picture.",
         default: true
     },
@@ -84,10 +85,10 @@ const settings = definePluginSettings({
                     confirmText: "Forget",
                     cancelText: "Cancel",
                     onConfirm: () => forgetCrops()
-                        .then(count => showToast(
-                            count ? `Forgot the framing on ${pluralise(count, "picture")}` : "Nothing was framed",
-                            "success"
-                        ))
+                        .then(count => showToast({
+                            text: count ? `Forgot the framing on ${pluralise(count, "picture")}` : "Nothing was framed",
+                            variant: "success"
+                        }))
                         .catch(err => logger.error("could not forget the remembered crops", err))
                 })}
             >
@@ -112,6 +113,7 @@ const settings = definePluginSettings({
             <div className={cl("buttons")}>
                 <Button color={Button.Colors.PRIMARY} onClick={exportLibrary}>Export to a file</Button>
                 <Button color={Button.Colors.PRIMARY} onClick={importLibrary}>Import from a file</Button>
+
             </div>
         )
     },
@@ -165,7 +167,8 @@ async function exportLibrary() {
         else saveFile(new File([data], FILENAME, { type: "application/json" }));
     } catch (err) {
         logger.error("could not export the library", err);
-        showToast("Could not export your pictures", "failure");
+        showToast({ text: "Could not export your pictures", var
+iant: "critical" });
     }
 }
 
@@ -184,13 +187,13 @@ async function importLibrary() {
         if (!json) return;
 
         const added = await importAll(json, settings.store.librarySize);
-        showToast(
-            added ? `Added ${pluralise(added, "picture")}` : "Nothing new in that file",
-            "success"
-        );
+        showToast({
+            text: added ? `Added ${pluralise(added, "picture")}` : "Nothing new in that file",
+            variant: "success"
+        });
     } catch (err) {
         logger.error("could not import the library", err);
-        showToast("Could not read that file", "failure");
+        showToast({ text: "Could not read that file", variant: "critical" });
     }
 }
 
@@ -219,7 +222,8 @@ function useLibrary(kind: Kind) {
             mine.forEach((entry, index) => {
                 const blob = blobs[index];
                 if (blob) next[entry.id] = URL.createObjectURL(blob);
-            });
+            })
+;
 
             setThumbs(next);
             setEntries(mine);
@@ -279,7 +283,8 @@ function usePasteAndDrop(accept: (file: File) => void, active: () => boolean) {
             event.stopPropagation();
         };
 
-        document.addEventListener("paste", onPaste, true);
+        document.addEventListener("paste"
+, onPaste, true);
         document.addEventListener("drop", onDrop, true);
         document.addEventListener("dragover", onDragOver, true);
 
@@ -324,7 +329,7 @@ function PickerShelf({ kind, open, complete, maxSize }: {
 
     const onPick = useCallback(async (entry: Entry) => {
         const blob = await getFile(entry.id);
-        if (!blob) return showToast("That picture is missing", "failure");
+        if (!blob) return showToast({ text: "That picture is missing", variant: "critical" });
 
         const file = new File([blob], entry.name, { type: blob.type });
         await touch(entry.id);
@@ -339,12 +344,13 @@ function PickerShelf({ kind, open, complete, maxSize }: {
         await hand(entry.id, file, settings.store.rememberCrop ? entry.crop ?? null : null);
     }, [hand, complete, kind, bump]);
 
-    const onPin = useCallback((entry: Entry) => {
+    const onPin = useCallback((en
+try: Entry) => {
         togglePin(entry.id).then(bump).catch(err => logger.error("could not pin that picture", err));
     }, [bump]);
 
     const accept = useCallback(async (file: File) => {
-        if (maxSize && file.size > maxSize) return showToast("That picture is too big for Discord", "failure");
+        if (maxSize && file.size > maxSize) return showToast({ text: "That picture is too big for Discord", variant: "critical" });
 
         try {
             const entry = await add(file, kind, "original", settings.store.librarySize);
@@ -352,7 +358,7 @@ function PickerShelf({ kind, open, complete, maxSize }: {
             await hand(entry.id, file, settings.store.rememberCrop ? entry.crop ?? null : null);
         } catch (err) {
             logger.error("could not take that picture", err);
-            showToast("Could not use that picture", "failure");
+            showToast({ text: "Could not use that picture", variant: "critical" });
         }
     }, [kind, hand, bump, maxSize]);
 
@@ -390,7 +396,8 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
     const pickedGroup = useRef<Group>("original");
 
     pickedId.current = picked?.id ?? null;
-    pickedGroup.current = picked?.group ?? "original";
+    pickedGroup.current = picke
+d?.group ?? "original";
     pickedName.current = picked?.file.name ?? ownProps.file?.name ?? null;
 
     const show = useCallback(async (id: string, file: File, crop: CropState | null, group: Group = "original") => {
@@ -432,7 +439,7 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
             await show(entry.id, file, settings.store.rememberCrop ? entry.crop ?? null : null);
         } catch (err) {
             logger.error("could not take that picture", err);
-            showToast("Could not use that picture", "failure");
+            showToast({ text: "Could not use that picture", variant: "critical" });
         }
     }, [kind, show, bump, setGroup]);
 
@@ -440,11 +447,12 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
 
     const onPick = useCallback(async (entry: Entry) => {
         const blob = await getFile(entry.id);
-        if (!blob) return showToast("That picture is missing", "failure");
+        if (!blob) return showToast({ text: "That picture is missing", variant: "critical" });
 
         await touch(entry.id);
         bump();
-        await show(entry.id, new File([blob], entry.name, { type: blob.type }), settings.store.rememberCrop ? entry.crop ?? null : null, entry.group);
+        await show(entry.id, new File
+([blob], entry.name, { type: blob.type }), settings.store.rememberCrop ? entry.crop ?? null : null, entry.group);
     }, [show, bump]);
 
     const onPin = useCallback((entry: Entry) => {
@@ -464,7 +472,7 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
         };
         const run = () => save().catch(err => {
             logger.error("could not keep the cropped copy", err);
-            showToast("Could not keep the cropped copy", "failure");
+            showToast({ text: "Could not keep the cropped copy", variant: "critical" });
         });
 
         if (!settings.store.askBeforeSavingCropped) return void run();
@@ -488,7 +496,8 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
 
         if (settings.store.saveCropped && pickedGroup.current !== "cropped") keepCropped(result);
 
-        return ownProps.onCrop?.(result);
+        return ownProps.onCrop?.(re
+sult);
     }, [ownProps.onCrop, keepCropped, kind]);
 
     const props = picked
@@ -541,7 +550,8 @@ function onProfileSaved({ guildId }: { guildId?: string; }) {
         if (guild !== (guildId ?? "")) continue;
 
         handedOver.delete(key);
-        if (!guildId) recordApplied(kind, id).catch(err => logger.error("could not note what you put on", err));
+        if (!guildId) recordAppl
+ied(kind, id).catch(err => logger.error("could not note what you put on", err));
     }
 }
 
@@ -601,7 +611,8 @@ export default definePlugin({
                 },
                 {
                     match: /\("div",\{role:"group",(?="aria-label":)/,
-                    replace: '$&className:"vc-bie-split",'
+                    replace: '$&className:"vc-bi
+e-split",'
                 }
             ]
         },
@@ -649,7 +660,8 @@ export default definePlugin({
                 fallback: ({ wrappedProps }) => <Original {...wrappedProps.ownProps} />
             });
             wrapped = (props: EditorProps) => gatedPickers === 0
-                ? <Safe Original={Original} ownProps={props} />
+                ? <Safe 
+Original={Original} ownProps={props} />
                 : <Original {...props} />;
         }
 

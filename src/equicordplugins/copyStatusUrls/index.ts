@@ -6,10 +6,8 @@
 
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
-import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
 import { User } from "@vencord/discord-types";
-import { ToastPosition } from "@vencord/discord-types/enums";
 import { findByCodeLazy } from "@webpack";
 import { showToast } from "@webpack/common";
 
@@ -46,15 +44,20 @@ export default definePlugin({
                     throw new Error("button_urls does not contain index");
                 }
                 copyToClipboard(button_urls[index]);
-                showToast("Copied URL", "success", {
-                        position: ToastPosition.TOP
-                    });
+                showToast({
+                    text: "Copied URL",
+                    variant: "success",
+                    position: "top"
+                });
             } catch (e) {
-                new Logger("CopyStatusUrls").error("Failed to copy status URL", e);
-                showToast("Error copying URL, check console for more info", "failure", {
-                        position: ToastPosition.TOP
-                    });
-            }
+                console.error(e);
+                showToast({
+                    text: "Error copying URL, check console for more info",
+                    variant: "critical",
+                    position: "top"
+                });
+  
+          }
         };
     }
 });

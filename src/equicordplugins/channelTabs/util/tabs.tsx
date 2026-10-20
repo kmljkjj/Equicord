@@ -59,7 +59,8 @@ export function setNavigationSource(guildId: string, channelId: string, source: 
 export function isNavigationFromSource(guildId: string | null | undefined, channelId: string, source: "bookmark"): boolean {
     if (!lastNavigationContext) return false;
 
-    // Normalize both sides for comparison (handles null/undefined/"" for DMs)
+    // Normalize both sides for comparison (handles null/undef
+ined/"" for DMs)
     const normalizedGuildId = guildId || "@me";
     const normalizedContextGuildId = lastNavigationContext.guildId || "@me";
 
@@ -122,7 +123,8 @@ let clearGhostTabs = () => {
 
 export function createTab(props: BasicChannelTabsProps | ChannelTabsProps, switchToTab?: boolean, messageId?: string, save = true, bypassOneTabPerServer = false) {
     // Important for the "One tab per server" feature, has to be before the maxOpenTabs check!
-    if (!bypassOneTabPerServer && settings.store.oneTabPerServer && props.guildId && props.guildId !== "@me") {
+    if (!bypassOneTa
+bPerServer && settings.store.oneTabPerServer && props.guildId && props.guildId !== "@me") {
         const existingTab = openTabs.find(tab => tab.guildId === props.guildId);
         if (existingTab) {
             existingTab.channelId = props.channelId;
@@ -177,7 +179,8 @@ export function closeTab(id: number) {
 
     if (id === currentlyOpenTab) {
         if (openTabHistory.length) {
-            // use tab history to find most recently used tab
+            // use ta
+b history to find most recently used tab
             openTabHistory.pop();
             let newTab: ChannelTabsProps | undefined = undefined;
             while (!newTab) {
@@ -228,7 +231,8 @@ export function closeTabsToTheRight(id: number) {
     if (i === -1) return logger.error("Couldn't find channel tab with ID " + id, openTabs);
 
     const tabsToTheRight = openTabs.filter((_, ind) => ind > i);
-    closedTabs.push(...tabsToTheRight.reverse());
+    closedTabs.push(...tabsToThe
+Right.reverse());
     const tabsToTheLeft = openTabs.filter((_, ind) => ind <= i);
     replaceArray(openTabs, ...tabsToTheLeft);
 
@@ -280,7 +284,8 @@ export function handleChannelSwitch(ch: BasicChannelTabsProps) {
         // Apply rapid navigation logic when creating new tabs
         const now = Date.now();
         const isRapidNavigation = now - lastNavigationTime < settings.store.rapidNavigationThreshold * 1000;
-        lastNavigationTime = now;
+        
+lastNavigationTime = now;
 
         if (isRapidNavigation && settings.store.enableRapidNavigation) {
             // Replace current tab content instead of creating new one
@@ -337,7 +342,8 @@ export function moveToTab(id: number) {
     // clear bookmark viewing mode when switching to a tab
     isViewingViaBookmark = false;
 
-    // cache current tab state before switching to it
+    // cache current tab state before switching to
+ it
     const changingTabs = id !== currentlyOpenTab;
     if (changingTabs) cacheCurrentTabState(openTabs.find(t => t.id === currentlyOpenTab), openTabs);
 
@@ -387,7 +393,8 @@ export function moveToTab(id: number) {
     else update();
 
     // restore cached state for the new tab
-    if (changingTabs && !messageId) restoreTabState(id, tab.channelId);
+    if (changingTabs && !messageId) restoreTabState(id, tab.channel
+Id);
 
     // Clear flag after navigation with safety timeout
     navigationTimeoutId = setTimeout(() => {
@@ -418,7 +425,7 @@ export async function openStartupTabs(props: BasicChannelTabsProps & { userId: s
             savedTabs = persistedTabs?.[userId];
         } catch (error) {
             logger.error("Failed to load persisted tabs from DataStore", error);
-            showToast("Failed to load saved tabs", "failure");
+            showToast({ text: "Failed to load saved tabs", variant: "critical" });
         }
     }
 
@@ -430,19 +437,20 @@ export async function openStartupTabs(props: BasicChannelTabsProps & { userId: s
 
     if (keepCurrentChannel) {
         hydratedUserId = undefined;
-        showToast("Not restoring tabs as KeepCurrentChannel is enabled", "failure");
+        showToast({ text: "Not restoring tabs as KeepCurrentChannel is enabled", variant: "critical" });
         return;
     }
 
     switch (settings.store.onStartup) {
         case "remember": {
             if (!savedTabs?.openTabs.length) {
-                showToast("Failed to restore tabs", "failure");
+                showToast({ text: "Failed to restore tabs", variant: "critical" });
                 break;
             }
 
             savedTabs.openTabs.forEach(tab => createTab(tab, false, tab.messageId, false));
-            currentlyOpenTab = openTabs[savedTabs.openTabIndex]?.id ?? openTabs[0]?.id;
+            currentlyOpenTab = openTabs[savedTabs.
+openTabIndex]?.id ?? openTabs[0]?.id;
             break;
         }
         case "preset": {
@@ -509,7 +517,8 @@ export function switchChannel(ch: BasicChannelTabsProps) {
     moveToTab(openTabs.find(t => t.id === currentlyOpenTab)!.id);
 }
 
-export function navigateToBookmark(ch: BasicChannelTabsProps) {
+export function navigateToBookmark(ch: BasicChannelTabsPro
+ps) {
     // check if independent mode is enabled
     if (settings.store.bookmarksIndependentFromTabs) {
         // set flag that we're viewing via bookmark
@@ -568,7 +577,8 @@ export function useGhostTabs() {
     const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
     const [count, setCount] = useState(0);
 
-    bumpGhostTabCount = () => {
+    bumpGhostTabCount
+ = () => {
         setCount(prev => prev + 1);
         clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
