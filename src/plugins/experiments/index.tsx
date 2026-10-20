@@ -6,6 +6,7 @@
 
 import { ApplicationCommandInputType } from "@api/Commands";
 import { definePluginSettings } from "@api/Settings";
+import { disableStyle, enableStyle } from "@api/Styles";
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { ErrorCard } from "@components/ErrorCard";
@@ -19,15 +20,17 @@ import { findByPropsLazy } from "@webpack";
 import { React, SettingsRouter } from "@webpack/common";
 import { patches } from "@webpack/patcher";
 
+import pageStyle from "./style.css?managed";
+
 const KbdStyles = findByPropsLazy("key", "combo");
 const modKey = IS_MAC ? "cmd" : "ctrl";
 const altKey = IS_MAC ? "opt" : "alt";
 
-const RESOURCES: Array<{ name: string; description: string; url: string; }> = [
-    { name: "wumpus.tools", description: "Search any experiment by name and see its buckets (user / guild / developer lists)", url: "https://wumpus.tools" },
-    { name: "rollouts.advaith.io", description: "Live server-side experiment rollout tracker", url: "https://rollouts.advaith.io" },
-    { name: "docs.discord.food", description: "Technical documentation of how Discord experiments work", url: "https://docs.discord.food/topics/experiments" },
-    { name: "discordpreviews.com", description: "Upcoming Discord features with screenshots", url: "https://discordpreviews.com" }
+const RESOURCES: Array<{ name: string; description: string; url: string; emoji: string; }> = [
+    { name: "wumpus.tools", description: "Search any experiment by name and see its buckets (user / guild / developer lists)", url: "https://wumpus.tools", emoji: "🧪" },
+    { name: "rollouts.advaith.io", description: "Live server-side experiment rollout tracker", url: "https://rollouts.advaith.io", emoji: "📊" },
+    { name: "docs.discord.food", description: "Technical documentation of how Discord experiments work", url: "https://docs.discord.food/topics/experiments", emoji: "📚" },
+    { name: "discordpreviews.com", description: "Upcoming Discord features with screenshots", url: "https://discordpreviews.com", emoji: "🖼️" }
 ];
 
 function openLink(url: string) {
@@ -83,14 +86,14 @@ const connectionInitPatch: Patch = {
     }
 };
 
-// Show the warning card above the experiment list on the Experiments page
+// Show the warning card and quick resources above the experiment list on the Experiments page
 const experimentsPagePatch: Patch = {
     plugin: "Experiments",
     find: 'placeholder:"Search experiments"',
     replacement: [
         {
             match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,
-            replace: "$self.showWarningCard()?$self.WarningCard():null,"
+            replace: "$self.showWarningCard()?$self.WarningCard():null,$self.ResourcesBar(),"
         },
         // for some reason the installation id and copy buttons are on
         // different lines so it looks stupid when the card above is added
@@ -258,6 +261,9 @@ export default definePlugin({
     dependencies: ["CommandsAPI"],
     settings,
 
+    start: () => enableStyle(pageStyle),
+    stop: () => disableStyle(pageStyle),
+
     commands: [
         {
             name: "experiments",
@@ -386,9 +392,31 @@ export default definePlugin({
         );
     },
 
+    ResourcesBar: ErrorBoundary.wrap(() => (
+        <div className="vc-exp-resources">
+            <span className="vc-exp-resources-label">Quick resources</span>
+            {RESOURCES.map(resource => (
+                <button
+                    key={resource.url}
+                    type="button"
+                    className="vc-exp-chip"
+                    onClick={() => openLink(resource.url)}
+                    title={resource.description}
+                    aria-label={`Open ${resource.name}`}
+                >
+                    <span className="vc-exp-chip-emoji" aria-hidden={true}>{resource.emoji}</span>
+                    {resource.name}
+                </button>
+            ))}
+        </div>
+    ), { noop: true }),
+
     WarningCard: ErrorBoundary.wrap(() => (
         <ErrorCard id="vc-experiments-warning-card" className={Margins.bottom16}>
-            <HeadingPrimary>Hold on!!</HeadingPrimary>
+            <div className="vc-exp-warn-head">
+                <span className="vc-exp-warn-icon" aria-hidden={true}>⚠️</span>
+                <HeadingPrimary>Hold on!!</HeadingPrimary>
+            </div>
 
             <Paragraph>
                 Experiments are unreleased Discord features. They might not work, or even break your client or get your account disabled.
