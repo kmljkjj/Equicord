@@ -222,7 +222,18 @@ export default definePlugin({
             </Paragraph>
 
             <Paragraph className={Margins.top8}>
-                No, you cannot use server-side features like checking the "Send to Client" box.
+                No, you cannot use server-side features like checking the "Send to Client" box: the server only accepts experiment overrides from Discord staff.
+            </Paragraph>
+
+            <Paragraph className={Margins.top8}>
+                Why a forced experiment may not show anything: newer Apex experiments are assigned server-side and cannot be forced from the client;
+                guild experiments can be locked to specific server IDs or Discord employees only (INTERNAL_EMPLOYEE_ONLY);
+                a holdout experiment may disable the one you enabled;
+                and some features only apply after a full client restart, not just a reload.
+            </Paragraph>
+
+            <Paragraph className={Margins.top8}>
+                If an experiment shows an "An error occurred" screen, the feature's code is not in your client build. Set it back to None and the error disappears.
             </Paragraph>
 
             {IS_WEB && (
