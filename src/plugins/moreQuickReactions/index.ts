@@ -60,8 +60,7 @@ export default definePlugin({
 
     patches: [
         {
-            find: "#{intl::MESSAGE_U
-TILITIES_A11Y_LABEL}),children",
+            find: "#{intl::MESSAGE_UTILITIES_A11Y_LABEL}),children",
             replacement: {
                 match: /(?<=length>=3\?.{0,40})\.slice\(0,3\)/,
                 replace: ".slice(0,$self.reactionCount)"
@@ -101,8 +100,7 @@ TILITIES_A11Y_LABEL}),children",
                 // Scroll handler + Apply the emoji count limit from earlier with custom logic
                 {
                     match: /children:(\i)\.map\(/,
-                    replace: "on
-Wheel:$self.onWheelWrapper(moreQuickReactionsScrollValue,setMoreQuickReactionsScrollValue,$1.length),children:$self.applyScroll($1,moreQuickReactionsScrollValue).map("
+                    replace: "onWheel:$self.onWheelWrapper(moreQuickReactionsScrollValue,setMoreQuickReactionsScrollValue,$1.length),children:$self.applyScroll($1,moreQuickReactionsScrollValue).map("
                 }
             ]
         },

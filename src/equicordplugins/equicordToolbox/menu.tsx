@@ -63,7 +63,6 @@ export function buildPluginMenuEntries(includeEmpty = false) {
         <>
             <Menu.MenuControlItem
                 id="plugins-search"
-
                 control={(props, ref) => (
                     <Menu.MenuSearchControl
                         {...props}
@@ -112,8 +111,7 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                             case OptionType.SELECT:
                                 options.push(
                                     <Menu.MenuItem {...baseProps}>
-                                        {opti
-on.options.map(opt => (
+                                        {option.options.map(opt => (
                                             <Menu.MenuRadioItem
                                                 group={`${p.name}-${key}`}
                                                 id={`${p.name}-${key}-${opt.value}`}
@@ -145,7 +143,6 @@ on.options.map(opt => (
                                                 value={s[key]}
                                                 onChange={v => s[key] = v}
                                             />
-
                                         )}
                                     />
                                 );
@@ -205,8 +202,7 @@ export function buildThemeMenuEntries() {
 
     return (
         <>
-         
-   <Menu.MenuCheckboxItem
+            <Menu.MenuCheckboxItem
                 id="toggle-quickcss"
                 checked={useQuickCss}
                 label={"Enable QuickCSS"}
@@ -254,8 +250,7 @@ function buildCustomPluginEntries() {
         if (plugin.toolboxActions && isPluginEnabled(plugin.name)) {
             const entries = typeof plugin.toolboxActions === "function"
                 ? plugin.toolboxActions()
-                : Object.entries(plugin.toolboxActions).map(([text, action]) =
-> {
+                : Object.entries(plugin.toolboxActions).map(([text, action]) => {
                     const key = `${plugin.name}-${text}`;
 
                     return (
