@@ -48,7 +48,25 @@ if (!IS_COMPANION_TEST && process.argv.includes("--companion-test"))
     console.error("--companion-test must be run with --reporter for any effect");
 
 export const IS_UPDATER_DISABLED = process.argv.includes("--disable-updater");
-export const gitHash = process.env.EQUICORD_HASH || execSync("git rev-parse HEAD", { encoding: "utf-8" }).trim();
+
+/**
+ * Resolves the current git hash. Works without a .git directory (e.g. when
+ * building from a source tarball) by falling back to "unknown"; set the
+ * EQUICORD_HASH environment variable to override.
+ * @returns {string}
+ */
+function getGitHash() {
+    if (process.env.EQUICORD_HASH) return process.env.EQUICORD_HASH;
+
+    try {
+        return execSync("git rev-parse HEAD", { encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    } catch {
+        console.warn("Failed to resolve the git hash (no .git directory?). Falling back to \"unknown\". Set the EQUICORD_HASH environment variable to override.");
+        return "unknown";
+    }
+}
+
+export const gitHash = getGitHash();
 
 export const banner = {
     js: `
@@ -60,14 +78,19 @@ export const banner = {
 };
 
 /**
- * JSON.stringify all values in an object
- * @type {(obj: Record<string, any>) => Record<string, string>}
+ * JSON.stringify all values in an object, returning a new object instead of
+ * mutating the input. Throws if a value cannot be serialized, instead of
+ * silently emitting undefined (which esbuild would then inline as a broken define).
+ * @param {Record<string, unknown>} values
+ * @returns {Record<string, string>}
  */
-export function stringifyValues(obj) {
-    for (const key in obj) {
-        obj[key] = JSON.stringify(obj[key]);
-    }
-    return obj;
+export function stringifyValues(values) {
+    return Object.fromEntries(Object.entries(values).map(([key, value]) => {
+        const serialized = JSON.stringify(value);
+        if (serialized === undefined)
+            throw new TypeError(`Cannot serialize build define "${key}"`);
+        return [key, serialized];
+    }));
 }
 
 /**
@@ -153,12 +176,18 @@ export const globPlugins = kind => ({
             let metaCode = "\n";
             let excludedCode = "\n";
             let i = 0;
+            // names of the plugins included so far, used to detect duplicates
+            // which would silently overwrite each other in the plugin map
+            const seen = new Map();
             for (const dir of pluginDirs) {
                 const userPlugin = dir === "userplugins";
 
                 const fullDir = `./src/${dir}`;
                 if (!await exists(fullDir)) continue;
-                const files = await readdir(fullDir, { withFileTypes: true });
+                // sort entries so the generated module does not depend on
+                // filesystem ordering; this keeps builds deterministic
+                const files = (await readdir(fullDir, { withFileTypes: true }))
+                    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
                 for (const file of files) {
                     const fileName = file.name;
                     if (fileName.startsWith("_") || fileName.startsWith(".")) continue;
@@ -185,6 +214,21 @@ export const globPlugins = kind => ({
                     }
 
                     const folderName = `src/${dir}/${fileName}`;
+
+                    // best effort duplicate detection: plugins whose definePlugin
+                    // call does not match the expected format are skipped here
+                    // (generatePluginList validates those later)
+                    let pluginName = null;
+                    try {
+                        pluginName = await resolvePluginName(fullDir, file);
+                    } catch {
+                        // name could not be resolved statically; still bundle the plugin
+                    }
+                    if (pluginName !== null) {
+                        if (seen.has(pluginName))
+                            throw new Error(`Duplicate plugin name "${pluginName}": ${seen.get(pluginName)} and ${folderName}`);
+                        seen.set(pluginName, folderName);
+                    }
 
                     const mod = `p${i}`;
                     code += `import ${mod} from "./${dir}/${fileName.replace(/\.tsx?$/, "")}";\n`;
@@ -214,7 +258,7 @@ export const gitHashPlugin = {
             namespace: "git-hash", path: args.path
         }));
         build.onLoad({ filter, namespace: "git-hash" }, () => ({
-            contents: `export default "${gitHash}"`
+            contents: `export default ${JSON.stringify(gitHash)}`
         }));
     }
 };
@@ -232,14 +276,24 @@ export const gitRemotePlugin = {
         build.onLoad({ filter, namespace: "git-remote" }, async () => {
             let remote = process.env.EQUICORD_REMOTE;
             if (!remote) {
-                const res = await promisify(exec)("git remote get-url origin", { encoding: "utf-8" });
-                remote = res.stdout.trim()
-                    .replace("https://github.com/", "")
-                    .replace("git@github.com:", "")
-                    .replace(/.git$/, "");
+                let url = "";
+                try {
+                    url = (await promisify(exec)("git remote get-url origin", { encoding: "utf-8" })).stdout.trim();
+                } catch {
+                    console.warn("Failed to resolve the git remote (no .git directory?). Set the EQUICORD_REMOTE environment variable to override.");
+                }
+
+                remote = url
+                    .replace(/^https?:\/\/([^/@\s]+@)?(www\.)?github\.com\//, "")
+                    .replace(/^(ssh:\/\/)?git@github\.com(:\d+)?[/:]/, "")
+                    .replace(/\.git$/, "");
             }
 
-            return { contents: `export default "${remote}"` };
+            remote = remote.replace(/\/+$/, "");
+            if (!/^[\w.-]+\/[\w.-]+$/.test(remote))
+                console.warn(`Unexpected git remote format "${remote}" — the in-app updater may not work`);
+
+            return { contents: `export default ${JSON.stringify(remote)}` };
         });
     }
 };

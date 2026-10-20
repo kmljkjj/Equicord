@@ -14,6 +14,8 @@ Our included plugins can be found [here](https://equicord.org/plugins).
 
 ## Installing / Uninstalling
 
+> :information_source: The download links below always point to the **latest** build of the [Equilotl](https://github.com/Equicord/Equilotl) installer — they are rolling links and their content changes with every release. Review what you run, and verify the published `.sha256` checksums when available.
+
 Windows
 
 | | X64 | ARM64 |
@@ -39,15 +41,19 @@ Linux
 | Wayland GUI | [Download](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-wayland) | [Download](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-wayland-arm64) |
 | CLI | [Download](https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli-linux) | [Download](https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli-linux-arm64) |
 
+Instead of piping a remote script straight into bash, download it, review it, then run it. The URL below is pinned to an audited commit — update it consciously rather than always pulling from `main`:
+
 ```shell
-bash -c "$(curl -sS https://raw.githubusercontent.com/Equicord/Equilotl/refs/heads/main/install.sh)"
+curl -fsSLo install.sh https://raw.githubusercontent.com/Equicord/Equilotl/4f204a1b8e3e6e1c79f5f4a09591465fc4a97223/install.sh
+less install.sh
+bash install.sh
 ```
 
 ## Installing Equicord Devbuild
 
 ### Dependencies
 
-[Git](https://git-scm.com/download) and [Node.JS LTS](https://nodejs.dev/en/) are required.
+[Git](https://git-scm.com/download) and [Node.JS LTS](https://nodejs.dev/en/) (at least v22) are required.
 
 Install `pnpm`:
 
@@ -84,6 +90,8 @@ Inject Equicord into your desktop client:
 pnpm inject
 ```
 
+> :information_source: `pnpm inject` downloads the prebuilt Equilotl installer binary from GitHub releases and executes it. The downloaded binary is verified against the `.sha256` checksum published alongside it when one is available. The installer modifies your Discord installation — see Equilotl's README for uninstall/repair instructions (`pnpm uninject`, `pnpm repair`).
+
 Build Equicord for web:
 
 ```shell
@@ -117,12 +125,14 @@ Vencord is not connected to Equicord and as such, all donation links go to Vendi
 <details>
 <summary>Using Equicord violates Discord's terms of service</summary>
 
-Client modifications are against Discord’s Terms of Service.
+Client modifications are against Discord's Terms of Service, so using Equicord carries a risk of account moderation. Discord's tolerance of client mods may change at any time, and no guarantee — explicit or implied — can be made about your account's safety.
 
-However, Discord is pretty indifferent about them and there are no known cases of users getting banned for using client mods! So you should generally be fine if you don’t use plugins that implement abusive behaviour. But no worries, all inbuilt plugins are safe to use!
+To reduce the risk:
 
-Regardless, if your account is essential to you and getting disabled would be a disaster for you, you should probably not use any client mods (not exclusive to Equicord), just to be safe.
+- avoid plugins that implement abusive behaviour (automation, self-botting, mass actions, etc.);
+- don't post screenshots showing Equicord in servers where it could be reported;
+- if losing your account would be a disaster for you, don't use any client mod (not exclusive to Equicord).
 
-Additionally, make sure not to post screenshots with Equicord in a server where you might get banned for it.
+The Equicord team is not responsible for any action taken against your account.
 
 </details>
