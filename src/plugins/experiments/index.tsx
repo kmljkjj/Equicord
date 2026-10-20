@@ -14,9 +14,10 @@ import { OpenExternalIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, IS_MAC } from "@utils/constants";
 import { Margins } from "@utils/margins";
-import definePlugin, { OptionType } from "@utils/types";
+import definePlugin, { OptionType, Patch } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
 import { React, SettingsRouter } from "@webpack/common";
+import { patches } from "@webpack/patcher";
 
 const KbdStyles = findByPropsLazy("key", "combo");
 const modKey = IS_MAC ? "cmd" : "ctrl";
@@ -53,8 +54,193 @@ const settings = definePluginSettings({
         description: "Change the Help (?) toolbar button (top right in chat) to Discord's developer menu",
         default: false,
         restartNeeded: true
+    },
+    enableExperimentEmbeds: {
+        type: OptionType.BOOLEAN,
+        description: "Enable the experiment & playground embeds on sent dev:// links",
+        default: true,
+        restartNeeded: true
     }
 });
+
+// Give access to Discord's hidden developer experiments & co
+const developerAccessPatch: Patch = {
+    plugin: "Experiments",
+    find: "Object.defineProperties(this,{isDeveloper",
+    replacement: {
+        match: /(?<={isDeveloper:\{[^}]+?,get:\(\)=>)\i/,
+        replace: "true"
+    }
+};
+
+// Make the client initialize the developer experiments on CONNECTION_OPEN
+const connectionInitPatch: Patch = {
+    plugin: "Experiments",
+    find: 'type:"user",revision',
+    replacement: {
+        match: /!(\i)(?=&&"CONNECTION_OPEN")/,
+        replace: "!($1=true)"
+    }
+};
+
+// Show the warning card above the experiment list on the Experiments page
+const experimentsPagePatch: Patch = {
+    plugin: "Experiments",
+    find: 'placeholder:"Search experiments"',
+    replacement: [
+        {
+            match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,
+            replace: "$self.showWarningCard()?$self.WarningCard():null,"
+        },
+        // for some reason the installation id and copy buttons are on
+        // different lines so it looks stupid when the card above is added
+        {
+            match: /(?<=,marginBottom:16)(?=\},children:\[)/,
+            replace: ',flexDirection:"row",alignItems:"center"'
+        }
+    ]
+};
+
+// Change top right toolbar button from the help one to the dev one
+const toolbarDevMenuPatch: Patch = {
+    plugin: "Experiments",
+    find: '?"BACK_FORWARD_NAVIGATION":',
+    replacement: {
+        match: /hasBugReporterAccess:(\i)/,
+        replace: "_hasBugReporterAccess:$1=true"
+    },
+    predicate: () => settings.store.toolbarDevMenu
+};
+
+// Disable opening the bug report menu when clicking the top right toolbar dev button
+const toolbarDevMenuClickPatch: Patch = {
+    plugin: "Experiments",
+    find: 'navId:"staff-help-popout"',
+    replacement: {
+        match: /(isShown.+?)onClick:\i/,
+        replace: (_, rest) => `${rest}onClick:()=>{}`
+    },
+    predicate: () => settings.store.toolbarDevMenu
+};
+
+// Enable experiment embed on sent experiment links
+const experimentEmbedPatch: Patch = {
+    plugin: "Experiments",
+    find: "Clear Treatment ",
+    replacement: {
+        match: /\i\?\.isStaff\(\)/,
+        replace: "true"
+    },
+    predicate: () => settings.store.enableExperimentEmbeds
+};
+
+// Fix some tricky experiments name causing a client crash
+const experimentEmbedCrashFixPatch: Patch = {
+    plugin: "Experiments",
+    find: "Clear Treatment ",
+    replacement: {
+        match: /\.isStaffPersonal\(\).+?if\(null==(\i)\|\|null==\i(?=\)return null;)/,
+        replace: "$&||({})[$1]!=null"
+    }
+};
+
+// Fix another function which causes crashes with tricky experiment names and the experiment embed
+const serverAssignmentCrashFixPatch: Patch = {
+    plugin: "Experiments",
+    find: "}getServerAssignment(",
+    replacement: {
+        match: /}getServerAssignment\((\i),\i,\i\){/,
+        replace: "$&if($1==null)return;"
+    }
+};
+
+// Enable playground embed on sent playground links
+// dev://playground/mana, dev://playground/payments, dev://playground/virtual-currency,
+// dev://playground/nitro, dev://playground/mfa, dev://playground/cms, dev://playground/void
+const playgroundEmbedPatch: Patch = {
+    plugin: "Experiments",
+    find: '"Open Playground',
+    replacement: {
+        match: /isStaff\(\)\|\|/,
+        replace: "$& true||"
+    },
+    predicate: () => settings.store.enableExperimentEmbeds
+};
+
+const experimentUrlRegexPatch: Patch = {
+    plugin: "Experiments",
+    // Expands the experiment regex to allow negative numbers as well as text in the last segment of the URL.
+    find: '"^dev://experiment/',
+    replacement: {
+        match: /\[0-9\]\+(?=\)\)\?\$")/,
+        replace: "[a-zA-Z0-9-]+"
+    }
+};
+
+const experimentLabelMatchPatch: Patch = {
+    plugin: "Experiments",
+    find: ".EXPERIMENT_TREATMENT&&null",
+    replacement: [
+        {
+            // Allow linking experiments by their label instead of their value.
+            match: /(?<=find\(\i=>)((\i).value===\i)/,
+            replace: "{return($1)||($self.matchExperiment(arguments[0]?.url,$2?.label))}"
+        }
+    ]
+};
+
+// Every patch above, with a human-readable name for the Patch Health section.
+const PATCH_HEALTH: Array<{ name: string; patch: Patch; }> = [
+    { name: "Developer access (isDeveloper)", patch: developerAccessPatch },
+    { name: "Developer init (CONNECTION_OPEN)", patch: connectionInitPatch },
+    { name: "Experiments page (search & warning card)", patch: experimentsPagePatch },
+    { name: "Toolbar dev menu", patch: toolbarDevMenuPatch },
+    { name: "Toolbar dev menu click", patch: toolbarDevMenuClickPatch },
+    { name: "Experiment embeds", patch: experimentEmbedPatch },
+    { name: "Experiment embed crash fix", patch: experimentEmbedCrashFixPatch },
+    { name: "Server assignment crash fix", patch: serverAssignmentCrashFixPatch },
+    { name: "Playground embeds", patch: playgroundEmbedPatch },
+    { name: "Experiment URL regex", patch: experimentUrlRegexPatch },
+    { name: "Experiment label links", patch: experimentLabelMatchPatch }
+];
+
+interface PatchStatus {
+    icon: string;
+    label: string;
+    color: string;
+}
+
+// Reads the live state of a patch: still queued in the webpack patcher = not
+// applied yet, removed from the queue = applied to its module.
+function getPatchStatus(patch: Patch): PatchStatus {
+    try {
+        const plugin = Vencord.Plugins.plugins["Experiments"];
+        if (!plugin?.started) return { icon: "❔", label: "plugin not started", color: "var(--text-muted)" };
+
+        if (patch.predicate && !patch.predicate()) return { icon: "⏸️", label: "disabled by a setting", color: "var(--text-muted)" };
+        if (patches.includes(patch)) return { icon: "⏳", label: "waiting for its module", color: "var(--text-warning)" };
+
+        return { icon: "✅", label: "applied", color: "var(--text-positive)" };
+    } catch {
+        return { icon: "❔", label: "unknown", color: "var(--text-muted)" };
+    }
+}
+
+function getBuildChannel(): string {
+    try {
+        if (IS_WEB) {
+            const host = location.hostname.toLowerCase();
+            if (host.startsWith("canary.")) return "canary";
+            if (host.startsWith("ptb.")) return "ptb";
+            return "stable";
+        }
+        const channel = (globalThis as any).DiscordNative?.app?.getReleaseChannel?.();
+        if (typeof channel === "string" && channel.length > 0) return channel;
+    } catch {
+        // release channel unavailable; keep the fallback
+    }
+    return "unknown";
+}
 
 export default definePlugin({
     name: "Experiments",
@@ -89,104 +275,17 @@ export default definePlugin({
     ],
 
     patches: [
-        {
-            find: "Object.defineProperties(this,{isDeveloper",
-            replacement: {
-                match: /(?<={isDeveloper:\{[^}]+?,get:\(\)=>)\i/,
-                replace: "true"
-            }
-        },
-        {
-            find: 'type:"user",revision',
-            replacement: {
-                match: /!(\i)(?=&&"CONNECTION_OPEN")/,
-                replace: "!($1=true)"
-            }
-        },
-        {
-            find: 'placeholder:"Search experiments"',
-            replacement: [
-                {
-                    match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,
-                    replace: "$self.showWarningCard()?$self.WarningCard():null,"
-                },
-                // for some reason the installation id and copy buttons are on
-                // different lines so it looks stupid when the card above is added
-                {
-                    match: /(?<=,marginBottom:16)(?=\},children:\[)/,
-                    replace: ',flexDirection:"row",alignItems:"center"'
-                }
-            ]
-        },
-        // Change top right toolbar button from the help one to the dev one
-        {
-            find: '?"BACK_FORWARD_NAVIGATION":',
-            replacement: {
-                match: /hasBugReporterAccess:(\i)/,
-                replace: "_hasBugReporterAccess:$1=true"
-            },
-            predicate: () => settings.store.toolbarDevMenu
-        },
-        // Disable opening the bug report menu when clicking the top right toolbar dev button
-        {
-            find: 'navId:"staff-help-popout"',
-            replacement: {
-                match: /(isShown.+?)onClick:\i/,
-                replace: (_, rest) => `${rest}onClick:()=>{}`
-            },
-            predicate: () => settings.store.toolbarDevMenu
-        },
-        // Enable experiment embed on sent experiment links
-        {
-            find: "Clear Treatment ",
-            replacement: [
-                {
-                    match: /\i\?\.isStaff\(\)/,
-                    replace: "true"
-                },
-                // Fix some tricky experiments name causing a client crash
-                {
-                    match: /\.isStaffPersonal\(\).+?if\(null==(\i)\|\|null==\i(?=\)return null;)/,
-                    replace: "$&||({})[$1]!=null"
-                }
-            ]
-        },
-        // Fix another function which causes crashes with tricky experiment names and the experiment embed
-        {
-            find: "}getServerAssignment(",
-            replacement: {
-                match: /}getServerAssignment\((\i),\i,\i\){/,
-                replace: "$&if($1==null)return;"
-            }
-        },
-        // Enable playground embed on sent playground links
-        // dev://playground/mana, dev://playground/payments, dev://playground/virtual-currency,
-        // dev://playground/nitro, dev://playground/mfa, dev://playground/cms, dev://playground/void
-        {
-            find: '"Open Playground',
-            replacement: {
-                match: /isStaff\(\)\|\|/,
-                replace: "$& true||"
-            }
-        },
-        {
-            // Expands the experiment regex to allow negative numbers as well as text in the last segment of the URL.
-            find: '"^dev://experiment/',
-            replacement: {
-                match: /\[0-9\]\+(?=\)\)\?\$")/,
-                replace: "[a-zA-Z0-9-]+"
-            }
-        },
-        {
-            find: ".EXPERIMENT_TREATMENT&&null",
-            replacement: [
-                {
-                    // Allow linking experiments by their label instead of their value.
-                    match: /(?<=find\(\i=>)((\i).value===\i)/,
-                    replace: "{return($1)||($self.matchExperiment(arguments[0]?.url,$2?.label))}"
-                }
-            ]
-        },
+        developerAccessPatch,
+        connectionInitPatch,
+        experimentsPagePatch,
+        toolbarDevMenuPatch,
+        toolbarDevMenuClickPatch,
+        experimentEmbedPatch,
+        experimentEmbedCrashFixPatch,
+        serverAssignmentCrashFixPatch,
+        playgroundEmbedPatch,
+        experimentUrlRegexPatch,
+        experimentLabelMatchPatch
     ],
     showWarningCard(): boolean {
         return !settings.store.hideWarningCard;
@@ -216,6 +315,9 @@ export default definePlugin({
             // kbd combo classes not found; keep plain text fallback
         }
 
+        const buildChannel = getBuildChannel();
+        const platform = IS_WEB ? "web (browser extension)" : "desktop";
+
         return (
             <React.Fragment>
                 <HeadingSecondary>More Information</HeadingSecondary>
@@ -224,6 +326,38 @@ export default definePlugin({
                         ? "You are running the web version. Use your browser's developer tools (F12) to inspect the Discord page."
                         : <>You can open Discord's DevTools via {" "}{combo}</>}
                 </BaseText>
+
+                <div className={Margins.top16}>
+                    <HeadingSecondary>🖥️ Build Context</HeadingSecondary>
+                </div>
+                <BaseText size="md">
+                    Platform: {platform} · Release channel: {buildChannel}
+                </BaseText>
+                {buildChannel === "stable" && (
+                    <BaseText size="sm" color="text-feedback-warning">
+                        Heads up: most experiments are datamined on Canary, so a lot of them have no code at all in Stable
+                        builds. If an experiment page shows an error, its feature is simply not in your build — set it back
+                        to None and the error disappears.
+                    </BaseText>
+                )}
+
+                <div className={Margins.top16}>
+                    <HeadingSecondary>🩺 Patch Health</HeadingSecondary>
+                </div>
+                <BaseText size="sm">
+                    Live status of the client patches this plugin applies. A patch stays "waiting" until Discord loads the
+                    module it targets; "disabled by a setting" patches can be turned on below or in the settings.
+                </BaseText>
+                {PATCH_HEALTH.map(({ name, patch }) => {
+                    const status = getPatchStatus(patch);
+                    return (
+                        <div key={name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "3px 0" }}>
+                            <span aria-hidden={true}>{status.icon}</span>
+                            <span style={{ flex: 1, minWidth: 0, fontSize: 14 }}>{name}</span>
+                            <span style={{ fontSize: 12, color: status.color }}>{status.label}</span>
+                        </div>
+                    );
+                })}
 
                 <div className={Margins.top16}>
                     <HeadingSecondary>Useful Resources</HeadingSecondary>
