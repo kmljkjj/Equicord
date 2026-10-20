@@ -69,8 +69,7 @@ const waitForUserData = async (guildId: string, userId: string) => {
 
     const deadline = Date.now() + 3000;
     while (!isKnown() && Date.now() < deadline) {
-        await new Prom
-ise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 100));
     }
 };
 
@@ -136,8 +135,7 @@ const incoming = payload => {
             FluxDispatcher.dispatch({
                 type: "AUDIO_TOGGLE_SELF_MUTE",
                 syncRemote: true,
-                playSoundEffect: 
-true,
+                playSoundEffect: true,
                 context: "default"
             });
             break;
@@ -204,8 +202,7 @@ const handleMessageNotification = dispatch => {
             cmd: "MESSAGE_NOTIFICATION",
             message: {
                 title: dispatch.title,
-        
-        body: dispatch.body,
+                body: dispatch.body,
                 icon: dispatch.icon,
                 guildId: dispatch.message.guild_id,
                 channelId: dispatch.message.channel_id,
@@ -274,7 +271,6 @@ const handleVoiceStateUpdates = async dispatch => {
 const handleStreamerMode = dispatch => {
     ws?.send(
         JSON.stringify({
-
             cmd: "STREAMER_MODE",
             enabled: dispatch.value,
         })
@@ -345,8 +341,7 @@ const createWebsocket = () => {
 
 export default definePlugin({
     name: "OrbolayBridge",
-    de
-scription: "Bridge plugin to connect Orbolay to Discord",
+    description: "Bridge plugin to connect Orbolay to Discord",
     tags: ["Utility", "Voice"],
     authors: [EquicordDevs.SpikeHD],
     settings,

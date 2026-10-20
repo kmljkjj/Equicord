@@ -52,8 +52,7 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(ref:\i,children:)(\(0,\i.jsxs?\)\(\i)/,
-                    replace:
- "$1arguments[0]?.collected?.isDragging?$self.dragItem():$2",
+                    replace: "$1arguments[0]?.collected?.isDragging?$self.dragItem():$2",
                 },
                 {
                     match: /\[(\i\.\i)\](?=.{0,5}\[\i\?\?)/,
@@ -104,8 +103,7 @@ export default definePlugin({
                 canDrop: !!monitor.canDrop(),
                 isOver: !!monitor.isOver(),
             }),
-            dro
-p(item: { id: string; }) {
+            drop(item: { id: string; }) {
                 const source = item.id;
                 const target = emoji?.uniqueName ?? emoji?.id;
                 function update(this: { source: string; target: string; }, e: { emojis: string[]; }) {
@@ -147,8 +145,7 @@ p(item: { id: string; }) {
                 ref.current.classList.remove(dndCls.autoPointerEvents);
             }
             );
-            return () => cancelAnimat
-ionFrame(frame);
+            return () => cancelAnimationFrame(frame);
         }, [collected, ref]);
 
         if (emoji?.category !== "FAVORITES") return;

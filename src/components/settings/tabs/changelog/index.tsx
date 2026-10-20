@@ -65,7 +65,6 @@ function ChangelogCard({
                     <code className="vc-changelog-entry-hash">
                         <HashLink
                             repo={repo}
-
                             hash={entry.hash}
                             disabled={repoPending}
                         />
@@ -122,7 +121,6 @@ function UpdateLogCard({
                             className="vc-changelog-delete-button"
                             style={{
                                 padding: "4px",
-
                                 color: "var(--status-danger)",
                                 opacity: 0.6,
                                 cursor: "pointer",
@@ -163,8 +161,7 @@ function UpdateLogCard({
                 <div className="vc-changelog-log-content">
                     {log.newPlugins.length > 0 && (
                         <div className="vc-changelog-log-plugins">
-                            <NewPlu
-ginsCompact
+                            <NewPluginsCompact
                                 newPlugins={log.newPlugins}
                                 maxDisplay={50}
                             />
@@ -203,8 +200,7 @@ ginsCompact
                                             )),
                                     )}
                                 </div>
-   
-                         </div>
+                            </div>
                         )}
 
                     {log.commits.length > 0 && (
@@ -257,8 +253,7 @@ function ChangelogContent() {
     }, []);
 
     React.useEffect(() => {
-  
-      if (repoErr) {
+        if (repoErr) {
             UpdateLogger.error("Failed to retrieve repo", repoErr);
             setError("Failed to retrieve repository information");
         }
@@ -314,8 +309,7 @@ function ChangelogContent() {
     React.useEffect(() => {
         const checkRecentStatus = async () => {
             try {
-                const lastRepoCheck = await getLastRepositoryChe
-ckHash();
+                const lastRepoCheck = await getLastRepositoryCheckHash();
                 const updates = await VencordNative.updater.getUpdates();
 
                 if (updates.ok) {
@@ -370,8 +364,7 @@ ckHash();
                 if (updates.value.length > 0) {
                     setChangelog(updates.value);
 
-                    const newPlgs = await getNewPlugins()
-;
+                    const newPlgs = await getNewPlugins();
                     const updatedPlgs = await getUpdatedPlugins();
                     const newSettings = await getNewSettings();
                     setNewPlugins(newPlgs);
@@ -419,8 +412,7 @@ ckHash();
             setError(errorMessage);
 
             // funny little error toast hopefully doesn't happen!
-       
-     showToast({
+            showToast({
                 text: "Could not fetch commits from repository",
                 variant: "critical",
                 position: "bottom"
@@ -481,8 +473,7 @@ ckHash();
                 <Button
                     size="small"
                     disabled={isLoading || repoPending || !!repoErr}
-                    onClick={
-fetchChangelog}
+                    onClick={fetchChangelog}
                     variant={recentlyChecked ? "positive" : "primary"}
                 >
                     {isLoading
@@ -521,8 +512,7 @@ fetchChangelog}
                                             variant: "success",
                                             position: "bottom"
                                         });
-                         
-           },
+                                    },
                                 });
                             }}
                             style={{ marginLeft: "8px" }}
@@ -571,8 +561,7 @@ fetchChangelog}
                     </Paragraph>
 
                     {newPlugins.length > 0 && (
-                        <div cl
-assName={Margins.bottom16}>
+                        <div className={Margins.bottom16}>
                             <NewPluginsSection
                                 newPlugins={newPlugins}
                                 onPluginToggle={() => { }}
@@ -614,8 +603,7 @@ assName={Margins.bottom16}>
                     <Divider className={Margins.top20} />
                     <Heading className={Margins.top20}>Recent Changes</Heading>
                     <Paragraph color="text-subtle">
-                        No commits available ahead of your current version. Click "Fetch from Repository" to check for new ch
-anges.
+                        No commits available ahead of your current version. Click "Fetch from Repository" to check for new changes.
                     </Paragraph>
                 </>
             )}
@@ -652,8 +640,7 @@ anges.
                                             await loadChangelogHistory();
                                             setExpandedLogs(
                                                 new Set(
-                 
-                                   Array.from(expandedLogs).filter(id => id !== logId),
+                                                    Array.from(expandedLogs).filter(id => id !== logId),
                                                 ),
                                             );
                                             showToast({

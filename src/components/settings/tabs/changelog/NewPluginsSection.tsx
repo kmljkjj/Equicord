@@ -64,8 +64,7 @@ export function NewPluginsSection({
 
     const makeDependencyList = (deps: string[]) => {
         if (!deps) return null;
-   
-     return (
+        return (
             <React.Fragment>
                 <Paragraph>This plugin is required by:</Paragraph>
                 {deps.map((dep: string) => (
@@ -113,8 +112,7 @@ export function NewPluginsSection({
                                             "required",
                                         )}
                                     >
-                                        
-<PluginCard
+                                        <PluginCard
                                             onMouseLeave={onMouseLeave}
                                             onMouseEnter={onMouseEnter}
                                             onRestartNeeded={name => {
@@ -160,8 +158,7 @@ export function NewPluginsSection({
                                 <ul>
                                     {Array.from(changes, p => (
                                         <li key={p}>{p}</li>
-   
-                                 ))}
+                                    ))}
                                 </ul>
                             </>
                         }
@@ -224,8 +221,7 @@ function CompactPluginCard({
                     {plugin.authors?.[0]?.name || "Unknown"}
                 </span>
             </div>
-            <
-div className="vc-changelog-entry-message">
+            <div className="vc-changelog-entry-message">
                 {plugin.description || "No description available"}
             </div>
             {tooltipText && (

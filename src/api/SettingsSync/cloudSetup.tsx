@@ -56,8 +56,7 @@ export async function deauthorizeCloud() {
         secrets ??= {};
         delete secrets[`${getCloudUrlOrigin()}:${getUserId()}`];
         return secrets;
-    })
-;
+    });
 }
 
 export async function authorizeCloud() {
@@ -113,8 +112,7 @@ export async function authorizeCloud() {
                             ? `Setup failed: ${data.error}`
                             : "Setup failed (no secret returned)."
                     });
-                    Settings.cloud.a
-uthenticated = false;
+                    Settings.cloud.authenticated = false;
                 }
             } catch (e: any) {
                 logger.error("Failed to authorize", e);

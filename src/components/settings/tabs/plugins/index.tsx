@@ -40,8 +40,7 @@ import { promptToRestart } from "@utils/promptToRestart";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { PluginTag, PluginTags } from "@utils/types";
 import { Alerts, lodash, Parser, React, SearchableSelect, Select, showToast, TextInput, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
-import
- { JSX } from "react";
+import { JSX } from "react";
 
 import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
@@ -90,8 +89,7 @@ function ReloadRequiredCard({ required, enabledPlugins, openWarningModal, resetC
                         return openWarningModal(null, undefined, false, enabledPlugins.length, resetCheckAndDo);
                     }}
                 >
-       
-             Disable All Plugins
+                    Disable All Plugins
                 </Button>
             )}
         </Card>
@@ -157,8 +155,7 @@ export default function PluginSettings() {
             const allChanges = [...changes.getChanges()];
             const pluginNames = [...new Set(allChanges.map(s => s.split(":")[0]))];
             const maxDisplay = 15;
-            const displaye
-d = pluginNames.slice(0, maxDisplay);
+            const displayed = pluginNames.slice(0, maxDisplay);
             const remainingCount = pluginNames.length - displayed.length;
 
             promptToRestart("reload", {
@@ -209,8 +206,7 @@ d = pluginNames.slice(0, maxDisplay);
         const { status, tags } = searchValue;
 
         switch (status) {
-            c
-ase SearchStatus.FAVORITES:
+            case SearchStatus.FAVORITES:
                 if (!settings.plugins[plugin.name]?.isFavorite) return false;
                 break;
             case SearchStatus.DISABLED:
@@ -253,8 +249,7 @@ ase SearchStatus.FAVORITES:
         const existingTimestamps: Record<string, number> = {};
         const sortedPluginNames = Object.values(sortedPlugins).map(plugin => plugin.name);
 
-        cons
-t newPlugins: string[] = [];
+        const newPlugins: string[] = [];
         for (const { name: p } of sortedPlugins) {
             const time = existingTimestamps[p] = cachedPlugins?.[p] ?? now;
             if ((time + 60 * 60 * 24 * 2) > now) {
@@ -298,8 +293,7 @@ t newPlugins: string[] = [];
                             />
                         )}
                     </Tooltip>
-              
-  );
+                );
             } else {
                 plugins.push(
                     <PluginCard
@@ -356,8 +350,7 @@ t newPlugins: string[] = [];
     }
 
     // Code directly taken from supportHelper.tsx
-    const { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(
-() => {
+    const { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(() => {
         const isApiPlugin = (plugin: string) => plugin.endsWith("API") || Plugins[plugin].required;
 
         const totalPlugins = Object.keys(Plugins).filter(p => !isApiPlugin(p));
@@ -396,8 +389,7 @@ t newPlugins: string[] = [];
                     enabledStockPlugins={enabledStockPlugins}
                 />
                 <UserPluginsCard
-                    tot
-alUserPlugins={totalUserPlugins}
+                    totalUserPlugins={totalUserPlugins}
                     enabledUserPlugins={enabledUserPlugins}
                 />
             </div>
@@ -438,8 +430,7 @@ alUserPlugins={totalUserPlugins}
                         select={status => setSearchValue(prev => ({ ...prev, status }))}
                         isSelected={v => v === searchValue.status}
                         closeOnSelect={true}
-      
-                  placeholder="Filter by Type"
+                        placeholder="Filter by Type"
                     />
                     <SearchableSelect
                         options={PluginTags.map(tag => ({ label: tag, value: tag }))}
@@ -491,8 +482,7 @@ export function PluginDependencyList({ deps }: { deps: string[]; }) {
     return (
         <>
             <Paragraph>This plugin is required by:</Paragraph>
-            {deps.map((dep: string) => <Paragraph key={dep} className={c
-l("dep-text")}>{dep}</Paragraph>)}
+            {deps.map((dep: string) => <Paragraph key={dep} className={cl("dep-text")}>{dep}</Paragraph>)}
         </>
     );
 }

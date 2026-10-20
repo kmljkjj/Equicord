@@ -46,8 +46,7 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
         if (!wasEnabled) {
             const { restartNeeded, failures } = startDependenciesRecursive(plugin);
 
- 
-           if (failures.length) {
+            if (failures.length) {
                 logger.error(`Failed to start dependencies for ${plugin.name}: ${failures.join(", ")}`);
                 showNotice("Failed to start dependencies: " + failures.join(", "), "Close", () => null);
                 return;
@@ -104,8 +103,7 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
         {
             condition: isVencordPlugin,
             src: "https://equicord.org/assets/icons/vencord/icon-light.png",
-   
-         alt: "Vencord",
+            alt: "Vencord",
             title: "Vencord Plugin"
         },
         {

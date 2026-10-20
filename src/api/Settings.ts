@@ -52,8 +52,7 @@ export interface Settings {
     themeActivationModes: Partial<Record<string, ThemeActivationMode>>;
     enableReactDevtools: boolean;
     themeLinks: string[];
-    mainWindowF
-rameless: boolean;
+    mainWindowFrameless: boolean;
     frameless: boolean;
     transparent: boolean;
     winCtrlQ: boolean;
@@ -135,8 +134,7 @@ const DefaultSettings: Settings = {
         timeout: 5000,
         position: "bottom-right",
         useNative: "not-focused",
-        
-missed: true,
+        missed: true,
         logLimit: 50
     },
 
@@ -198,8 +196,7 @@ if (!IS_REPORTER) {
 }
 
 /**
- * Same as {@link Settings} but unproxied. You should treat this as rea
-donly,
+ * Same as {@link Settings} but unproxied. You should treat this as readonly,
  * as modifying properties on this will not save to disk or call settings
  * listeners.
  * WARNING: default values specified in plugin.settings will not be ensured here. In other words,
@@ -251,8 +248,7 @@ export function useSettings(paths?: UseSettings<Settings>[]) {
     return SettingsStore.store;
 }
 
-export 
-function migratePluginSettings(name: string, ...oldNames: string[]) {
+export function migratePluginSettings(name: string, ...oldNames: string[]) {
     const { plugins } = SettingsStore.plain;
     if (name in plugins) return;
 
@@ -302,8 +298,7 @@ export function migrateSettingToPlugin(newName: string, oldName: string, setting
     const oldPlugin = plugins[oldName];
 
     if (newPlugin && oldPlugin?.enabled && oldPlugin?.[settingName]) {
-        logger.info(`Migrating setting ${settingName} from ${oldName} to seperate p
-lugin ${newName}`);
+        logger.info(`Migrating setting ${settingName} from ${oldName} to seperate plugin ${newName}`);
         delete oldPlugin[settingName];
         newPlugin.enabled = true;
         SettingsStore.markAsChanged();
@@ -358,7 +353,6 @@ export function definePluginSettings<
     const definedSettings: DefinedSettings<Def, PrivateSettings> = {
         get store() {
             if (!definedSettings.pluginName) throw new Error("Cannot access settings before plugin is initialized");
-
             return Settings.plugins[definedSettings.pluginName] as any;
         },
         get plain() {

@@ -49,8 +49,7 @@ export function SoundOverrideComponent({ type, override, onChange }: {
         getAllAudio().then(setFiles);
     }, []);
 
-    const saveAndNot
-ify = async () => {
+    const saveAndNotify = async () => {
         await onChange();
         update();
     };
@@ -106,8 +105,7 @@ ify = async () => {
             showToast({ text: "Uploading file..." });
             const id = await saveAudio(file);
 
-            const savedFiles = await getAl
-lAudio();
+            const savedFiles = await getAllAudio();
             setFiles(savedFiles);
 
             override.selectedFileId = id;
@@ -166,8 +164,7 @@ lAudio();
                         try {
                             await ensureDataURICached(override.selectedFileId);
                         } catch (error) {
-                            console.
-error(`[CustomSounds] Failed to cache data URI for ${type.id}:`, error);
+                            console.error(`[CustomSounds] Failed to cache data URI for ${type.id}:`, error);
                             showToast({ text: "Error loading custom sound file" });
                         }
                     }
@@ -215,8 +212,7 @@ error(`[CustomSounds] Failed to cache data URI for ${type.id}:`, error);
                         <Select
                             options={[
                                 { value: "default", label: "Default" },
-                                
-...(type.seasonal?.map(id => ({ value: id, label: capitalizeWords(id) })) ?? []),
+                                ...(type.seasonal?.map(id => ({ value: id, label: capitalizeWords(id) })) ?? []),
                                 { value: "custom", label: "Custom" }
                             ]}
                             isSelected={v => v === override.selectedSound}
@@ -252,8 +248,7 @@ error(`[CustomSounds] Failed to cache data URI for ${type.id}:`, error);
                                         if (!id) {
                                             override.selectedFileId = undefined;
                                         } else {
-                                            override.selectedF
-ileId = id;
+                                            override.selectedFileId = id;
                                             await ensureDataURICached(id);
                                         }
 

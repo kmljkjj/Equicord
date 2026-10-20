@@ -41,8 +41,7 @@ import { Constructor } from "type-fest";
 import { PluginMeta } from "~plugins";
 
 import { OptionComponentMap } from "./components";
-import { 
-openContributorModal } from "./ContributorModal";
+import { openContributorModal } from "./ContributorModal";
 import { FavoriteButton, GithubButton, WebsiteButton } from "./PluginModalButtons";
 
 const cl = classNameFactory("vc-plugin-modal-");
@@ -95,8 +94,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
 
     useEffect(() => {
         (async () => {
-            for (const [index, user] of plugin.authors.slice(0,
- 6).entries()) {
+            for (const [index, user] of plugin.authors.slice(0, 6).entries()) {
                 try {
                     const author = user.id
                         ? await UserUtils.getUser(String(user.id))
@@ -157,8 +155,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
     }
 
     function renderMoreUsers(_label: string) {
- 
-       const remainingAuthors = plugin.authors.slice(6);
+        const remainingAuthors = plugin.authors.slice(6);
 
         return (
             <Tooltip text={remainingAuthors.map(u => u.name).join(", ")}>
@@ -208,8 +205,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
             )}
             <div className={"vc-settings-modal-content"}>
                 <section>
-                    <Text variant="heading-lg/semibold" className={classes(Margins.top8, Margins.bottom8)}>Authors</Text
->
+                    <Text variant="heading-lg/semibold" className={classes(Margins.top8, Margins.bottom8)}>Authors</Text>
                     <div style={{ width: "fit-content" }}>
                         <ErrorBoundary noop>
                             <UserSummaryItem
@@ -245,8 +241,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
                 <Flex flexDirection="column" style={{ width: "100%" }}>
                     <Flex style={{ justifyContent: "space-between", alignItems: "center" }}>
                         {hasSettings ? (
-                            <Tooltip text="Reset to default settings" shouldShow={!isObjectEmpty(pl
-uginSettings)}>
+                            <Tooltip text="Reset to default settings" shouldShow={!isObjectEmpty(pluginSettings)}>
                                 {({ onMouseEnter, onMouseLeave }) => (
                                     <Button
                                         variant="dangerPrimary"
@@ -288,8 +283,7 @@ export function openPluginModal(plugin: Plugin, onRestartNeeded?: (pluginName: s
         <PluginModal
             {...modalProps}
             plugin={plugin}
-        
-    onRestartNeeded={(key: string) => onRestartNeeded?.(plugin.name, key)}
+            onRestartNeeded={(key: string) => onRestartNeeded?.(plugin.name, key)}
         />
     ));
 }
@@ -351,8 +345,7 @@ export function openWarningModal(plugin?: Plugin | null, onRestartNeeded?: (plug
                     reset?.();
                 }
             }}
-            onCance
-l={props.onClose}
+            onCancel={props.onClose}
         >
             <Paragraph>
                 {isPlugin

@@ -63,8 +63,7 @@ export async function importSettings(data: string, type: BackupType = "all", clo
     if (!isSafeObject(parsed))
         throw new Error("Unsafe Settings");
 
-   
- switch (type) {
+    switch (type) {
         case "all": {
             if (!cloud && (!("settings" in parsed)))
                 throw new Error("Invalid Settings. Plugin settings is required for this import try a different one.");
@@ -108,8 +107,7 @@ export async function exportSettings({ syncDataStore = true, type = "all", minif
         try {
             dataStore = (await Promise.all((await DataStore.keys<IDBValidKey>()).map(async (key): Promise<[IDBValidKey, unknown] | undefined> => { try { return [key, await DataStore.get<unknown>(key)]; } catch (error) { logger.warn(`Skipping unreadable DataStore record ${String(key)}:`, error); return undefined; } }))).filter((entry): entry is [IDBValidKey, unknown] => entry !== undefined);
         } catch (err) {
-            logger.error("Failed to read DataStore
- entries:", err);
+            logger.error("Failed to read DataStore entries:", err);
 
             if (type === "all") {
                 logger.warn("Skipping DataStore in backup due to size. Export DataStore separately if needed.");
@@ -157,8 +155,7 @@ export async function downloadSettingsBackup(type: BackupType = "all", { minify 
 }
 
 export async function uploadSettingsBackup(type: BackupType = "all", showToast = true): Promise<void> {
-    if (IS_DISCO
-RD_DESKTOP) {
+    if (IS_DISCORD_DESKTOP) {
         const [file] = await DiscordNative.fileManager.openFiles({
             filters: [
                 { name: "Equicord Settings Backup", extensions: ["json"] },

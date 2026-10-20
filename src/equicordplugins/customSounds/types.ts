@@ -52,8 +52,7 @@ export const soundTypes: readonly SoundType[] = [
     { name: "Highfive Clap", id: "highfive_clap" },
     { name: "Highfive Whistle", id: "highfive_whistle" },
     { name: "Human Man", id: "human_man" },
-    { name: "LoFi Message", id: "l
-ofi_message1" },
+    { name: "LoFi Message", id: "lofi_message1" },
     { name: "Mention 1 (@role)", id: "mention1" },
     { name: "Mention 2 (@everyone)", id: "mention2" },
     { name: "Mention 3 (@here)", id: "mention3" },
