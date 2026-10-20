@@ -1,0 +1,38 @@
+name: Update extension icon
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - scripts/build/generateIcon.mjs
+    workflow_dispatch:
+
+concurrency:
+    group: update-icon-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: write
+
+jobs:
+    update-icon:
+        name: Regenerate browser/icon.png
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Regenerate icon
+              run: node scripts/build/generateIcon.mjs
+
+            - name: Commit if changed
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git add browser/icon.png
+                  if git diff --cached --quiet; then
+                    echo "icon already up to date"
+                  else
+                    git commit -m "chore: regenerate extension icon"
+                    git push
+                  fi
