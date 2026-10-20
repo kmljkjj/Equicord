@@ -43,8 +43,7 @@ const settings = definePluginSettings({
     guild: {
         description: "Mute Guild automatically",
         type: OptionType.BOOLEAN,
-        default
-: true
+        default: true
     },
     messages: {
         description: "Server Notification Settings",
@@ -106,8 +105,7 @@ const makeContextMenuPatch: (shouldAddIcon: boolean) => NavContextMenuPatchCallb
                 id="vc-newguildsettings-apply"
                 icon={shouldAddIcon ? CogWheel : void 0}
                 leadingAccessory={shouldAddIcon ? { type: "icon", icon: CogWheel } : void 0}
-                acti
-on={() => applyDefaultSettings(guild.id)}
+                action={() => applyDefaultSettings(guild.id)}
             />
         );
     }
@@ -162,8 +160,7 @@ function applyDefaultSettings(guildId: string | null) {
     if (settings.store.messages !== 3) {
         updateGuildNotificationSettings(guildId,
             {
-                
-message_notifications: settings.store.messages,
+                message_notifications: settings.store.messages,
             });
     }
 

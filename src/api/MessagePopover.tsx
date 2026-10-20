@@ -47,8 +47,7 @@ export interface MessagePopoverButtonItem extends HTMLProps<HTMLDivElement> {
     onTooltipShow?: () => void,
     onTooltipHide?: () => void,
     separator?: boolean,
-    tooltipText?: React
-Element,
+    tooltipText?: ReactElement,
 }
 
 export type MessagePopoverButtonFactory = (message: Message) => MessagePopoverButtonItem | null;
@@ -107,8 +106,7 @@ function VencordPopoverButtons(props: { Component: React.ComponentType<MessagePo
 }
 
 function OverflowArrow({ direction, onClick }: { direction: "left" | "right", onClick(): void; }) {
-    
-const Icon = direction === "left" ? ChevronSmallLeftIcon : ChevronSmallRightIcon;
+    const Icon = direction === "left" ? ChevronSmallLeftIcon : ChevronSmallRightIcon;
 
     return (
         <div className={`vc-popover-overflow-arrow vc-popover-overflow-arrow-${direction}`}>
@@ -159,8 +157,7 @@ function PopoverOverflow({ children }: { children: ReactNode; }) {
 
 export function _wrapPopoverBar(children: ReactNode[]) {
     return (
-        <ErrorBoundary fallback={() => <>{...child
-ren}</>}>
+        <ErrorBoundary fallback={() => <>{...children}</>}>
             <PopoverOverflow>{...children}</PopoverOverflow>
         </ErrorBoundary>
     );

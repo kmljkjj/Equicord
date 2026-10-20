@@ -67,8 +67,7 @@ const settings = definePluginSettings({
         stickToMarkers: true
     },
     rememberCrop: {
-        type: O
-ptionType.BOOLEAN,
+        type: OptionType.BOOLEAN,
         description: "Restore the zoom and position you last used for a picture.",
         default: true
     },
@@ -113,7 +112,6 @@ ptionType.BOOLEAN,
             <div className={cl("buttons")}>
                 <Button color={Button.Colors.PRIMARY} onClick={exportLibrary}>Export to a file</Button>
                 <Button color={Button.Colors.PRIMARY} onClick={importLibrary}>Import from a file</Button>
-
             </div>
         )
     },
@@ -167,8 +165,7 @@ async function exportLibrary() {
         else saveFile(new File([data], FILENAME, { type: "application/json" }));
     } catch (err) {
         logger.error("could not export the library", err);
-        showToast({ text: "Could not export your pictures", var
-iant: "critical" });
+        showToast({ text: "Could not export your pictures", variant: "critical" });
     }
 }
 
@@ -222,8 +219,7 @@ function useLibrary(kind: Kind) {
             mine.forEach((entry, index) => {
                 const blob = blobs[index];
                 if (blob) next[entry.id] = URL.createObjectURL(blob);
-            })
-;
+            });
 
             setThumbs(next);
             setEntries(mine);
@@ -283,8 +279,7 @@ function usePasteAndDrop(accept: (file: File) => void, active: () => boolean) {
             event.stopPropagation();
         };
 
-        document.addEventListener("paste"
-, onPaste, true);
+        document.addEventListener("paste", onPaste, true);
         document.addEventListener("drop", onDrop, true);
         document.addEventListener("dragover", onDragOver, true);
 
@@ -344,8 +339,7 @@ function PickerShelf({ kind, open, complete, maxSize }: {
         await hand(entry.id, file, settings.store.rememberCrop ? entry.crop ?? null : null);
     }, [hand, complete, kind, bump]);
 
-    const onPin = useCallback((en
-try: Entry) => {
+    const onPin = useCallback((entry: Entry) => {
         togglePin(entry.id).then(bump).catch(err => logger.error("could not pin that picture", err));
     }, [bump]);
 
@@ -396,8 +390,7 @@ function EditorShelf({ Original, ownProps }: { Original: React.ComponentType<Edi
     const pickedGroup = useRef<Group>("original");
 
     pickedId.current = picked?.id ?? null;
-    pickedGroup.current = picke
-d?.group ?? "original";
+    pickedGroup.current = picked?.group ?? "original";
     pickedName.current = picked?.file.name ?? ownProps.file?.name ?? null;
 
     const show = useCallback(async (id: string, file: File, crop: CropState | null, group: Group = "original") => {
@@ -451,8 +444,7 @@ d?.group ?? "original";
 
         await touch(entry.id);
         bump();
-        await show(entry.id, new File
-([blob], entry.name, { type: blob.type }), settings.store.rememberCrop ? entry.crop ?? null : null, entry.group);
+        await show(entry.id, new File([blob], entry.name, { type: blob.type }), settings.store.rememberCrop ? entry.crop ?? null : null, entry.group);
     }, [show, bump]);
 
     const onPin = useCallback((entry: Entry) => {
@@ -496,8 +488,7 @@ d?.group ?? "original";
 
         if (settings.store.saveCropped && pickedGroup.current !== "cropped") keepCropped(result);
 
-        return ownProps.onCrop?.(re
-sult);
+        return ownProps.onCrop?.(result);
     }, [ownProps.onCrop, keepCropped, kind]);
 
     const props = picked
@@ -550,8 +541,7 @@ function onProfileSaved({ guildId }: { guildId?: string; }) {
         if (guild !== (guildId ?? "")) continue;
 
         handedOver.delete(key);
-        if (!guildId) recordAppl
-ied(kind, id).catch(err => logger.error("could not note what you put on", err));
+        if (!guildId) recordApplied(kind, id).catch(err => logger.error("could not note what you put on", err));
     }
 }
 
@@ -611,8 +601,7 @@ export default definePlugin({
                 },
                 {
                     match: /\("div",\{role:"group",(?="aria-label":)/,
-                    replace: '$&className:"vc-bi
-e-split",'
+                    replace: '$&className:"vc-bie-split",'
                 }
             ]
         },
@@ -660,8 +649,7 @@ e-split",'
                 fallback: ({ wrappedProps }) => <Original {...wrappedProps.ownProps} />
             });
             wrapped = (props: EditorProps) => gatedPickers === 0
-                ? <Safe 
-Original={Original} ownProps={props} />
+                ? <Safe Original={Original} ownProps={props} />
                 : <Original {...props} />;
         }
 

@@ -76,7 +76,6 @@ export function abortActiveClipUploads() {
     uploadAbortControllers.clear();
 }
 
-
 export function getClipTitleFromName(name: string) {
     const extensionStart = name.lastIndexOf(".");
     return extensionStart > 0 ? name.slice(0, extensionStart) : name;
@@ -135,8 +134,7 @@ async function readStampedVideoFile(token: string, name: string, type: string) {
         await updateTempVideoMetadata(tmpToken);
 
         const data = await Native.readVideoFile(tmpToken);
-        if (!data) throw new Error("Couldn't read th
-e selected file.");
+        if (!data) throw new Error("Couldn't read the selected file.");
 
         return new File([new Uint8Array(data)], name, { type });
     } finally {
@@ -190,8 +188,7 @@ export async function pickClipFile(parseFileMetadata: boolean) {
 
     let metadata: ParsedClipMetadata | null = null;
     if (parseFileMetadata) {
-        const result = await Native.pa
-rseClipFileMetadata(picked.token);
+        const result = await Native.parseClipFileMetadata(picked.token);
         metadata = result?.[0] ?? null;
     }
 
@@ -243,8 +240,7 @@ async function reserveClipUpload(options: ClipUploadOptions, file: File) {
     return parseAttachmentUploadResponse(response).attachments?.[0];
 }
 
-async function uploadReservedClip(attachment: NonNullable<Awai
-ted<ReturnType<typeof reserveClipUpload>>>, uploadFile: File) {
+async function uploadReservedClip(attachment: NonNullable<Awaited<ReturnType<typeof reserveClipUpload>>>, uploadFile: File) {
     const uploadAbortController = new AbortController();
     uploadAbortControllers.add(uploadAbortController);
 
@@ -294,8 +290,7 @@ async function sendClipUpload(uploadFile: File, options: ClipUploadOptions) {
                 clip_participant_ids: options.participants,
                 clip_remote_id: options.remoteClipId,
                 clip_events_timeline: options.eventsTimeline
-            }
-],
+            }],
             message_reference: options.messageReference,
         }
     }) as RestResponse;
@@ -353,7 +348,6 @@ export async function uploadClipFile(file: File, options: ClipUploadOptions) {
         logger.error(error);
         showToast({ text: getErrorMessage(error), variant: "critical" });
         return false;
-
     }
 }
 

@@ -54,8 +54,7 @@ export const settings = definePluginSettings({
             { label: "Classic", value: ChannelStyle.Classic, default: true },
             { label: "Muted", value: ChannelStyle.Muted },
             { label: "Show Unreads", value: ChannelStyle.Unread },
-            { label: "Muted a
-nd Show Unreads", value: ChannelStyle.MutedUnread }
+            { label: "Muted and Show Unreads", value: ChannelStyle.MutedUnread }
         ],
         restartNeeded: true
     },
@@ -101,8 +100,7 @@ export default definePlugin({
                 // Do not check for unreads when selecting the render level if the channel is hidden
                 {
                     match: /(?<=&&)(?=!\i\.\i\.hasUnread\(this\.record\.id\))/,
-                    replace: "$se
-lf.isHiddenChannel(this.record)||"
+                    replace: "$self.isHiddenChannel(this.record)||"
                 },
                 // Make channels we dont have access to be the same level as normal ones
                 {
@@ -140,8 +138,7 @@ lf.isHiddenChannel(this.record)||"
         {
             find: ".AUDIENCE),{isSubscriptionGated",
             replacement: {
-                match: /(\i)\.isRoleSubscr
-iptionTemplatePreviewChannel\(\)/,
+                match: /(\i)\.isRoleSubscriptionTemplatePreviewChannel\(\)/,
                 replace: (m, channel) => `${m}||$self.isHiddenChannel(${channel})`
             }
         },
@@ -184,8 +181,7 @@ iptionTemplatePreviewChannel\(\)/,
                 {
                     predicate: () => settings.store.showMode === ShowMode.EyeIconRight,
                     match: /\.Children\.count.+?:null(?<=,channel:(\i).+?)/,
-                    replace: (m, channel) => `${m
-},$self.isHiddenChannel(${channel})?$self.EyeRightIcon():null`
+                    replace: (m, channel) => `${m},$self.isHiddenChannel(${channel})?$self.EyeRightIcon():null`
                 },
                 // Add the hidden lock icon if the channel is hidden
                 {
@@ -221,8 +217,7 @@ iptionTemplatePreviewChannel\(\)/,
                 },
                 {
                     // Hide unreads
-                    match: /Children\.count.+?;(?=return\(0,\i\.jsxs?\)\(
-\i\.\i,{focusTarget:)(?<={channel:(\i),name:\i,.+?unread:(\i).+?)/,
+                    match: /Children\.count.+?;(?=return\(0,\i\.jsxs?\)\(\i\.\i,{focusTarget:)(?<={channel:(\i),name:\i,.+?unread:(\i).+?)/,
                     replace: (m, channel, unread) => `${m}${unread}=$self.isHiddenChannel(${channel})?false:${unread};`
                 }
             ]
@@ -261,8 +256,7 @@ iptionTemplatePreviewChannel\(\)/,
                 },
                 {
                     match: /renderHeaderToolbar(?:",|=)\(\)=>{.+?case \i\.\i\.GUILD_MEDIA:(?=.+?(\i\.push.{0,40}channel:(\i)},"notifications"\)\)))(?<=isLurking:(\i).+?)/,
-                
-    replace: (m, pushNotificationButtonExpression, channel, isLurking) => `${m}if(!${isLurking}&&$self.isHiddenChannel(${channel})){${pushNotificationButtonExpression};break;}`
+                    replace: (m, pushNotificationButtonExpression, channel, isLurking) => `${m}if(!${isLurking}&&$self.isHiddenChannel(${channel})){${pushNotificationButtonExpression};break;}`
                 },
                 {
                     match: /renderMobileToolbar(?:",|=)\(\)=>{.+?case \i\.\i\.GUILD_DIRECTORY:(?<=let{channel:(\i).+?)/,
@@ -302,8 +296,7 @@ iptionTemplatePreviewChannel\(\)/,
         {
             find: ".APPLICATION_STORE&&null!=",
             replacement: {
-       
-         match: /getState\(\)\.channelId.+?(?=\.map\(\i=>\i\.id)/,
+                match: /getState\(\)\.channelId.+?(?=\.map\(\i=>\i\.id)/,
                 replace: "$&.filter(e=>!$self.isHiddenChannel(e))"
             }
         },
@@ -332,8 +325,7 @@ iptionTemplatePreviewChannel\(\)/,
                 },
                 {
                     // Patch the header to only return allowed users and roles if it's a hidden channel or locked channel (Like when it's used on the HiddenChannelLockScreen)
-                    match: /return\(0,\i\.jsxs?\)\(\i\.\i,{channelId:(\i)\.id,children:\[(?=.{0,1000}?(\(0,\i\.jsxs?\)\("div",{classN
-ame:\i\.\i,children:\[.{0,100}\i\.length>0.+?\]}\)),)/,
+                    match: /return\(0,\i\.jsxs?\)\(\i\.\i,{channelId:(\i)\.id,children:\[(?=.{0,1000}?(\(0,\i\.jsxs?\)\("div",{className:\i\.\i,children:\[.{0,100}\i\.length>0.+?\]}\)),)/,
                     replace: (m, channel, allowedUsersAndRolesComponent) => `if($self.isHiddenChannel(${channel},true)){return${allowedUsersAndRolesComponent};}${m}`
                 },
                 {
@@ -372,8 +364,7 @@ ame:\i\.\i,children:\[.{0,100}\i\.length>0.+?\]}\)),)/,
         },
         {
             find: "#{intl::CHANNEL_CALL_CURRENT_SPEAKER}",
-        
-    replacement: [
+            replacement: [
                 {
                     // Remove the open chat button for the HiddenChannelLockScreen
                     match: /(?<=&&)\i\.push\(.{0,120}"chat-spacer"/,
@@ -410,8 +401,7 @@ ame:\i\.\i,children:\[.{0,100}\i\.length>0.+?\]}\)),)/,
             find: "audience-header-",
             replacement: [
                 {
-                    // Render our HiddenChannelL
-ockScreen component instead of the main stage channel component
+                    // Render our HiddenChannelLockScreen component instead of the main stage channel component
                     match: /screenMessage:(\i)\?.+?children:(?=!\1)(?<=let \i,{channel:(\i).+?)/,
                     replace: (m, _isPopoutOpen, channel) => `${m}$self.isHiddenChannel(${channel})?$self.HiddenChannelLockScreen(${channel}):`
                 },
@@ -443,8 +433,7 @@ ockScreen component instead of the main stage channel component
             ]
         },
         {
-   
-         // Make the chat input bar channel list contain hidden channels
+            // Make the chat input bar channel list contain hidden channels
             find: ",queryStaticRouteChannels(",
             replacement: [
                 {
@@ -486,8 +475,7 @@ ockScreen component instead of the main stage channel component
                 {
                     // Filter hidden channels from GuildChannelStore.getChannels unless told otherwise
                     match: /(?<=getChannels\(\i)(\){.*?)return (.+?)}/,
-                    replace: (_, rest, channels) => `,shouldIncludeHidden${rest}return $self.resolveGuildC
-hannels(${channels},shouldIncludeHidden??arguments[0]==="@favorites");}`
+                    replace: (_, rest, channels) => `,shouldIncludeHidden${rest}return $self.resolveGuildChannels(${channels},shouldIncludeHidden??arguments[0]==="@favorites");}`
                 },
             ]
         },
@@ -541,8 +529,7 @@ hannels(${channels},shouldIncludeHidden??arguments[0]==="@favorites");}`
             if (channel == null || Object.hasOwn(channel, "channelId") && channel.channelId == null) return false;
 
             if (channel.channelId != null) channel = ChannelStore.getChannel(channel.channelId);
-            if (channel == null || channel.isDM() || channel.isGr
-oupDM() || channel.isMultiUserDM()) return false;
+            if (channel == null || channel.isDM() || channel.isGroupDM() || channel.isMultiUserDM()) return false;
             if (["browse", "customize", "guide"].includes(channel.id)) return false;
 
             return !PermissionStore.can(PermissionsBits.VIEW_CHANNEL, channel) || checkConnect && !PermissionStore.can(PermissionsBits.CONNECT, channel);
@@ -597,8 +584,7 @@ oupDM() || channel.isMultiUserDM()) return false;
             aria-hidden={true}
             role="img"
         >
-            <path fillRule="evenodd" d="M17 1
-1V7C17 4.243 14.756 2 12 2C9.242 2 7 4.243 7 7V11C5.897 11 5 11.896 5 13V20C5 21.103 5.897 22 7 22H17C18.103 22 19 21.103 19 20V13C19 11.896 18.103 11 17 11ZM12 18C11.172 18 10.5 17.328 10.5 16.5C10.5 15.672 11.172 15 12 15C12.828 15 13.5 15.672 13.5 16.5C13.5 17.328 12.828 18 12 18ZM15 11H9V7C9 5.346 10.346 4 12 4C13.654 4 15 5.346 15 7V11Z" />
+            <path fillRule="evenodd" d="M17 11V7C17 4.243 14.756 2 12 2C9.242 2 7 4.243 7 7V11C5.897 11 5 11.896 5 13V20C5 21.103 5.897 22 7 22H17C18.103 22 19 21.103 19 20V13C19 11.896 18.103 11 17 11ZM12 18C11.172 18 10.5 17.328 10.5 16.5C10.5 15.672 11.172 15 12 15C12.828 15 13.5 15.672 13.5 16.5C13.5 17.328 12.828 18 12 18ZM15 11H9V7C9 5.346 10.346 4 12 4C13.654 4 15 5.346 15 7V11Z" />
         </svg>
     ), { noop: true }),
 
@@ -627,8 +613,7 @@ oupDM() || channel.isMultiUserDM()) return false;
                 <svg
                     onMouseLeave={onMouseLeave}
                     onMouseEnter={onMouseEnter}
-                    className={cl("channel-list-icon") + " " + "shc-hidden
--channel-icon"}
+                    className={cl("channel-list-icon") + " " + "shc-hidden-channel-icon"}
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"

@@ -35,8 +35,7 @@ function UploadClipFileModal({ modalProps, channelId, clip }: { modalProps: Rend
     const [thumbnail, setThumbnail] = useState(false);
     const [createdAt, setCreatedAt] = useState(getDateTimeLocalValue(getClipCreatedAt(clip)));
     const [message, setMessage] = useState("");
-    const [applicationId, setApplicationId] = useState(getString(clip?.applicati
-onId) ?? "");
+    const [applicationId, setApplicationId] = useState(getString(clip?.applicationId) ?? "");
     const [uploading, setUploading] = useState(false);
     const [parseMetadata, setParseMetadata] = useState(false);
 
@@ -91,8 +90,7 @@ onId) ?? "");
             message,
             channelId,
             applicationId: applicationId.trim() || undefined,
-            remoteClipId: getString(clip?.remoteC
-lipId),
+            remoteClipId: getString(clip?.remoteClipId),
             eventsTimeline: clip?.eventsTimeline,
             messageReference: reply ? MessageActions.getSendMessageOptionsForReply(reply)?.messageReference : null,
         });
@@ -145,8 +143,7 @@ lipId),
                 </section>
 
                 <TextField title="File name" value={fileName} onChange={setFileName} placeholder="my_clip.mp4" disabled={uploading} />
-                <TextField title="Title" value={title} onChange={setTitle} placeholder="Epic Moment" disabled={upload
-ing} />
+                <TextField title="Title" value={title} onChange={setTitle} placeholder="Epic Moment" disabled={uploading} />
                 <ParticipantField value={participants} onChange={setParticipants} disabled={uploading} />
                 <DateTimeField value={createdAt} onChange={setCreatedAt} disabled={uploading} />
                 <TextField title="Message" value={message} onChange={setMessage} placeholder="Check out this clip!" disabled={uploading} multiline />
