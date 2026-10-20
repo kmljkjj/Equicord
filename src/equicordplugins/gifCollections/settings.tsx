@@ -58,8 +58,7 @@ export const settings = definePluginSettings({
         default: false,
     },
     defaultEmptyCollectionImage: {
-        description: "The image shown when a collection has no 
-images.",
+        description: "The image shown when a collection has no images.",
         type: OptionType.STRING,
         default: "https://c.tenor.com/YEG33HsLEaIAAAAC/parksandrec-oops.gif",
     },
@@ -114,8 +113,7 @@ images.",
                     body: "Resetting collections will remove all your collections.",
                     confirmText: "Reset",
                     confirmColor: Button.Colors.RED,
-           
-         cancelText: "Nevermind",
+                    cancelText: "Nevermind",
                     onConfirm: async () => {
                         await DataStore.set(DATA_COLLECTION_NAME, []);
                         refreshCacheCollection();
@@ -159,8 +157,7 @@ function SortSettingsComponent() {
             <Divider className={cl("sort-divider")} />
             <div className={cl("sort-section")}>
                 <Paragraph className={cl("sort-section-title")}>Sort By</Paragraph>
-                <RadioOption name="sortType" value={SortingOptions.NAME} checked={sortType === SortingOptions.NAME} onChange={() => handleS
-ortType(SortingOptions.NAME)} label="Name" />
+                <RadioOption name="sortType" value={SortingOptions.NAME} checked={sortType === SortingOptions.NAME} onChange={() => handleSortType(SortingOptions.NAME)} label="Name" />
                 <RadioOption name="sortType" value={SortingOptions.CREATION_DATE} checked={sortType === SortingOptions.CREATION_DATE} onChange={() => handleSortType(SortingOptions.CREATION_DATE)} label="Creation Date" />
                 <RadioOption name="sortType" value={SortingOptions.MODIFIED_DATE} checked={sortType === SortingOptions.MODIFIED_DATE} onChange={() => handleSortType(SortingOptions.MODIFIED_DATE)} label="Modified Date" />
             </div>

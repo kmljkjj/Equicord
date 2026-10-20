@@ -59,8 +59,7 @@ export default definePlugin({
         },
         {
             find: ".USE_OSX_NATIVE_TRAFFIC_LIGHTS",
-            replacement: 
-{
+            replacement: {
                 match: /case \i\.\i\.WINDOWS:/,
                 replace: 'case "WEB":'
             },
@@ -114,8 +113,7 @@ export default definePlugin({
                     },
                     cancelText: "Okay continue",
                     onCancel() {
-             
-           clicked = true;
+                        clicked = true;
                     },
                 });
             }

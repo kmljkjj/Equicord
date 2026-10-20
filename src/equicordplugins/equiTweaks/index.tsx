@@ -30,8 +30,7 @@ const fetchSafetyHub: () => Promise<void> = findByCodeLazy("SAFETY_HUB_FETCH_STA
 const StandingConfig: Record<number, { label: string; hoverColor: string; Icon: ComponentType<any>; }> = {
     [StandingState.ALL_GOOD]: { label: "All good!", hoverColor: "var(--status-positive)", Icon: ShieldIcon },
     [StandingState.LIMITED]: { label: "Limited", hoverColor: "var(--status-warning)", Icon: WarningIcon },
-    [StandingState.VERY_LIMITED]: { label: "Very l
-imited", hoverColor: "var(--orange-345)", Icon: WarningIcon },
+    [StandingState.VERY_LIMITED]: { label: "Very limited", hoverColor: "var(--orange-345)", Icon: WarningIcon },
     [StandingState.AT_RISK]: { label: "At risk", hoverColor: "var(--status-danger)", Icon: WarningIcon },
     [StandingState.SUSPENDED]: { label: "Suspended", hoverColor: "var(--interactive-muted)", Icon: WarningIcon },
 };
@@ -78,8 +77,7 @@ const addAutoCorrectMenuItem: NavContextMenuPatchCallback = children => {
 };
 
 const listener = async (channelId, msg) => {
-    i
-f (!settings.store.noBulletPoints) return;
+    if (!settings.store.noBulletPoints) return;
     msg.content = textProcessing(msg.content);
 };
 
@@ -138,8 +136,7 @@ const settings = definePluginSettings({
         default: false
     },
     disableAdoptTagPrompt: {
-        type: OptionType.BOO
-LEAN,
+        type: OptionType.BOOLEAN,
         description: "Disable the prompt to adopt tags",
         restartNeeded: true,
         default: false,
@@ -202,8 +199,7 @@ export default definePlugin({
         EquicordDevs.mart,
         EquicordDevs.omaw,
         Devs.Samwich,
-  
-      Devs.AutumnVN,
+        Devs.AutumnVN,
         EquicordDevs.auggeeo,
         EquicordDevs.secp192k1,
         EquicordDevs.tie,
@@ -259,8 +255,7 @@ export default definePlugin({
         {
             find: ".USER_PROFILE_ACTIVITY_BUTTONS),",
             predicate: () => settings.store.showYourOwnActivityButtons && !isPluginEnabled(customRPC.name),
-            re
-placement: {
+            replacement: {
                 match: /.getId\(\)===\i.id/,
                 replace: "$& && false"
             }
@@ -322,8 +317,7 @@ placement: {
             find: 'persistKey="SoundpackStore"',
             predicate: () => settings.store.disableHolidayNotifications,
             replacement: {
-          
-      match: /(?<=getSoundpack\(\)\{return )\i\.soundpack/,
+                match: /(?<=getSoundpack\(\)\{return )\i\.soundpack/,
                 replace: '"classic"'
             }
         },
@@ -370,8 +364,7 @@ placement: {
             predicate: () => settings.store.noOnboarding
         },
         {
-            find: "UserProfileBadgeListRo
-ws",
+            find: "UserProfileBadgeListRows",
             replacement: {
                 match: /let (\i)=\i&&!\i(?=,\i=\1\?Math\.max\()/,
                 replace: "let $1=!1"
@@ -424,8 +417,7 @@ ws",
         }
     ],
     start() {
- 
-       if (settings.store.noBulletPoints) {
+        if (settings.store.noBulletPoints) {
             addMessagePreSendListener(listener);
         }
     },

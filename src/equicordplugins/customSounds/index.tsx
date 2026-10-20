@@ -54,8 +54,7 @@ function setOverride(id: string, override: SoundOverride) {
 
 export const getCustomSoundURL: AudioProcessor = (data: PreprocessAudioData) => {
     if (settings.store.soundpack) {
-        const current: Record<string, string> = getSoundpackMap(Soundpack
-Store.getSoundpack());
+        const current: Record<string, string> = getSoundpackMap(SoundpackStore.getSoundpack());
         const name = Object.keys(current).find(key => current[key] === data.audio) ?? data.audio;
         data.audio = getSoundpackMap(settings.store.soundpack)[name] ?? name;
     }
@@ -116,8 +115,7 @@ export async function refreshDataURI(id: string): Promise<void> {
     const dataUri = await ensureDataURICached(override.selectedFileId);
     if (dataUri) {
         console.log(`[CustomSounds] Successfully cached data URI for ${id} (length: ${dataUri.length})`);
- 
-   } else {
+    } else {
         console.error(`[CustomSounds] Failed to cache data URI for ${id}`);
     }
 }
@@ -168,8 +166,7 @@ export async function debugCustomSounds() {
         });
     }
 
-    console.log(`[CustomSounds] Total storage - Buffers: ${(totalBufferSize / 1024).toFixed(1)}KB, DataURIs: ${(totalDataUriSize / 102
-4).toFixed(1)}KB`);
+    console.log(`[CustomSounds] Total storage - Buffers: ${(totalBufferSize / 1024).toFixed(1)}KB, DataURIs: ${(totalDataUriSize / 1024).toFixed(1)}KB`);
 
     console.log(`[CustomSounds] Memory cache contains ${dataUriCache.size} data URIs`);
 
@@ -225,7 +222,6 @@ const settings = definePluginSettings({
                 ...Object.entries(Soundpacks).map(([key, value]) => ({
                     label: key.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
                     value
-
                 }))
             ];
         }
@@ -273,8 +269,7 @@ const settings = definePluginSettings({
                                     if (setting.id) {
                                         const override: SoundOverride = {
                                             enabled: setting.enabled ?? false,
-                                            selectedSound: 
-setting.selectedSound ?? "default",
+                                            selectedSound: setting.selectedSound ?? "default",
                                             selectedFileId: setting.selectedFileId ?? undefined,
                                             volume: setting.volume ?? 100,
                                             useFile: false
@@ -316,8 +311,7 @@ setting.selectedSound ?? "default",
 
                 const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
-             
-   const a = document.createElement("a");
+                const a = document.createElement("a");
                 a.href = url;
                 a.download = "customSounds-settings.json";
                 a.click();
@@ -361,8 +355,7 @@ setting.selectedSound ?? "default",
                             const currentOverride = getOverride(type.id);
 
                             return (
-                
-                <SoundOverrideComponent
+                                <SoundOverrideComponent
                                     key={`${type.id}-${resetTrigger}`}
                                     type={type}
                                     override={currentOverride}
@@ -411,8 +404,7 @@ export default definePlugin({
     audioProcessor: getCustomSoundURL,
 
     async start() {
-        co
-nsole.log("[CustomSounds] Plugin starting...");
+        console.log("[CustomSounds] Plugin starting...");
 
         try {
             await preloadDataURIs();

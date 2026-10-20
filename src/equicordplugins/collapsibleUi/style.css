@@ -39,8 +39,7 @@
 }
 
 [data-vc-collapsible-ui-base-channel-list-collapsed][data-vc-collapsible-ui-base-channel-list-interaction-expanded].vc-betterFolders-sidebar-grid {
-    /* stylelint-disable-next-line value-
-keyword-case */
+    /* stylelint-disable-next-line value-keyword-case */
     grid-template-columns: [start] min-content [guildsEnd] min-content [sidebarEnd] var(--custom-guild-sidebar-width, 312px) [channelsEnd] 1fr [end] !important;
 }
 
@@ -92,8 +91,7 @@ keyword-case */
 
 /* BetterFolders renders a duplicate guilds nav inside its folder sidebar.
    The collapse rules above exempt that duplicate; collapse the sidebar
-   wrapper 
-in sync with the real guild bar instead. */
+   wrapper in sync with the real guild bar instead. */
 [data-vc-collapsible-ui-sidebar-guild-bar-collapsed] .vc-betterFolders-sidebar {
     width: 0 !important;
     min-width: 0 !important;
@@ -142,8 +140,7 @@ in sync with the real guild bar instead. */
     width: var(--vc-cui-members-list-expanded-width) !important;
     min-width: var(--vc-cui-members-list-expanded-width) !important;
     max-width: var(--vc-cui-members-list-expanded-width) !important;
-    flex-basis
-: auto !important;
+    flex-basis: auto !important;
     opacity: 1;
 }
 
@@ -208,8 +205,7 @@ in sync with the real guild bar instead. */
 
 [data-vc-collapsible-ui-header-bar-collapsed][data-vc-collapsible-ui-header-bar-interaction-expanded] {
     height: var(--vc-cui-header-bar-height) !important;
-    min-height: var(--vc-cui-header-ba
-r-height) !important;
+    min-height: var(--vc-cui-header-bar-height) !important;
     max-height: var(--vc-cui-header-bar-height) !important;
     opacity: 1;
     overflow: visible;
@@ -260,7 +256,6 @@ r-height) !important;
 [data-vc-collapsible-ui-sidebar-channel-list-collapsed]:not([data-vc-collapsible-ui-sidebar-user-area-detached]) [data-vc-collapsible-ui-user-area-expanded] {
     position: absolute !important;
     right: auto !important;
-
     bottom: 6px !important;
     left: 6px !important;
     height: var(--vc-cui-user-area-collapsed-width) !important;
@@ -301,8 +296,7 @@ r-height) !important;
     max-width: var(--vc-cui-channel-list-max-width) !important;
 }
 
-[data-vc-collapsible-ui-sideba
-r-channel-list-expanded]:not([data-vc-collapsible-ui-sidebar-user-area-detached]) [data-vc-collapsible-ui-user-area] {
+[data-vc-collapsible-ui-sidebar-channel-list-expanded]:not([data-vc-collapsible-ui-sidebar-user-area-detached]) [data-vc-collapsible-ui-user-area] {
     /* Anchor both edges instead of forcing a width: the guild bar column is
        min-content and theme-dependent, so a fixed width leaves a right-side
        gap whenever the guild bar is expanded. */
@@ -368,8 +362,7 @@ r-channel-list-expanded]:not([data-vc-collapsible-ui-sidebar-user-area-detached]
     transition-delay: 0ms;
 }
 
-.vc-collapsible-ui-r
-estore-button {
+.vc-collapsible-ui-restore-button {
     display: flex;
     align-items: center;
     justify-content: center;

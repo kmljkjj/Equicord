@@ -52,8 +52,7 @@ function SettingsComponent() {
                                     >
                                         {t.displayName} Tag
                                     </div>
-                                
-)}
+                                )}
                             </Tooltip>
                         </Forms.FormTitle>
 
@@ -104,8 +103,7 @@ export const settings = definePluginSettings({
         default: false
     },
     dontShowBotTag: {
-        descriptio
-n: "Only show extra tags for bots / Hide [APP] text",
+        description: "Only show extra tags for bots / Hide [APP] text",
         type: OptionType.BOOLEAN,
         default: false,
         restartNeeded: true

@@ -67,8 +67,7 @@ export const settings = definePluginSettings({
 
     saveImages: {
         type: OptionType.BOOLEAN,
-        description: "Save deleted atta
-chments.",
+        description: "Save deleted attachments.",
         default: false
     },
 
@@ -123,8 +122,7 @@ chments.",
 
     ignoreMutedChannels: {
         default: false,
-        type: Option
-Type.BOOLEAN,
+        type: OptionType.BOOLEAN,
         description: "Messages in muted channels will not be logged. Whitelisted users/channels in muted guilds will still be logged."
     },
 
@@ -180,8 +178,7 @@ Type.BOOLEAN,
     messageLimit: {
         default: 200,
         type: OptionType.NUMBER,
-        description: "Maximum number of messages to save. Older messages are 
-deleted when the limit is reached. 0 means there is no limit"
+        description: "Maximum number of messages to save. Older messages are deleted when the limit is reached. 0 means there is no limit"
     },
 
     attachmentSizeLimitInMegabytes: {
@@ -230,8 +227,7 @@ deleted when the limit is reached. 0 means there is no limit"
 
     preserveCurrentChannel: {
         default: true,
-        type: Optio
-nType.BOOLEAN,
+        type: OptionType.BOOLEAN,
         description: "When enabled, messages in your currently selected channel are not affected by time-based cleanup.",
     },
 
@@ -299,8 +295,7 @@ nType.BOOLEAN,
                 onClick={() => Native.showItemInFolder()}
             >
                 Open Image Cache Folder
-     
-       </Button>
+            </Button>
     },
 
     clearLogs: {

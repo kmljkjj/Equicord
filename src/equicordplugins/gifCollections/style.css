@@ -98,8 +98,7 @@
     font-size: 14px;
     color: var(--text-muted);
     max-width: 70%;
-    white-space: norma
-l;
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
 }

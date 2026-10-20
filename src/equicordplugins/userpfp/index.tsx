@@ -48,8 +48,7 @@ const settings = definePluginSettings({
         ],
     },
     databaseSource: {
-        description: "UR
-L to load database from",
+        description: "URL to load database from",
         type: OptionType.STRING,
         default: "https://userpfp.github.io/UserPFP/source/data.json",
         hidden: !IS_DEV,
@@ -104,8 +103,7 @@ export default definePlugin({
                 {
                     match: /(getGuildMemberAvatarURLSimple:)(\i),/,
                     replace: "$1$self.getAvatarServerHook($2),",
-      
-              predicate: () => settings.store.overrideServerAvatars
+                    predicate: () => settings.store.overrideServerAvatars
                 }
             ]
         }
@@ -159,8 +157,7 @@ export default definePlugin({
             if (customUrl.startsWith("data:")) return customUrl;
 
             try {
-                const res = new URL(custom
-Url);
+                const res = new URL(customUrl);
                 if (size) res.searchParams.set("size", size.toString());
                 return res.toString();
             } catch {
