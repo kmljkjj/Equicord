@@ -10,6 +10,7 @@ import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { ErrorCard } from "@components/ErrorCard";
 import { HeadingPrimary, HeadingSecondary } from "@components/Heading";
+import { OpenExternalIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, IS_MAC } from "@utils/constants";
 import { Margins } from "@utils/margins";
@@ -20,6 +21,26 @@ import { React, SettingsRouter } from "@webpack/common";
 const KbdStyles = findByPropsLazy("key", "combo");
 const modKey = IS_MAC ? "cmd" : "ctrl";
 const altKey = IS_MAC ? "opt" : "alt";
+
+const RESOURCES: Array<{ name: string; description: string; url: string; }> = [
+    { name: "wumpus.tools", description: "Search any experiment by name and see its buckets (user / guild / developer lists)", url: "https://wumpus.tools" },
+    { name: "rollouts.advaith.io", description: "Live server-side experiment rollout tracker", url: "https://rollouts.advaith.io" },
+    { name: "docs.discord.food", description: "Technical documentation of how Discord experiments work", url: "https://docs.discord.food/topics/experiments" },
+    { name: "discordpreviews.com", description: "Upcoming Discord features with screenshots", url: "https://discordpreviews.com" }
+];
+
+function openLink(url: string) {
+    try {
+        const native = (VencordNative as any)?.native;
+        if (typeof native?.openExternal === "function") {
+            native.openExternal(url);
+            return;
+        }
+    } catch {
+        // fall through to window.open
+    }
+    window.open(url, "_blank");
+}
 
 const settings = definePluginSettings({
     hideWarningCard: {
@@ -203,6 +224,30 @@ export default definePlugin({
                         ? "You are running the web version. Use your browser's developer tools (F12) to inspect the Discord page."
                         : <>You can open Discord's DevTools via {" "}{combo}</>}
                 </BaseText>
+
+                <div className={Margins.top16}>
+                    <HeadingSecondary>Useful Resources</HeadingSecondary>
+                </div>
+                <BaseText size="md">
+                    Search experiment names, see live rollouts and read the technical documentation before forcing anything:
+                </BaseText>
+                {RESOURCES.map(resource => (
+                    <div key={resource.url} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0" }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 600 }}>{resource.name}</div>
+                            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{resource.description}</div>
+                        </div>
+                        <button
+                            type="button"
+                            aria-label={`Open ${resource.name}`}
+                            title={`Open ${resource.name}`}
+                            onClick={() => openLink(resource.url)}
+                            style={{ background: "none", border: "1px solid var(--border-faint)", borderRadius: "6px", padding: "6px", cursor: "pointer", color: "var(--text-muted)", display: "inline-flex", flexShrink: 0 }}
+                        >
+                            <OpenExternalIcon width={16} height={16} />
+                        </button>
+                    </div>
+                ))}
             </React.Fragment>
         );
     },
