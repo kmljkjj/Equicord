@@ -60,7 +60,8 @@ function canCreateInvite(channel?: Channel | null): channel is Channel {
     return PermissionStore.can(PermissionsBits.CREATE_INSTANT_INVITE, channel);
 }
 
-function appendInviteCandidate(candidates: Map<string, Channel>, channel?: Channel | null) {
+function appendInv
+iteCandidate(candidates: Map<string, Channel>, channel?: Channel | null) {
     if (!channel || !channel.guild_id || candidates.has(channel.id)) return;
     candidates.set(channel.id, channel);
 }
@@ -106,7 +107,8 @@ async function fetchReusableInvite(guildId: string, inviteChannelId: string) {
 
     try {
         const { body } = await RestAPI.get({ url: `/channels/${inviteChannelId}/invites` });
-        if (!Array.isArray(body)) return { ok: false as const, reason: "failed" as const };
+        if (!Array.isArray(body)) return { ok: false as const, reason: "fa
+iled" as const };
 
         const now = Date.now();
         const invite = body.find(inv => {
@@ -135,7 +137,7 @@ function getInviteUrl(code: string) {
 export async function createInvite(guildId: string, currentChannel: Channel, settings: InviteSettings): Promise<string | null> {
     const inviteChannel = resolveInviteChannel(guildId, currentChannel);
     if (!inviteChannel) {
-        showToast("No channel available for invites.", "failure");
+        showToast({ text: "No channel available for invites.", variant: "critical" });
         return null;
     }
 
@@ -143,12 +145,12 @@ export async function createInvite(guildId: string, currentChannel: Channel, set
         const reused = await fetchReusableInvite(guildId, inviteChannel.id);
         if (reused.ok) return getInviteUrl(reused.code);
 
-        showToast(
-            reused.reason === "missing"
+        showToast({
+            text: reused.reason === "missing"
                 ? "No reusable invite available."
                 : "Unable to reuse invite.",
-            "failure",
-        );
+            variant: "critical"
+        });
         return null;
     }
 
@@ -158,7 +160,8 @@ export async function createInvite(guildId: string, currentChannel: Channel, set
         const { body } = await RestAPI.post({
             url: `/channels/${inviteChannel.id}/invites`,
             body: {
-                max_age: maxAge,
+                max_ag
+e: maxAge,
                 max_uses: maxUses,
                 temporary: settings.inviteTemporaryMembership,
                 unique: true,
@@ -174,11 +177,11 @@ export async function createInvite(guildId: string, currentChannel: Channel, set
             maxUses: maxUses === 0 ? null : maxUses,
             uses: 0,
         });
-        showToast("Invite created.", "success");
+        showToast({ text: "Invite created.", variant: "success" });
         return getInviteUrl(code);
     } catch (error) {
         logger.error("Failed to create invite", error);
-        showToast("Unable to create invite.", "failure");
+        showToast({ text: "Unable to create invite.", variant: "critical" });
         return null;
     }
 }

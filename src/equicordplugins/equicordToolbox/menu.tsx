@@ -63,6 +63,7 @@ export function buildPluginMenuEntries(includeEmpty = false) {
         <>
             <Menu.MenuControlItem
                 id="plugins-search"
+
                 control={(props, ref) => (
                     <Menu.MenuSearchControl
                         {...props}
@@ -103,7 +104,7 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                                         checked={s[key]}
                                         action={() => {
                                             s[key] = !s[key];
-                                            if (option.restartNeeded) showToast("Restart to apply the change");
+                                            if (option.restartNeeded) showToast({ text: "Restart to apply the change" });
                                         }}
                                     />
                                 );
@@ -111,7 +112,8 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                             case OptionType.SELECT:
                                 options.push(
                                     <Menu.MenuItem {...baseProps}>
-                                        {option.options.map(opt => (
+                                        {opti
+on.options.map(opt => (
                                             <Menu.MenuRadioItem
                                                 group={`${p.name}-${key}`}
                                                 id={`${p.name}-${key}-${opt.value}`}
@@ -120,7 +122,7 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                                                 checked={s[key] === opt.value}
                                                 action={() => {
                                                     s[key] = opt.value;
-                                                    if (option.restartNeeded) showToast("Restart to apply the change");
+                                                    if (option.restartNeeded) showToast({ text: "Restart to apply the change" });
                                                 }}
                                             />
                                         ))}
@@ -143,6 +145,7 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                                                 value={s[key]}
                                                 onChange={v => s[key] = v}
                                             />
+
                                         )}
                                     />
                                 );
@@ -202,7 +205,8 @@ export function buildThemeMenuEntries() {
 
     return (
         <>
-            <Menu.MenuCheckboxItem
+         
+   <Menu.MenuCheckboxItem
                 id="toggle-quickcss"
                 checked={useQuickCss}
                 label={"Enable QuickCSS"}
@@ -250,7 +254,8 @@ function buildCustomPluginEntries() {
         if (plugin.toolboxActions && isPluginEnabled(plugin.name)) {
             const entries = typeof plugin.toolboxActions === "function"
                 ? plugin.toolboxActions()
-                : Object.entries(plugin.toolboxActions).map(([text, action]) => {
+                : Object.entries(plugin.toolboxActions).map(([text, action]) =
+> {
                     const key = `${plugin.name}-${text}`;
 
                     return (

@@ -7,13 +7,14 @@
 import { showNotice } from "@api/Notices";
 import { plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings } from "@api/Settings";
-import { ToastPosition } from "@vencord/discord-types/enums";
 import { Alerts, showToast } from "@webpack/common";
 
 function showErrorToast(message: string) {
-    showToast(message, "failure", {
-            position: ToastPosition.BOTTOM
-        });
+    showToast({
+        text: message,
+        variant: "critical",
+        position: "bottom"
+    });
 }
 
 function restartPrompt(): Promise<boolean> {
@@ -63,7 +64,8 @@ export async function toggleEnabled(name: string) {
     if (!wasEnabled) {
         const { restartNeeded, failures } = startDependenciesRecursive(plugin);
         if (failures.length) {
-            console.error(`Failed to start dependencies for ${plugin.name}: ${failures.join(", ")}`);
+            console.error(`Failed 
+to start dependencies for ${plugin.name}: ${failures.join(", ")}`);
             showNotice("Failed to start dependencies: " + failures.join(", "), "Close", () => null);
             return false;
         } else if (restartNeeded) {
@@ -120,7 +122,8 @@ export function getMacOSName(release: string) {
 
 export function platformName() {
     if (typeof DiscordNative === "undefined") return navigator.platform;
-    if (DiscordNative.process.platform === "win32") return `${getWindowsName(DiscordNative.os.release)}`;
+    if (DiscordNative.process.pla
+tform === "win32") return `${getWindowsName(DiscordNative.os.release)}`;
     if (DiscordNative.process.platform === "darwin") return `${getMacOSName(DiscordNative.os.release)} (${DiscordNative.process.arch === "arm64" ? "Apple Silicon" : "Intel Silicon"})`;
     if (DiscordNative.process.platform === "linux") return `${navigator.platform} (${DiscordNative.os.release})`;
     return DiscordNative.process.platform;

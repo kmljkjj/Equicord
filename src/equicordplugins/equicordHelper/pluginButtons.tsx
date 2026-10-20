@@ -44,16 +44,17 @@ export const PluginButtons = ErrorBoundary.wrap(function PluginCards({ message }
         pluginButtons.push(
             <Button
                 key="vc-plugin-toggle"
-                color={disabled ? Button.Colors.PRIMARY : (isEnabled ? Button.Colors.RED : Button.Colors.GREEN)}
+                co
+lor={disabled ? Button.Colors.PRIMARY : (isEnabled ? Button.Colors.RED : Button.Colors.GREEN)}
                 disabled={disabled}
                 size={Button.Sizes.SMALL}
                 onClick={async () => {
                     try {
                         const success = await toggleEnabled(matchedPlugin);
-                        if (success) showToast(`${label}`, "success");
+                        if (success) showToast({ text: `${label}`, variant: "success" });
                     } catch (e) {
                         new Logger("EquicordHelper").error("Error while toggling:", e);
-                        showToast(`Failed to ${label.toLowerCase()}`, "failure");
+                        showToast({ text: `Failed to ${label.toLowerCase()}`, variant: "critical" });
                     }
                 }}
             >

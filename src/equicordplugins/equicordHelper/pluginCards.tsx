@@ -49,7 +49,8 @@ export function ChatPluginCard({ url, description }: { url: string, description:
                 description={description || toolTipText}
                 enabled={false}
                 setEnabled={() => { }}
-                disabled={true}
+      
+          disabled={true}
                 infoButton={<WarningIcon />}
             />
         );
@@ -59,7 +60,7 @@ export function ChatPluginCard({ url, description }: { url: string, description:
             : card;
     }
 
-    const onRestartNeeded = () => showToast("A restart is required for the change to take effect!");
+    const onRestartNeeded = () => showToast({ text: "A restart is required for the change to take effect!" });
 
     const depMap = useMemo(() => {
         const o = {} as Record<string, string[]>;
@@ -114,7 +115,8 @@ export const PluginCards = ErrorBoundary.wrap(function PluginCards({ message }: 
 
     // Process embeds
     message.embeds?.forEach(embed => {
-        if (!embed.url?.startsWith("https://equicord.org/plugins/") && !embed.url?.startsWith("https://vencord.dev/plugins/")) return;
+        if (!embed.url?.star
+tsWith("https://equicord.org/plugins/") && !embed.url?.startsWith("https://vencord.dev/plugins/")) return;
 
         const isEquicord = isEquicordGuild(message.channel_id) && isEquicordSupport(message.author.id);
         if (!isEquicord) return;
@@ -162,7 +164,8 @@ export const PluginCards = ErrorBoundary.wrap(function PluginCards({ message }: 
         }
     }
 
-    if (pluginCards.length === 0) return null;
+    if (pluginCards.length =
+== 0) return null;
 
     return (
         <div className="vc-plugins-management-cards vc-plugins-grid" style={{ marginTop: "0px" }}>
