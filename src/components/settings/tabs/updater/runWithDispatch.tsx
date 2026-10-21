@@ -9,17 +9,24 @@ import { UpdateLogger } from "@utils/updater";
 import { ConfirmModal,openModal, Parser } from "@webpack/common";
 
 function getErrorMessage(e: any) {
-    if (!e?.code || !e.cmd)
-        return "An unknown error occurred.\nPlease try again or see the console for more info.";
+    const { code, path, cmd, stderr, message } = e ?? {};
 
-    const { code, path, cmd, stderr } = e;
+    // structured error from a spawned command (e.g. the desktop git updater)
+    if (code && cmd) {
+        if (code === "ENOENT")
+            return `Command \`${path}\` not found.\nPlease install it and try again.`;
 
-    if (code === "ENOENT")
-        return `Command \`${path}\` not found.\nPlease install it and try again.`;
+        const extra = stderr || `Code \`${code}\`. See the console for more info.`;
 
-    const extra = stderr || `Code \`${code}\`. See the console for more info.`;
+        return `An error occurred while running \`${cmd}\`:\n${extra}`;
+    }
 
-    return `An error occurred while running \`${cmd}\`:\n${extra}`;
+    // plain errors (e.g. the extension updater bridge) carry a useful
+    // message; surface it instead of hiding it behind a generic text
+    if (typeof message === "string" && message.length > 0)
+        return message;
+
+    return "An unknown error occurred.\nPlease try again or see the console for more info.";
 }
 
 export function runWithDispatch(dispatch: React.Dispatch<React.SetStateAction<boolean>>, action: () => any) {

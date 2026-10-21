@@ -164,7 +164,10 @@ async function init() {
 
     syncSettings().catch(err => PMLogger.error("Failed to sync settings", err));
 
-    if (!IS_DEV && !IS_WEB && !IS_UPDATER_DISABLED) {
+    // also run on the browser extension (IS_WEB is true there, but the
+    // in-app updater bridge is available and the "Automatically update"
+    // preference should apply there too)
+    if (!IS_DEV && !IS_UPDATER_DISABLED && (!IS_WEB || IS_EXTENSION)) {
         runUpdateCheck();
 
         // this tends to get really annoying, so only do this if the user has auto-update without notification enabled
