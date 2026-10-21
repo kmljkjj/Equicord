@@ -17,7 +17,7 @@ import { Devs, IS_MAC } from "@utils/constants";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType, Patch } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { React, SettingsRouter } from "@webpack/common";
+import { ExperimentStore, React, SettingsRouter } from "@webpack/common";
 import { patches } from "@webpack/patcher";
 
 import pageStyle from "./style.css?managed";
@@ -86,14 +86,14 @@ const connectionInitPatch: Patch = {
     }
 };
 
-// Show the warning card and quick resources above the experiment list on the Experiments page
+// Show the warning card and a filter bar above the experiment list on the Experiments page
 const experimentsPagePatch: Patch = {
     plugin: "Experiments",
     find: 'placeholder:"Search experiments"',
     replacement: [
         {
             match: /(?<=children:\[)(?=null!=.{0,150}"Installation ID:)/,
-            replace: "$self.showWarningCard()?$self.WarningCard():null,$self.ResourcesBar(),"
+            replace: "$self.showWarningCard()?$self.WarningCard():null,$self.FiltersBar(),"
         },
         // for some reason the installation id and copy buttons are on
         // different lines so it looks stupid when the card above is added
@@ -131,7 +131,7 @@ const experimentEmbedPatch: Patch = {
     plugin: "Experiments",
     find: "Clear Treatment ",
     replacement: {
-        match: /\i\?\.isStaff\(\)/,
+        match: /\i?\.isStaff\(\)/,
         replace: "true"
     },
     predicate: () => settings.store.enableExperimentEmbeds
@@ -196,7 +196,7 @@ const experimentLabelMatchPatch: Patch = {
 const PATCH_HEALTH: Array<{ name: string; patch: Patch; }> = [
     { name: "Developer access (isDeveloper)", patch: developerAccessPatch },
     { name: "Developer init (CONNECTION_OPEN)", patch: connectionInitPatch },
-    { name: "Experiments page (search & warning card)", patch: experimentsPagePatch },
+    { name: "Experiments page (warning card & filters)", patch: experimentsPagePatch },
     { name: "Toolbar dev menu", patch: toolbarDevMenuPatch },
     { name: "Toolbar dev menu click", patch: toolbarDevMenuClickPatch },
     { name: "Experiment embeds", patch: experimentEmbedPatch },
@@ -243,6 +243,124 @@ function getBuildChannel(): string {
         // release channel unavailable; keep the fallback
     }
     return "unknown";
+}
+
+type ExperimentTypeFilter = "all" | "user" | "guild";
+type ExperimentForcedFilter = "all" | "forced" | "default";
+
+interface ExperimentEntry {
+    id: string;
+    title: string;
+    type: "user" | "guild" | "other";
+    forced: boolean;
+}
+
+interface ExperimentIndex {
+    entries: ExperimentEntry[];
+    hasTypes: boolean;
+    hasForced: boolean;
+}
+
+let experimentIndexCache: ExperimentIndex | null | undefined;
+
+function invalidateExperimentIndex() {
+    experimentIndexCache = undefined;
+}
+
+// Best-effort, strictly read-only snapshot of the experiment catalog, taken from
+// Discord's own ExperimentStore. Everything is defensive: if Discord's internals
+// ever change, this simply returns null and the filter chips disappear instead
+// of breaking the Experiments page.
+function getExperimentIndex(): ExperimentIndex | null {
+    if (experimentIndexCache !== undefined) return experimentIndexCache;
+
+    let result: ExperimentIndex | null = null;
+    try {
+        const store = ExperimentStore as any;
+        if (store == null || typeof store.getRegisteredExperiments !== "function") {
+            experimentIndexCache = null;
+            return null;
+        }
+
+        const registered = store.getRegisteredExperiments();
+        const pairs: Array<[string, any]> = registered instanceof Map
+            ? Array.from(registered.entries(), ([id, descriptor]) => [String(id), descriptor])
+            : Array.isArray(registered)
+                ? registered.map((descriptor, i) => [String(descriptor?.title ?? i), descriptor] as [string, any])
+                : registered != null && typeof registered === "object"
+                    ? Object.entries(registered)
+                    : [];
+
+        const hasOverrideGetter = typeof store.getExperimentOverrideDescriptor === "function";
+        const entries: ExperimentEntry[] = [];
+        const seen = new Set<string>();
+
+        for (const [id, descriptor] of pairs) {
+            if (descriptor == null || typeof descriptor !== "object") continue;
+            const title = typeof descriptor.title === "string" && descriptor.title.length > 0
+                ? descriptor.title
+                : id;
+            if (seen.has(title)) continue;
+            seen.add(title);
+
+            const type = descriptor.type === "user" || descriptor.type === "guild"
+                ? descriptor.type
+                : "other";
+
+            let forced = false;
+            if (hasOverrideGetter) {
+                try {
+                    forced = store.getExperimentOverrideDescriptor(id)?.override === true;
+                } catch {
+                    // override lookup failed for this one; keep forced = false
+                }
+            }
+
+            entries.push({ id, title, type, forced });
+        }
+
+        if (entries.length >= 5) {
+            entries.sort((a, b) => a.title.localeCompare(b.title));
+            result = {
+                entries,
+                hasTypes: entries.some(e => e.type === "user") && entries.some(e => e.type === "guild"),
+                hasForced: hasOverrideGetter
+            };
+        }
+    } catch {
+        // Discord's store did not expose a usable catalog; no filter chips then
+    }
+
+    experimentIndexCache = result;
+    return result;
+}
+
+// Types the value into Discord's own "Search experiments" input so the native
+// experiment list filters itself live. Falls back silently if unreachable.
+function setNativeSearchValue(value: string) {
+    try {
+        const input = document.querySelector<HTMLInputElement>('input[placeholder="Search experiments"]');
+        if (!input) return;
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+        if (setter) setter.call(input, value);
+        else input.value = value;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+    } catch {
+        // native input not reachable; our search box still filters the jump list
+    }
+}
+
+function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void; }) {
+    return (
+        <button
+            type="button"
+            className={active ? "vc-exp-chip vc-exp-chip-active" : "vc-exp-chip"}
+            aria-pressed={active}
+            onClick={onClick}
+        >
+            {label}
+        </button>
+    );
 }
 
 export default definePlugin({
@@ -378,6 +496,7 @@ export default definePlugin({
                 </BaseText>
                 {RESOURCES.map(resource => (
                     <div key={resource.url} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0" }}>
+                        <span aria-hidden={true} style={{ fontSize: 16 }}>{resource.emoji}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 14, fontWeight: 600 }}>{resource.name}</div>
                             <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{resource.description}</div>
@@ -397,24 +516,138 @@ export default definePlugin({
         );
     },
 
-    ResourcesBar: ErrorBoundary.wrap(() => (
-        <div className="vc-exp-resources">
-            <span className="vc-exp-resources-label">Quick resources</span>
-            {RESOURCES.map(resource => (
-                <button
-                    key={resource.url}
-                    type="button"
-                    className="vc-exp-chip"
-                    onClick={() => openLink(resource.url)}
-                    title={resource.description}
-                    aria-label={`Open ${resource.name}`}
-                >
-                    <span className="vc-exp-chip-emoji" aria-hidden={true}>{resource.emoji}</span>
-                    {resource.name}
-                </button>
-            ))}
-        </div>
-    ), { noop: true }),
+    FiltersBar: ErrorBoundary.wrap(() => {
+        const [query, setQuery] = React.useState("");
+        const [typeFilter, setTypeFilter] = React.useState<ExperimentTypeFilter>("all");
+        const [forcedFilter, setForcedFilter] = React.useState<ExperimentForcedFilter>("all");
+        const [, rescan] = React.useState(0);
+
+        // Keep our search box in sync with Discord's own "Search experiments" input
+        React.useEffect(() => {
+            const input = document.querySelector<HTMLInputElement>('input[placeholder="Search experiments"]');
+            if (!input) return;
+            setQuery(input.value ?? "");
+            const sync = () => setQuery(input.value ?? "");
+            input.addEventListener("input", sync);
+            return () => input.removeEventListener("input", sync);
+        }, []);
+
+        const applySearch = (value: string) => {
+            setQuery(value);
+            setNativeSearchValue(value);
+        };
+
+        const index = getExperimentIndex();
+
+        const chipsActive = typeFilter !== "all" || forcedFilter !== "all";
+        const needle = query.trim().toLowerCase();
+        let matches: ExperimentEntry[] | null = null;
+        if (index && chipsActive) {
+            matches = index.entries.filter(entry =>
+                (typeFilter === "all" || entry.type === typeFilter)
+                && (forcedFilter === "all" || (forcedFilter === "forced") === entry.forced)
+                && (!needle || entry.title.toLowerCase().includes(needle))
+            );
+        }
+
+        return (
+            <div className="vc-exp-filters">
+                <div className="vc-exp-filters-row">
+                    <div className="vc-exp-search">
+                        <span className="vc-exp-search-icon" aria-hidden={true}>🔍</span>
+                        <input
+                            type="text"
+                            className="vc-exp-search-input"
+                            value={query}
+                            placeholder="Filter experiments"
+                            aria-label="Filter experiments by name"
+                            onChange={e => applySearch(e.currentTarget.value)}
+                        />
+                        {query.length > 0 && (
+                            <button
+                                type="button"
+                                className="vc-exp-search-clear"
+                                aria-label="Clear search"
+                                title="Clear search"
+                                onClick={() => applySearch("")}
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+
+                    {index?.hasTypes && (
+                        <div className="vc-exp-chip-group" role="group" aria-label="Filter by experiment type">
+                            <FilterChip label="All" active={typeFilter === "all"} onClick={() => setTypeFilter("all")} />
+                            <FilterChip label="👤 User" active={typeFilter === "user"} onClick={() => setTypeFilter("user")} />
+                            <FilterChip label="🏠 Server" active={typeFilter === "guild"} onClick={() => setTypeFilter("guild")} />
+                        </div>
+                    )}
+
+                    {index?.hasForced && (
+                        <div className="vc-exp-chip-group" role="group" aria-label="Filter by force status">
+                            <FilterChip label="All" active={forcedFilter === "all"} onClick={() => setForcedFilter("all")} />
+                            <FilterChip label="🎯 Forced" active={forcedFilter === "forced"} onClick={() => setForcedFilter("forced")} />
+                            <FilterChip label="⚪ Not forced" active={forcedFilter === "default"} onClick={() => setForcedFilter("default")} />
+                        </div>
+                    )}
+                </div>
+
+                {matches !== null && (
+                    <div className="vc-exp-jump">
+                        <div className="vc-exp-jump-head">
+                            <span>
+                                {matches.length} matching experiment{matches.length === 1 ? "" : "s"} — click one to open it in the list below
+                            </span>
+                            <button
+                                type="button"
+                                className="vc-exp-jump-refresh"
+                                aria-label="Rescan experiments"
+                                title="Rescan experiments"
+                                onClick={() => {
+                                    invalidateExperimentIndex();
+                                    rescan(n => n + 1);
+                                }}
+                            >
+                                ↻
+                            </button>
+                        </div>
+                        {matches.length === 0
+                            ? <div className="vc-exp-jump-empty">Nothing matches these filters. Try "All".</div>
+                            : (
+                                <div className="vc-exp-jump-list">
+                                    {matches.slice(0, 60).map(entry => (
+                                        <button
+                                            key={entry.id}
+                                            type="button"
+                                            className="vc-exp-jump-item"
+                                            onClick={() => applySearch(entry.title)}
+                                            title={entry.title}
+                                        >
+                                            <span className="vc-exp-jump-name">{entry.title}</span>
+                                            <span className="vc-exp-jump-badges">
+                                                <span className="vc-exp-jump-badge" aria-hidden={true}>
+                                                    {entry.type === "user" ? "👤" : entry.type === "guild" ? "🏠" : "❔"}
+                                                </span>
+                                                {entry.forced && (
+                                                    <span className="vc-exp-jump-badge" aria-hidden={true}>🎯</span>
+                                                )}
+                                            </span>
+                                        </button>
+                                    ))}
+                                    {matches.length > 60 && (
+                                        <div className="vc-exp-jump-more">
+                                            … and {matches.length - 60} more — refine the search to narrow it down
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        }
+                    </div>
+                )}
+            </div>
+        );
+    }, { noop: true }),
 
     WarningCard: ErrorBoundary.wrap(() => (
         <ErrorCard id="vc-experiments-warning-card" className={Margins.bottom16}>
