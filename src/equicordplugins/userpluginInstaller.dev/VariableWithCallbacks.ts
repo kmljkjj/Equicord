@@ -6,6 +6,7 @@
 
 export class VariableWithCallbacks<T> {
     #value: T;
+    #nextCallbackId = 0;
     #callbacks: {
         id: number;
         callback: (value: T, id: number) => void;
@@ -18,13 +19,13 @@ export class VariableWithCallbacks<T> {
     value(newValue?: T): T {
         if (newValue !== undefined) {
             this.#value = newValue;
-            this.#callbacks.forEach(c => c.callback(this.#value, c.id));
+            this.#callbacks.slice().forEach(c => c.callback(this.#value, c.id));
         }
         return this.#value;
     }
 
     registerCallback(callback: (value: T, id: number) => void): number {
-        const id = Date.now();
+        const id = this.#nextCallbackId++;
         this.#callbacks.push({
             id,
             callback

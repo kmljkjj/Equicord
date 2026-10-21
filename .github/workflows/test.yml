@@ -44,7 +44,7 @@ jobs:
             # and CI never auto-fixes the code (lint runs without --fix)
 
             - name: Test plugin regressions
-              run: node --test scripts/experiments.test.mjs scripts/pluginRuntime.test.mjs
+              run: node --test scripts/experiments.test.mjs scripts/pluginRuntime.test.mjs scripts/pluginCallbacks.test.mjs
 
             - name: Build desktop version
               run: pnpm buildStandalone
