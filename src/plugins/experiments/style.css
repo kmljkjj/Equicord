@@ -295,11 +295,11 @@ input[placeholder="Search experiments"]:focus {
 /* --- Cosmetic button polish, scoped to the experiments page content.
        Border radius + shadow only: zero layout impact. --- */
 
-div:has(> .vc-exp-filters) button:not(.vc-exp-chip):not(.vc-exp-jump-item):not(.vc-exp-jump-refresh):not(.vc-exp-search-clear) {
+div:has(> .vc-exp-filters) button:not(.vc-exp-chip, .vc-exp-jump-item, .vc-exp-jump-refresh, .vc-exp-search-clear) {
     border-radius: 8px;
     transition: box-shadow 0.15s ease;
 }
 
-div:has(> .vc-exp-filters) button:not(.vc-exp-chip):not(.vc-exp-jump-item):not(.vc-exp-jump-refresh):not(.vc-exp-search-clear):hover {
+div:has(> .vc-exp-filters) button:not(.vc-exp-chip, .vc-exp-jump-item, .vc-exp-jump-refresh, .vc-exp-search-clear):hover {
     box-shadow: 0 2px 10px -2px color-mix(in srgb, var(--brand-experiment, #5865f2) 40%, transparent);
 }
