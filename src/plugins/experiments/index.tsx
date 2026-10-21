@@ -213,8 +213,8 @@ interface PatchStatus {
     color: string;
 }
 
-// Reads the live state of a patch: still queued in the webpack patcher = not
-// applied yet, removed from the queue = applied to its module.
+// The patcher also removes patches after failed or ineffective replacements.
+// Queue membership can show pending work, but cannot prove successful application.
 function getPatchStatus(patch: Patch): PatchStatus {
     try {
         const plugin = Vencord.Plugins.plugins.Experiments;
@@ -223,7 +223,7 @@ function getPatchStatus(patch: Patch): PatchStatus {
         if (patch.predicate && !patch.predicate()) return { icon: "⏸️", label: "disabled by a setting", color: "var(--text-muted)" };
         if (patches.includes(patch)) return { icon: "⏳", label: "waiting for its module", color: "var(--text-warning)" };
 
-        return { icon: "✅", label: "applied", color: "var(--text-positive)" };
+        return { icon: "❔", label: "not queued (result unverified)", color: "var(--text-muted)" };
     } catch {
         return { icon: "❔", label: "unknown", color: "var(--text-muted)" };
     }
@@ -300,6 +300,10 @@ export default definePlugin({
     matchExperiment(url?: string, label?: string): boolean {
         if (typeof url !== "string" || typeof label !== "string") return false;
         const items = url.split("/");
+        const treatment = items[items.length - 1];
+        // Numeric links must use the value comparison, never a normalized label.
+        // Otherwise a label such as "1" can intercept the default (-1) treatment.
+        if (/^-?\d+$/.test(treatment)) return false;
         const labelCleaned = label.replace(/[^a-zA-Z0-9]+/g, "").toLowerCase();
         const urlEndCleaned = items[items.length - 1]?.replace(/[^a-zA-Z0-9]+/g, "").toLowerCase();
         return !!labelCleaned && urlEndCleaned !== undefined && labelCleaned === urlEndCleaned;
@@ -351,8 +355,9 @@ export default definePlugin({
                     <HeadingSecondary>🩺 Patch Health</HeadingSecondary>
                 </div>
                 <BaseText size="sm">
-                    Live status of the client patches this plugin applies. A patch stays "waiting" until Discord loads the
-                    module it targets; "disabled by a setting" patches can be turned on below or in the settings.
+                    Queue status of the client patches this plugin registers. A patch stays "waiting" until Discord loads
+                    its target module. "Not queued" does not verify success: failed patches also leave the queue.
+                    Setting changes marked as requiring a restart only take effect after restarting Discord.
                 </BaseText>
                 {PATCH_HEALTH.map(({ name, patch }) => {
                     const status = getPatchStatus(patch);

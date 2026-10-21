@@ -43,6 +43,9 @@ jobs:
             # each check is its own step so failures are immediately visible
             # and CI never auto-fixes the code (lint runs without --fix)
 
+            - name: Test plugin regressions
+              run: node --test scripts/experiments.test.mjs scripts/pluginRuntime.test.mjs
+
             - name: Build desktop version
               run: pnpm buildStandalone
 

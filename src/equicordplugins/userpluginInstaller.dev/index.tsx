@@ -123,7 +123,8 @@ export default definePlugin({
     },
     stop() {
         // @ts-ignore
-        plSettings.customEntries.splice(plSettings.customEntries.indexOf(this.section), 1);
+        const index = plSettings.customEntries.indexOf(this.section);
+        if (index !== -1) plSettings.customEntries.splice(index, 1);
     },
     plugins: new VariableWithCallbacks<{
         name: string;

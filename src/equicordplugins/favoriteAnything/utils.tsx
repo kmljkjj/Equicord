@@ -204,7 +204,7 @@ export async function sendAttachment(attachment: MessageAttachment, channel: Cha
 
     const reply = PendingReplyStore.getPendingReply(channel.id);
 
-    const [upload] = uploads.splice(uploadIdx);
+    const [upload] = uploads.splice(uploadIdx, 1);
     UploadManager.setUploads({ uploads, channelId: channel.id, draftType: DraftType.ChannelMessage });
 
     // Empty titles and descriptions are allowed
