@@ -350,7 +350,45 @@ function setNativeSearchValue(value: string) {
     }
 }
 
-function FilterChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void; }) {
+interface CustomEmote {
+    name: string;
+    id: string;
+    animated?: boolean;
+}
+
+// Emotes rendered on the filter bar, served straight from the Discord emoji CDN
+// so they work for everyone. If one is ever deleted, the component falls back to
+// the other file extension, then to the original Unicode emoji.
+const EMOTES: Record<"search" | "user" | "guild" | "other" | "forced" | "notForced" | "rescan", CustomEmote> = {
+    search: { name: "ablobpeek", id: "454790904763383853", animated: true },
+    user: { name: "blobthinking", id: "454791313385324544" },
+    guild: { name: "blobparty", id: "401421290939875328", animated: true },
+    other: { name: "blobidea", id: "454791313364090900" },
+    forced: { name: "ablobglarezoom", id: "454790902284550184", animated: true },
+    notForced: { name: "blobmelt", id: "454791312181297163" },
+    rescan: { name: "loading", id: "464531708054601738", animated: true }
+};
+
+function CustomEmoji({ emote, fallback, className }: { emote: CustomEmote | null; fallback: string; className?: string; }) {
+    const [stage, setStage] = React.useState(0);
+
+    if (emote?.id && stage < 2) {
+        const ext = (stage === 0 ? emote.animated === true : emote.animated !== true) ? "gif" : "png";
+
+        return (
+            <img
+                className={`vc-exp-emoji${className ? ` ${className}` : ""}`}
+                src={`https://cdn.discordapp.com/emojis/${emote.id}.${ext}?size=44&quality=lossless`}
+                alt={fallback}
+                onError={() => setStage(s => s + 1)}
+            />
+        );
+    }
+
+    return <span className={className} aria-hidden={true}>{fallback}</span>;
+}
+
+function FilterChip({ label, icon, active, onClick }: { label: string; icon?: React.ReactNode; active: boolean; onClick: () => void; }) {
     return (
         <button
             type="button"
@@ -358,6 +396,7 @@ function FilterChip({ label, active, onClick }: { label: string; active: boolean
             aria-pressed={active}
             onClick={onClick}
         >
+            {icon}
             {label}
         </button>
     );
@@ -554,7 +593,7 @@ export default definePlugin({
             <div className="vc-exp-filters">
                 <div className="vc-exp-filters-row">
                     <div className="vc-exp-search">
-                        <span className="vc-exp-search-icon" aria-hidden={true}>🔍</span>
+                        <CustomEmoji emote={EMOTES.search} fallback="🔍" className="vc-exp-search-icon" />
                         <input
                             type="text"
                             className="vc-exp-search-input"
@@ -579,16 +618,16 @@ export default definePlugin({
                     {index?.hasTypes && (
                         <div className="vc-exp-chip-group" role="group" aria-label="Filter by experiment type">
                             <FilterChip label="All" active={typeFilter === "all"} onClick={() => setTypeFilter("all")} />
-                            <FilterChip label="👤 User" active={typeFilter === "user"} onClick={() => setTypeFilter("user")} />
-                            <FilterChip label="🏠 Server" active={typeFilter === "guild"} onClick={() => setTypeFilter("guild")} />
+                            <FilterChip label="User" icon={<CustomEmoji emote={EMOTES.user} fallback="👤" />} active={typeFilter === "user"} onClick={() => setTypeFilter("user")} />
+                            <FilterChip label="Server" icon={<CustomEmoji emote={EMOTES.guild} fallback="🏠" />} active={typeFilter === "guild"} onClick={() => setTypeFilter("guild")} />
                         </div>
                     )}
 
                     {index?.hasForced && (
                         <div className="vc-exp-chip-group" role="group" aria-label="Filter by force status">
                             <FilterChip label="All" active={forcedFilter === "all"} onClick={() => setForcedFilter("all")} />
-                            <FilterChip label="🎯 Forced" active={forcedFilter === "forced"} onClick={() => setForcedFilter("forced")} />
-                            <FilterChip label="⚪ Not forced" active={forcedFilter === "default"} onClick={() => setForcedFilter("default")} />
+                            <FilterChip label="Forced" icon={<CustomEmoji emote={EMOTES.forced} fallback="🎯" />} active={forcedFilter === "forced"} onClick={() => setForcedFilter("forced")} />
+                            <FilterChip label="Not forced" icon={<CustomEmoji emote={EMOTES.notForced} fallback="⚪" />} active={forcedFilter === "default"} onClick={() => setForcedFilter("default")} />
                         </div>
                     )}
                 </div>
@@ -609,7 +648,7 @@ export default definePlugin({
                                     rescan(n => n + 1);
                                 }}
                             >
-                                ↻
+                                <CustomEmoji emote={EMOTES.rescan} fallback="↻" />
                             </button>
                         </div>
                         {matches.length === 0
@@ -627,10 +666,10 @@ export default definePlugin({
                                             <span className="vc-exp-jump-name">{entry.title}</span>
                                             <span className="vc-exp-jump-badges">
                                                 <span className="vc-exp-jump-badge" aria-hidden={true}>
-                                                    {entry.type === "user" ? "👤" : entry.type === "guild" ? "🏠" : "❔"}
+                                                    <CustomEmoji emote={entry.type === "user" ? EMOTES.user : entry.type === "guild" ? EMOTES.guild : EMOTES.other} fallback={entry.type === "user" ? "👤" : entry.type === "guild" ? "🏠" : "❔"} />
                                                 </span>
                                                 {entry.forced && (
-                                                    <span className="vc-exp-jump-badge" aria-hidden={true}>🎯</span>
+                                                    <span className="vc-exp-jump-badge" aria-hidden={true}><CustomEmoji emote={EMOTES.forced} fallback="🎯" /></span>
                                                 )}
                                             </span>
                                         </button>
